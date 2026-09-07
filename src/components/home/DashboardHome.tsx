@@ -237,7 +237,7 @@ export const DashboardHome: React.FC = () => {
 
           {/* Main Title */}
           <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0F172A] tracking-tight leading-[1.14]">
-            Your ideas. <br />
+            Your Ideas.<br />
             <span className="text-[#0F172A]">Amplified by AI.</span>
           </h1>
 
