@@ -43,6 +43,7 @@ import { ActivityPage } from './components/workspace/ActivityPage';
 import { UsageBillingPage } from './components/workspace/UsageBillingPage';
 import { SettingsPage } from './components/workspace/SettingsPage';
 import { HelpSupportPage } from './components/workspace/HelpSupportPage';
+import { VaultPage } from './components/workspace/VaultPage';
 import { MarketplacePage } from './components/marketplace/MarketplacePage';
 
 const AppContent: React.FC = () => {
@@ -133,6 +134,8 @@ const AppContent: React.FC = () => {
         return <HelpSupportPage />;
       case 'marketplace':
         return <MarketplacePage />;
+      case 'vault':
+        return <VaultPage />;
       case 'settings':
       case 'team':
       case 'roles':

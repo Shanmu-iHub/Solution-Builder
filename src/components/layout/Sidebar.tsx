@@ -510,8 +510,8 @@ export const Sidebar: React.FC = () => {
             {renderNavItem(
               'Vault',
               <Database className="w-[18px] h-[18px]" />,
-              currentView === 'settings' && activeSettingsTab === 'api-keys',
-              () => handleNav('settings', 'api-keys')
+              currentView === 'vault',
+              () => handleNav('vault')
             )}
 
             {renderNavItem(

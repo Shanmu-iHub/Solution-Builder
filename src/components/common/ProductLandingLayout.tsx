@@ -278,36 +278,36 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
             </div>
 
             {/* Headline */}
-            <div className="space-y-1">
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0F172A] tracking-tight leading-[1.12]">
+            <div className="space-y-0.5">
+              <h1 className="text-2xl sm:text-3xl lg:text-[28px] font-extrabold text-[#0F172A] tracking-tight leading-snug">
                 {config.headline1}
               </h1>
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0F172A] tracking-tight leading-[1.12]">
+              <h1 className="text-2xl sm:text-3xl lg:text-[28px] font-extrabold text-[#0F172A] tracking-tight leading-snug">
                 {config.headline2}
               </h1>
             </div>
 
             {/* Subtitle */}
-            <p className="text-[#64748B] text-sm sm:text-base leading-relaxed max-w-lg">
+            <p className="text-[#64748B] text-xs sm:text-sm leading-relaxed max-w-lg">
               {config.subtitle}
             </p>
 
             {/* Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-1">
+            <div className="flex flex-wrap items-center gap-3 pt-0.5">
               <button
                 onClick={onOpenConsole}
-                className="px-6 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-sm transition-all shadow-sm flex items-center gap-2.5 group cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs transition-all shadow-sm flex items-center gap-2 group cursor-pointer"
               >
                 <span>{config.openButtonText}</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
               </button>
 
               <button
                 onClick={() => setIsVideoModalOpen(true)}
-                className="px-5 py-3 rounded-xl bg-white hover:bg-slate-50 text-[#334155] border border-slate-200 font-semibold text-sm transition-all flex items-center gap-2.5 shadow-2xs cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#334155] border border-slate-200 font-semibold text-xs transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
               >
-                <div className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center">
-                  <Play className="w-2.5 h-2.5 fill-white ml-0.5" />
+                <div className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center">
+                  <Play className="w-2 h-2 fill-white ml-0.5" />
                 </div>
                 <span>Watch Overview</span>
               </button>
@@ -406,15 +406,15 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
         {config.metrics.map((m, idx) => (
           <div
             key={idx}
-            className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center gap-4 hover:border-blue-200 transition-colors"
+            className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex items-center gap-3.5 hover:border-blue-200 transition-colors"
           >
             <div
-              className={`w-12 h-12 rounded-xl ${m.iconBg} ${m.iconBorder} ${m.iconColor} border flex items-center justify-center shrink-0`}
+              className={`w-11 h-11 rounded-xl ${m.iconBg} ${m.iconBorder} ${m.iconColor} border flex items-center justify-center shrink-0`}
             >
               {m.icon}
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+              <div className="text-lg sm:text-xl font-extrabold text-[#0F172A] tracking-tight">
                 {m.value}
               </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">{m.label}</div>
@@ -426,10 +426,10 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
       {/* 4. KEY CAPABILITIES (8-Tab Split View) */}
       <div className="space-y-4">
         <div>
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
             KEY CAPABILITIES
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight mt-1">
+          <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight mt-0.5">
             {config.capabilitiesHeadline}
           </h2>
         </div>
@@ -443,19 +443,19 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
                 <button
                   key={cap.id}
                   onClick={() => setActiveCapability(index)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all duration-150 cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
                     isActive
                       ? 'bg-blue-50/80 text-[#2563EB] font-semibold border-l-4 border-[#2563EB] shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <span className={isActive ? 'text-[#2563EB]' : 'text-slate-400'}>
                       {cap.icon}
                     </span>
-                    <span className="text-[13px]">{cap.title}</span>
+                    <span className="text-xs font-semibold">{cap.title}</span>
                   </div>
-                  {isActive && <ChevronRight className="w-4 h-4 text-[#2563EB]" />}
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#2563EB]" />}
                 </button>
               );
             })}
@@ -463,43 +463,43 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
 
           {/* Right Detail Pane */}
           {config.capabilities[activeCapability] && (
-            <div className="lg:col-span-8 bg-slate-50/60 rounded-2xl border border-slate-100 p-6 sm:p-8 flex flex-col justify-between">
+            <div className="lg:col-span-8 bg-slate-50/60 rounded-2xl border border-slate-100 p-5 sm:p-6 flex flex-col justify-between">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                <div className="md:col-span-7 space-y-4">
-                  <div className="inline-block px-3 py-1 rounded-lg bg-blue-100/70 text-blue-700 text-xs font-extrabold tracking-wide">
+                <div className="md:col-span-7 space-y-3">
+                  <div className="inline-block px-2.5 py-0.5 rounded-md bg-blue-100/70 text-blue-700 text-[11px] font-extrabold tracking-wide">
                     {config.capabilities[activeCapability].number}
                   </div>
 
-                  <h3 className="text-2xl font-bold text-[#0F172A] tracking-tight">
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight">
                     {config.capabilities[activeCapability].title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {config.capabilities[activeCapability].tagline}
                   </p>
 
-                  <div className="space-y-2.5 pt-2">
+                  <div className="space-y-2 pt-1">
                     {config.capabilities[activeCapability].features.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-700 font-medium">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-700 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-3">
                     <button
                       onClick={onOpenConsole}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs font-semibold transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs font-semibold transition-all cursor-pointer"
                     >
                       <span>Learn more</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
 
                 {/* Right Visual Preview Card */}
-                <div className="md:col-span-5 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-md space-y-4">
+                <div className="md:col-span-5 bg-white rounded-2xl p-4 border border-slate-200/80 shadow-md space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">
                       {config.capabilities[activeCapability].preview.title}
@@ -525,17 +525,17 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
                     ))}
                   </div>
 
-                  <div className="space-y-2 text-xs">
+                  <div className="space-y-1.5 text-xs">
                     {config.capabilities[activeCapability].preview.providers.map((p, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-2 rounded-lg bg-slate-50/70 border border-slate-100"
+                        className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50/70 border border-slate-100"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <div className={`w-2 h-2 rounded-full ${p.color}`} />
-                          <span className="font-medium text-slate-700 text-[11.5px]">{p.name}</span>
+                          <span className="font-medium text-slate-700 text-[11px]">{p.name}</span>
                         </div>
-                        <span className="font-bold text-slate-900 text-[11.5px]">{p.amount}</span>
+                        <span className="font-bold text-slate-900 text-[11px]">{p.amount}</span>
                       </div>
                     ))}
                   </div>
@@ -549,10 +549,10 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
       {/* 5. USE CASES */}
       <div className="space-y-4">
         <div>
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
             USE CASES
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight mt-1">
+          <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight mt-0.5">
             {config.useCasesHeadline}
           </h2>
         </div>
@@ -561,20 +561,20 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
           {config.useCases.map(uc => (
             <div
               key={uc.id}
-              className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-blue-200 transition-all"
+              className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-3 hover:border-blue-200 transition-all"
             >
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div
-                  className={`w-10 h-10 rounded-xl ${uc.iconBg} ${uc.iconBorder} ${uc.iconColor} border flex items-center justify-center`}
+                  className={`w-9 h-9 rounded-xl ${uc.iconBg} ${uc.iconBorder} ${uc.iconColor} border flex items-center justify-center`}
                 >
                   {uc.icon}
                 </div>
-                <h4 className="text-sm font-bold text-[#0F172A]">{uc.title}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">{uc.desc}</p>
+                <h4 className="text-xs sm:text-sm font-bold text-[#0F172A]">{uc.title}</h4>
+                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">{uc.desc}</p>
               </div>
               <button
                 onClick={onOpenConsole}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer pt-2 group"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer pt-1 group"
               >
                 <span>Learn more</span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -587,17 +587,17 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
       {/* 6. INTEGRATIONS */}
       <div className="space-y-4">
         <div>
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
             INTEGRATIONS
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight mt-1">
+          <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight mt-0.5">
             {config.integrationsHeadline}
           </h2>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-6 shadow-xs flex flex-wrap items-center justify-between gap-6">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
           {config.integrations.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-2.5">
+            <div key={idx} className="flex items-center gap-2">
               {renderBrandLogo(item.logoKey)}
               <span className="text-xs font-bold text-slate-700">{item.name}</span>
             </div>
@@ -614,7 +614,7 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
       </div>
 
       {/* 7. GET STARTED CTA Banner */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#0C1E4E] via-[#123180] to-[#1D4ED8] p-8 sm:p-10 lg:p-12 overflow-hidden shadow-xl text-white">
+      <div className="relative rounded-3xl bg-gradient-to-r from-[#0C1E4E] via-[#123180] to-[#1D4ED8] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-xl text-white">
         <div className="absolute top-0 right-0 bottom-0 w-1/2 opacity-30 sm:opacity-50 pointer-events-none flex items-end justify-end pr-8 pb-4 gap-3">
           <div className="w-8 sm:w-12 h-24 bg-gradient-to-t from-cyan-400 to-blue-300 rounded-t-lg shadow-lg" />
           <div className="w-8 sm:w-12 h-36 bg-gradient-to-t from-cyan-400 to-blue-300 rounded-t-lg shadow-lg" />
@@ -622,27 +622,27 @@ export const ProductLandingLayout: React.FC<ProductLandingLayoutProps> = ({ conf
           <div className="w-8 sm:w-12 h-60 bg-gradient-to-t from-cyan-200 to-white rounded-t-lg shadow-lg" />
         </div>
 
-        <div className="relative z-10 max-w-xl space-y-4">
-          <span className="text-[11px] font-bold text-blue-300 uppercase tracking-widest block">
+        <div className="relative z-10 max-w-xl space-y-3">
+          <span className="text-[10px] font-bold text-blue-300 uppercase tracking-widest block">
             GET STARTED
           </span>
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{config.ctaTitle}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{config.ctaTitle}</h3>
           <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">{config.ctaSubtitle}</p>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={onOpenConsole}
-              className="px-6 py-3 rounded-xl bg-white hover:bg-slate-100 text-[#0F172A] font-bold text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-[#0F172A] font-bold text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <span>{config.openButtonText}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             <button
               onClick={() => setCurrentView('projects')}
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-blue-200 hover:text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-200 hover:text-white transition-colors cursor-pointer"
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-3.5 h-3.5" />
               <span>View Documentation</span>
             </button>
           </div>

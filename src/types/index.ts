@@ -57,7 +57,8 @@ export type WorkspaceView =
   | 'roles'
   | 'api-keys'
   | 'integrations'
-  | 'settings';
+  | 'settings'
+  | 'vault';
 
 export interface ProductItem {
   id: ProductId;
