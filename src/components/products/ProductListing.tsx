@@ -16,7 +16,8 @@ import {
   FlaskConical,
   Infinity as InfinityIcon,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Trophy
 } from 'lucide-react';
 
 interface OperationalProduct {
@@ -34,12 +35,12 @@ export const ProductListing: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // 7 Core Operational Products exactly matching the reference design
+  // 8 Core Operational Products exactly matching the user request
   const operationalProducts: OperationalProduct[] = [
     {
       id: 'finops',
       name: 'FinOps',
-      desc: 'Monitor, manage and optimize your technology and AI costs.',
+      desc: 'Monitor, manage and optimize your technology and AI costs in INR.',
       icon: <Coins className="w-5 h-5" />,
       iconBg: 'bg-cyan-50/90',
       iconText: 'text-cyan-700',
@@ -98,6 +99,15 @@ export const ProductListing: React.FC = () => {
       iconBg: 'bg-rose-50/90',
       iconText: 'text-rose-700',
       iconBorder: 'border-rose-200/60'
+    },
+    {
+      id: 'gamifications',
+      name: 'Gamifications',
+      desc: 'Motivate engineers with quests, XP rewards, streaks, and squad leaderboards.',
+      icon: <Trophy className="w-5 h-5" />,
+      iconBg: 'bg-amber-50/90',
+      iconText: 'text-amber-700',
+      iconBorder: 'border-amber-200/60'
     }
   ];
 

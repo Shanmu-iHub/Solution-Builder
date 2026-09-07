@@ -8,6 +8,9 @@ import { DashboardHome } from './components/home/DashboardHome';
 
 // Products
 import { ProductListing } from './components/products/ProductListing';
+import { SolutionBuilderFullStack } from './components/products/SolutionBuilderFullStack';
+import { SolutionBuilderFrontend } from './components/products/SolutionBuilderFrontend';
+import { SolutionBuilderSuperAgent } from './components/products/SolutionBuilderSuperAgent';
 import { SolutionArchitectWorkspace } from './components/products/SolutionArchitectWorkspace';
 import { SolutionFactorWorkspace } from './components/products/SolutionFactorWorkspace';
 import { TestingWorkspace } from './components/products/TestingWorkspace';
@@ -17,6 +20,7 @@ import { AuditWorkspace } from './components/products/AuditWorkspace';
 import { ComplianceWorkspace } from './components/products/ComplianceWorkspace';
 import { AnalyticsWorkspace } from './components/products/AnalyticsWorkspace';
 import { DevOpsWorkspace } from './components/products/DevOpsWorkspace';
+import { GamificationsWorkspace } from './components/products/GamificationsWorkspace';
 import { AIModelsWorkspace } from './components/products/AIModelsWorkspace';
 
 // Services
@@ -31,12 +35,15 @@ import { AIPodsWorkspace } from './components/services/AIPodsWorkspace';
 // Agents
 import { AgentListing } from './components/agents/AgentListing';
 import { AgentWorkspace } from './components/agents/AgentWorkspace';
+import { CustomAgentWorkspace } from './components/agents/CustomAgentWorkspace';
 
 // Workspace & Admin
 import { ProjectsPage } from './components/workspace/ProjectsPage';
 import { ActivityPage } from './components/workspace/ActivityPage';
 import { UsageBillingPage } from './components/workspace/UsageBillingPage';
 import { SettingsPage } from './components/workspace/SettingsPage';
+import { HelpSupportPage } from './components/workspace/HelpSupportPage';
+import { MarketplacePage } from './components/marketplace/MarketplacePage';
 
 const AppContent: React.FC = () => {
   const { currentView } = useNavigation();
@@ -45,6 +52,14 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case 'home':
         return <DashboardHome />;
+
+      // Solution Builder
+      case 'solution-builder-fullstack':
+        return <SolutionBuilderFullStack />;
+      case 'solution-builder-frontend':
+        return <SolutionBuilderFrontend />;
+      case 'solution-builder-superagent':
+        return <SolutionBuilderSuperAgent />;
 
       // Products
       case 'products':
@@ -67,6 +82,8 @@ const AppContent: React.FC = () => {
         return <AnalyticsWorkspace />;
       case 'product-devops':
         return <DevOpsWorkspace />;
+      case 'product-gamifications':
+        return <GamificationsWorkspace />;
       case 'product-ai-models':
         return <AIModelsWorkspace />;
 
@@ -89,6 +106,8 @@ const AppContent: React.FC = () => {
       // Agents
       case 'agents':
         return <AgentListing />;
+      case 'custom-agent':
+        return <CustomAgentWorkspace />;
       case 'agent-meeting-notes':
         return <AgentWorkspace agentId="meeting-notes" />;
       case 'agent-deep-research':
@@ -110,6 +129,10 @@ const AppContent: React.FC = () => {
       case 'usage':
       case 'billing':
         return <UsageBillingPage />;
+      case 'support':
+        return <HelpSupportPage />;
+      case 'marketplace':
+        return <MarketplacePage />;
       case 'settings':
       case 'team':
       case 'roles':

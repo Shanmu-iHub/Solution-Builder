@@ -38,12 +38,14 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Enterprise Products</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><button onClick={() => navigateToProduct('solution-architect')} className="hover:text-white transition-colors">Solution Architect</button></li>
-              <li><button onClick={() => navigateToProduct('solution-factor')} className="hover:text-white transition-colors">Solution Factor</button></li>
-              <li><button onClick={() => navigateToProduct('monitoring')} className="hover:text-white transition-colors">Monitoring & Telemetry</button></li>
-              <li><button onClick={() => navigateToProduct('finops')} className="hover:text-white transition-colors">FinOps & Cost</button></li>
-              <li><button onClick={() => navigateToProduct('compliance')} className="hover:text-white transition-colors">Security & Compliance</button></li>
-              <li><button onClick={() => navigateToProduct('ai-models')} className="hover:text-white transition-colors">AI Models Hub</button></li>
+              <li><button onClick={() => navigateToProduct('finops')} className="hover:text-white transition-colors cursor-pointer">FinOps & Cloud Cost</button></li>
+              <li><button onClick={() => navigateToProduct('monitoring')} className="hover:text-white transition-colors cursor-pointer">Monitoring & Telemetry</button></li>
+              <li><button onClick={() => navigateToProduct('testing')} className="hover:text-white transition-colors cursor-pointer">Testing & AI Evals</button></li>
+              <li><button onClick={() => navigateToProduct('devops')} className="hover:text-white transition-colors cursor-pointer">DevOps & CI/CD</button></li>
+              <li><button onClick={() => navigateToProduct('compliance')} className="hover:text-white transition-colors cursor-pointer">Security & Compliance</button></li>
+              <li><button onClick={() => navigateToProduct('analytics')} className="hover:text-white transition-colors cursor-pointer">Analytics & BI</button></li>
+              <li><button onClick={() => navigateToProduct('audit')} className="hover:text-white transition-colors cursor-pointer">Audit & Trails</button></li>
+              <li><button onClick={() => navigateToProduct('gamifications')} className="hover:text-white transition-colors cursor-pointer">Gamifications Hub</button></li>
             </ul>
           </div>
 
@@ -68,6 +70,7 @@ export const Footer: React.FC = () => {
               <li><button onClick={() => setCurrentView('activity')} className="hover:text-white transition-colors">Live Activity Feed</button></li>
               <li><button onClick={() => setCurrentView('usage')} className="hover:text-white transition-colors">Telemetry & Quotas</button></li>
               <li><button onClick={() => setCurrentView('billing')} className="hover:text-white transition-colors">Billing & Subscriptions</button></li>
+              <li><button onClick={() => setCurrentView('support')} className="hover:text-white transition-colors">Help & Support Tickets</button></li>
               <li><button onClick={() => setCurrentView('settings')} className="hover:text-white transition-colors">API Keys & Webhooks</button></li>
             </ul>
           </div>

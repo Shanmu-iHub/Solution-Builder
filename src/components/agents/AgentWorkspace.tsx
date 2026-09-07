@@ -22,15 +22,21 @@ import {
   FileText,
   Search,
   Languages,
-  CheckSquare
+  CheckSquare,
+  Layout,
+  ArrowLeft
 } from 'lucide-react';
+import { ProductLandingLayout } from '../common/ProductLandingLayout';
+import { getOfferingConfig } from '../../data/offeringsData';
 
 interface AgentWorkspaceProps {
   agentId: AgentId;
 }
 
 export const AgentWorkspace: React.FC<AgentWorkspaceProps> = ({ agentId }) => {
+  const [viewMode, setViewMode] = useState<'overview' | 'console'>('overview');
   const agent = agentsList.find(a => a.id === agentId) || agentsList[0];
+  const landingConfig = getOfferingConfig(agentId);
 
   // Agent-specific default inputs
   const defaultInputs: Record<AgentId, { inputLabel: string; defaultValue: string; placeholder: string }> = {
@@ -94,6 +100,31 @@ export const AgentWorkspace: React.FC<AgentWorkspaceProps> = ({ agentId }) => {
 | **Sanmugavel S** | Deploy Terraform IaC for Kafka dead-letter queues | Sep 12 | High |
 | **Elena Rostova** | Complete IAM privilege review & export SOC 2 report | Sep 15 | Critical |
 | **Michael K** | Configure k6 load test for 50,000 req/s | Sep 18 | Medium |` :
+agent.id === 'call-for-me' ?
+`### 📞 Call Execution Transcript & CRM Summary
+**Contact:** Auditor Dispatch Desk (+1 555-839-2041)
+**Call Duration:** 2m 14s • Status: Objective Completed
+**Sentiment:** Highly Receptive (Score: 9.6/10)
+
+#### 📝 Call Summary & Findings
+- Spoke with Sarah at Compliance Assurance Partners.
+- Confirmed availability for SOC 2 Type II initial readiness review starting October 14, 2026.
+- Formal proposal packet dispatched to compliance@snssquare.com.
+- Logged call recording & summary directly to Salesforce Opportunity #OPP-8921.` :
+agent.id === 'translation' ?
+`### 🌐 Neural Localization Output
+**Source Language:** English (Detected 100%)
+**Target Languages:** Spanish, German, Japanese
+**Layout Fidelity:** 100% Preserved
+
+#### 🇪🇸 Spanish (Castilian)
+Todos los microservicios en la nube deben adherirse al protocolo de TLS mutuo de confianza cero.
+
+#### 🇩🇪 German (Standard)
+Alle Cloud-Mikrodienste müssen das Zero-Trust-Mutual-TLS-Protokoll einhalten.
+
+#### 🇯🇵 Japanese (Formal Business)
+すべてのクラウドマイクロサービスは、ゼロトラスト相互TLSプロトコルに準拠する必要があります。` :
 `### 🔬 Autonomous Synthesis Report
 **Agent:** ${agent.name}
 **Confidence Score:** 99.4% • Execution Time: 1.2s
@@ -127,8 +158,23 @@ export const AgentWorkspace: React.FC<AgentWorkspaceProps> = ({ agentId }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // If we have landing config and mode is overview, render standardized landing page
+  const currentViewMode: string = viewMode;
+  if (landingConfig && viewMode === 'overview') {
+    return (
+      <div className="space-y-4">
+        <ProductLandingLayout
+          config={landingConfig}
+          onOpenConsole={() => setViewMode('console')}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+
+
       <Breadcrumb items={[{ label: 'Agents' }, { label: agent.name }]} />
 
       {/* Hero Header */}

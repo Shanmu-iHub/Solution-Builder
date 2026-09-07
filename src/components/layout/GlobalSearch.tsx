@@ -63,6 +63,19 @@ export const GlobalSearch: React.FC = () => {
     }
   };
 
+  const productMildThemes: Record<string, { bg: string; text: string }> = {
+    'solution-architect': { bg: 'bg-blue-50', text: 'text-blue-600' },
+    'solution-factor': { bg: 'bg-indigo-50', text: 'text-indigo-600' },
+    'testing': { bg: 'bg-purple-50', text: 'text-purple-600' },
+    'monitoring': { bg: 'bg-sky-50', text: 'text-sky-600' },
+    'finops': { bg: 'bg-teal-50', text: 'text-teal-600' },
+    'audit': { bg: 'bg-rose-50', text: 'text-rose-600' },
+    'compliance': { bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    'analytics': { bg: 'bg-amber-50', text: 'text-amber-600' },
+    'devops': { bg: 'bg-orange-50', text: 'text-orange-600' },
+    'ai-models': { bg: 'bg-violet-50', text: 'text-violet-600' }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
       <div
@@ -99,9 +112,8 @@ export const GlobalSearch: React.FC = () => {
         {/* Results List */}
         <div className="p-3 overflow-y-auto max-h-[60vh] divide-y divide-[#F1F5F9] space-y-3">
           {flatResults.length === 0 ? (
-            <div className="p-8 text-center text-[#64748B]">
-              <p className="text-sm font-medium text-[#0F172A] mb-1">No matching results found</p>
-              <p className="text-xs text-[#94A3B8]">Try searching for "Architect", "FinOps", "Chat", "Research", or "Testing"</p>
+            <div className="py-12 text-center text-[#64748B] text-sm">
+              No results found for "<span className="font-semibold text-[#0F172A]">{query}</span>"
             </div>
           ) : (
             <>
@@ -113,26 +125,29 @@ export const GlobalSearch: React.FC = () => {
                     <span>Products ({matchingProducts.length})</span>
                   </div>
                   <div className="space-y-1 mt-1">
-                    {matchingProducts.map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          navigateToProduct(p.id);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F1F5F9] text-left transition-colors group"
-                      >
-                        <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0">
-                          <IconRenderer name={p.icon} className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-semibold text-[#0F172A] group-hover:text-blue-600 transition-colors">
-                            {p.name}
+                    {matchingProducts.map(p => {
+                      const theme = productMildThemes[p.id] || { bg: 'bg-blue-50', text: 'text-blue-600' };
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            navigateToProduct(p.id);
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F1F5F9] text-left transition-colors group"
+                        >
+                          <div className={`p-1.5 rounded-lg ${theme.bg} ${theme.text} shrink-0`}>
+                            <IconRenderer name={p.icon} className="w-4 h-4" />
                           </div>
-                          <p className="text-[11px] text-[#64748B] truncate">{p.shortDesc}</p>
-                        </div>
-                        <span className="text-[10px] text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">Product</span>
-                      </button>
-                    ))}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-semibold text-[#0F172A] group-hover:text-blue-600 transition-colors">
+                              {p.name}
+                            </div>
+                            <p className="text-[11px] text-[#64748B] truncate">{p.shortDesc}</p>
+                          </div>
+                          <span className="text-[10px] text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">Product</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -4,6 +4,8 @@ import { MetricCard } from '../common/MetricCard';
 import { StatusBadge } from '../common/StatusBadge';
 import { DataTable, Column } from '../common/DataTable';
 import { Modal } from '../common/Modal';
+import { ProductLandingLayout } from '../common/ProductLandingLayout';
+import { getOfferingConfig } from '../../data/offeringsData';
 import { 
   CheckCircle2, 
   Play, 
@@ -14,7 +16,9 @@ import {
   Clock, 
   ShieldCheck, 
   Terminal, 
-  Cpu 
+  Cpu,
+  ArrowLeft,
+  FlaskConical
 } from 'lucide-react';
 
 interface TestCase {
@@ -29,6 +33,7 @@ interface TestCase {
 }
 
 export const TestingWorkspace: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'landing' | 'console'>('landing');
   const [isRunningAll, setIsRunningAll] = useState(false);
   const [selectedTest, setSelectedTest] = useState<TestCase | null>(null);
 
@@ -58,30 +63,30 @@ export const TestingWorkspace: React.FC = () => {
       name: '50,000 req/s Sustained Load Test (15m)',
       suite: 'Load / Perf',
       status: 'Passed',
-      duration: '15m 02s',
+      duration: '15m',
       lastRun: '1 hour ago',
-      author: 'Perf Automation',
-      logs: 'k6 test completed. Error rate 0.002%. p99 latency 28.4ms.'
+      author: 'K6 Cluster',
+      logs: 'Peak RPS: 50,214\nP99 Latency: 32ms\nError Rate: 0.00%'
     },
     {
       id: 'TC-104',
-      name: 'Prompt Injection & PII Leakage Jailbreak Benchmark',
+      name: 'Agent Prompt Injection & Safety Guardrails',
       suite: 'AI Regression',
       status: 'Passed',
-      duration: '320ms',
+      duration: '340ms',
       lastRun: '12 mins ago',
-      author: 'Security Bot',
-      logs: 'Evaluated 450 adversarial jailbreak prompts. 0 toxic or leaked responses.'
+      author: 'Evals Bot',
+      logs: 'Zero hallucination breaches. Guardrails active (Score 100/100).'
     },
     {
       id: 'TC-105',
-      name: 'OAuth2 Token Expiration & Refresh Flow',
+      name: 'OWASP Top 10 Dynamic Fuzzing & SQLi',
       suite: 'Security',
       status: 'Passed',
-      duration: '85ms',
-      lastRun: '30 mins ago',
-      author: 'Elena Rostova',
-      logs: 'Token refreshed successfully with zero session drops.'
+      duration: '2.1s',
+      lastRun: '3 hours ago',
+      author: 'Security Bot',
+      logs: 'DAST scanner completed with zero critical findings.'
     },
     {
       id: 'TC-106',
@@ -161,8 +166,39 @@ export const TestingWorkspace: React.FC = () => {
     }
   ];
 
+  const config = getOfferingConfig('testing');
+
+  if (viewMode === 'landing' && config) {
+    return <ProductLandingLayout config={config} onOpenConsole={() => setViewMode('console')} />;
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-[#E2E8F0] shadow-2xs">
+        <button
+          onClick={() => setViewMode('landing')}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-purple-600 hover:text-purple-800 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Testing Overview</span>
+        </button>
+
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+          <button
+            onClick={() => setViewMode('landing')}
+            className="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all font-medium cursor-pointer"
+          >
+            Product Overview
+          </button>
+          <button
+            onClick={() => setViewMode('console')}
+            className="px-3 py-1 rounded-lg bg-white text-purple-600 shadow-2xs font-semibold cursor-pointer"
+          >
+            Live Console
+          </button>
+        </div>
+      </div>
+
       <Breadcrumb items={[{ label: 'Products' }, { label: 'Testing' }]} />
 
       {/* Hero */}

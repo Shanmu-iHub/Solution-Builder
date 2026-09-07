@@ -26,7 +26,10 @@ import {
   ShieldCheck,
   FileCheck,
   DollarSign,
-  GitBranch
+  GitBranch,
+  Brain,
+  Trophy,
+  FlaskConical
 } from 'lucide-react';
 
 interface DrawerConfig {
@@ -62,18 +65,23 @@ export const Sidebar: React.FC = () => {
 
   // Auto-detect if current view belongs to a sub-menu to highlight the parent
   const isSolutionBuilderActive =
+    currentView === 'solution-builder-fullstack' ||
+    currentView === 'solution-builder-frontend' ||
+    currentView === 'solution-builder-superagent' ||
     currentView === 'product-solution-architect' ||
     currentView === 'product-solution-factor' ||
     currentView === 'agent-deep-research';
 
   const isAiServicesActive =
+    currentView === 'services' ||
     currentView.startsWith('service-') ||
     ['agent-call-for-me', 'agent-translation', 'agent-meeting-notes'].includes(currentView);
 
   const isProductsActive =
-    currentView.startsWith('product-') &&
-    !currentView.startsWith('product-solution-') &&
-    currentView !== 'product-ai-models';
+    currentView === 'products' ||
+    (currentView.startsWith('product-') &&
+      !currentView.startsWith('product-solution-') &&
+      currentView !== 'product-ai-models');
 
   // Navigation handler
   const handleNav = (view: any, settingsTab?: string) => {
@@ -113,39 +121,33 @@ export const Sidebar: React.FC = () => {
           label: 'Full Stack',
           icon: <Layers className="w-4 h-4" />,
           action: () => {
-            navigateToProduct('solution-architect');
-            setActiveDrawer(null);
-            setIsMobileSidebarOpen(false);
+            handleNav('solution-builder-fullstack');
           },
-          isActive: currentView === 'product-solution-architect'
+          isActive: currentView === 'solution-builder-fullstack'
         },
         {
           id: 'frontend',
           label: 'Frontend',
           icon: <Monitor className="w-4 h-4" />,
           action: () => {
-            navigateToProduct('solution-factor');
-            setActiveDrawer(null);
-            setIsMobileSidebarOpen(false);
+            handleNav('solution-builder-frontend');
           },
-          isActive: currentView === 'product-solution-factor'
+          isActive: currentView === 'solution-builder-frontend'
         },
         {
           id: 'superagent',
           label: 'Super Agent',
           icon: <Sparkles className="w-4 h-4" />,
           action: () => {
-            navigateToAgent('deep-research');
-            setActiveDrawer(null);
-            setIsMobileSidebarOpen(false);
+            handleNav('solution-builder-superagent');
           },
-          isActive: currentView === 'agent-deep-research'
+          isActive: currentView === 'solution-builder-superagent'
         }
       ]
     },
     aiServices: {
       key: 'aiServices',
-      title: 'AI Services',
+      title: 'AI Factory',
       subtitle: 'Next-generation AI workflows',
       icon: <Sparkles className="w-5 h-5 text-[#0F172A]" />,
       items: [
@@ -213,6 +215,17 @@ export const Sidebar: React.FC = () => {
       icon: <BarChart2 className="w-5 h-5 text-[#0F172A]" />,
       items: [
         {
+          id: 'finops',
+          label: 'FinOps',
+          icon: <DollarSign className="w-4 h-4" />,
+          action: () => {
+            navigateToProduct('finops');
+            setActiveDrawer(null);
+            setIsMobileSidebarOpen(false);
+          },
+          isActive: currentView === 'product-finops'
+        },
+        {
           id: 'monitoring',
           label: 'Monitoring',
           icon: <Activity className="w-4 h-4" />,
@@ -224,20 +237,9 @@ export const Sidebar: React.FC = () => {
           isActive: currentView === 'product-monitoring'
         },
         {
-          id: 'analytics',
-          label: 'Analytics',
-          icon: <Activity className="w-4 h-4" />,
-          action: () => {
-            navigateToProduct('analytics');
-            setActiveDrawer(null);
-            setIsMobileSidebarOpen(false);
-          },
-          isActive: currentView === 'product-analytics'
-        },
-        {
           id: 'testing',
           label: 'Testing',
-          icon: <CheckCircle2 className="w-4 h-4" />,
+          icon: <FlaskConical className="w-4 h-4" />,
           action: () => {
             navigateToProduct('testing');
             setActiveDrawer(null);
@@ -246,15 +248,15 @@ export const Sidebar: React.FC = () => {
           isActive: currentView === 'product-testing'
         },
         {
-          id: 'audit',
-          label: 'Audit',
-          icon: <ShieldCheck className="w-4 h-4" />,
+          id: 'devops',
+          label: 'DevOps',
+          icon: <GitBranch className="w-4 h-4" />,
           action: () => {
-            navigateToProduct('audit');
+            navigateToProduct('devops');
             setActiveDrawer(null);
             setIsMobileSidebarOpen(false);
           },
-          isActive: currentView === 'product-audit'
+          isActive: currentView === 'product-devops'
         },
         {
           id: 'compliance',
@@ -268,26 +270,37 @@ export const Sidebar: React.FC = () => {
           isActive: currentView === 'product-compliance'
         },
         {
-          id: 'finops',
-          label: 'FinOps',
-          icon: <DollarSign className="w-4 h-4" />,
+          id: 'analytics',
+          label: 'Analytics',
+          icon: <BarChart2 className="w-4 h-4" />,
           action: () => {
-            navigateToProduct('finops');
+            navigateToProduct('analytics');
             setActiveDrawer(null);
             setIsMobileSidebarOpen(false);
           },
-          isActive: currentView === 'product-finops'
+          isActive: currentView === 'product-analytics'
         },
         {
-          id: 'devops',
-          label: 'DevOps',
-          icon: <GitBranch className="w-4 h-4" />,
+          id: 'audit',
+          label: 'Audit',
+          icon: <ShieldCheck className="w-4 h-4" />,
           action: () => {
-            navigateToProduct('devops');
+            navigateToProduct('audit');
             setActiveDrawer(null);
             setIsMobileSidebarOpen(false);
           },
-          isActive: currentView === 'product-devops'
+          isActive: currentView === 'product-audit'
+        },
+        {
+          id: 'gamifications',
+          label: 'Gamifications',
+          icon: <Trophy className="w-4 h-4" />,
+          action: () => {
+            navigateToProduct('gamifications');
+            setActiveDrawer(null);
+            setIsMobileSidebarOpen(false);
+          },
+          isActive: currentView === 'product-gamifications'
         }
       ]
     }
@@ -300,13 +313,14 @@ export const Sidebar: React.FC = () => {
     isActive: boolean,
     onClick: () => void,
     hasChevron?: boolean,
-    isDrawerOpen?: boolean
+    isDrawerOpen?: boolean,
+    onChevronClick?: () => void
   ) => {
     return (
-      <button
+      <div
         onClick={onClick}
         title={label}
-        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 text-left group cursor-pointer relative ${
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 text-left group cursor-pointer relative select-none ${
           isActive || isDrawerOpen
             ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold'
             : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
@@ -317,7 +331,7 @@ export const Sidebar: React.FC = () => {
           <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#2563EB] rounded-r-md" />
         )}
 
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <span
             className={`w-[18px] h-[18px] shrink-0 transition-colors flex items-center justify-center ${
               isActive || isDrawerOpen ? 'text-[#0F172A]' : 'text-[#334155] group-hover:text-[#0F172A]'
@@ -331,15 +345,31 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {isSidebarExpanded && hasChevron && (
-          <ChevronRight
-            className={`w-4 h-4 transition-transform duration-150 shrink-0 ${
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onChevronClick) {
+                onChevronClick();
+              } else {
+                onClick();
+              }
+            }}
+            title={`Toggle ${label} menu`}
+            className={`p-1 -mr-1 rounded-lg transition-all duration-150 shrink-0 hover:bg-slate-200/70 ${
               isDrawerOpen
-                ? 'text-[#2563EB] translate-x-0.5'
-                : 'text-slate-400 group-hover:text-slate-600'
+                ? 'text-[#2563EB] bg-blue-100/60'
+                : 'text-slate-400 hover:text-slate-700'
             }`}
-          />
+          >
+            <ChevronRight
+              className={`w-4 h-4 transition-transform duration-150 ${
+                isDrawerOpen ? 'translate-x-0.5' : ''
+              }`}
+            />
+          </button>
         )}
-      </button>
+      </div>
     );
   };
 
@@ -415,9 +445,10 @@ export const Sidebar: React.FC = () => {
               'Solution Builder',
               <Box className="w-[18px] h-[18px]" />,
               isSolutionBuilderActive,
-              () => handleToggleDrawer('solutionBuilder'),
+              () => handleNav('solution-builder-fullstack'),
               true,
-              activeDrawer === 'solutionBuilder'
+              activeDrawer === 'solutionBuilder',
+              () => handleToggleDrawer('solutionBuilder')
             )}
 
             {renderNavItem(
@@ -426,18 +457,36 @@ export const Sidebar: React.FC = () => {
               currentView === 'agents',
               () => handleNav('agents')
             )}
+
+            {renderNavItem(
+              'Custom Agent',
+              <Brain className="w-[18px] h-[18px]" />,
+              currentView === 'custom-agent',
+              () => handleNav('custom-agent')
+            )}
           </div>
 
-          {/* Section 2: OPERATE / PRODUCTS */}
+          {/* Section 2: OPERATE */}
           {renderSectionHeader('OPERATE')}
           <div className="space-y-0.5">
             {renderNavItem(
               'Products',
               <BarChart2 className="w-[18px] h-[18px]" />,
               isProductsActive,
-              () => handleToggleDrawer('products'),
+              () => handleNav('products'),
               true,
-              activeDrawer === 'products'
+              activeDrawer === 'products',
+              () => handleToggleDrawer('products')
+            )}
+
+            {renderNavItem(
+              'AI Factory',
+              <Sparkles className="w-[18px] h-[18px]" />,
+              isAiServicesActive,
+              () => handleNav('services'),
+              true,
+              activeDrawer === 'aiServices',
+              () => handleToggleDrawer('aiServices')
             )}
           </div>
 
@@ -447,17 +496,8 @@ export const Sidebar: React.FC = () => {
             {renderNavItem(
               'Marketplace',
               <Store className="w-[18px] h-[18px]" />,
-              currentView === 'product-ai-models',
-              () => handleNav('product-ai-models')
-            )}
-
-            {renderNavItem(
-              'AI Services',
-              <Sparkles className="w-[18px] h-[18px]" />,
-              isAiServicesActive,
-              () => handleToggleDrawer('aiServices'),
-              true,
-              activeDrawer === 'aiServices'
+              currentView === 'marketplace' || currentView === 'product-ai-models',
+              () => handleNav('marketplace')
             )}
           </div>
 
@@ -505,8 +545,8 @@ export const Sidebar: React.FC = () => {
             {renderNavItem(
               'Help and Support',
               <HelpCircle className="w-[18px] h-[18px]" />,
-              currentView === 'activity',
-              () => handleNav('activity')
+              currentView === 'support',
+              () => handleNav('support')
             )}
           </div>
         </div>

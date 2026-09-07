@@ -7,15 +7,16 @@ export type NavigationSection =
   | 'admin';
 
 export type ProductId = 
-  | 'solution-architect'
-  | 'solution-factor'
-  | 'testing'
-  | 'monitoring'
   | 'finops'
-  | 'audit'
+  | 'monitoring'
+  | 'testing'
+  | 'devops'
   | 'compliance'
   | 'analytics'
-  | 'devops'
+  | 'audit'
+  | 'gamifications'
+  | 'solution-architect'
+  | 'solution-factor'
   | 'ai-models';
 
 export type ServiceId = 
@@ -39,6 +40,11 @@ export type WorkspaceView =
   | 'products'
   | 'services'
   | 'agents'
+  | 'custom-agent'
+  | 'marketplace'
+  | 'solution-builder-fullstack'
+  | 'solution-builder-frontend'
+  | 'solution-builder-superagent'
   | `product-${ProductId}`
   | `service-${ServiceId}`
   | `agent-${AgentId}`
@@ -46,6 +52,7 @@ export type WorkspaceView =
   | 'activity'
   | 'usage'
   | 'billing'
+  | 'support'
   | 'team'
   | 'roles'
   | 'api-keys'

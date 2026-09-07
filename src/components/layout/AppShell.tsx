@@ -4,6 +4,7 @@ import { TopHeader } from './TopHeader';
 import { Sidebar } from './Sidebar';
 import { GlobalSearch } from './GlobalSearch';
 import { Footer } from './Footer';
+import { RightAIChatbot } from '../chat/RightAIChatbot';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -37,6 +38,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           <Footer />
         </main>
       </div>
+
+      {/* Rightside AI Assistant Chatbot */}
+      <RightAIChatbot />
     </div>
   );
 };
+

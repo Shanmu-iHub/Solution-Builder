@@ -31,6 +31,75 @@ export const AppLauncher: React.FC = () => {
     );
   }, [searchQuery]);
 
+  // Distinct mild pastel themes for each product
+  const productMildThemes: Record<
+    string,
+    {
+      bg: string;
+      text: string;
+      border: string;
+      hoverBg: string;
+      hoverText: string;
+    }
+  > = {
+    'finops': {
+      bg: 'bg-teal-50/90',
+      text: 'text-teal-600',
+      border: 'border-teal-100/80',
+      hoverBg: 'group-hover:bg-teal-100/80',
+      hoverText: 'group-hover:text-teal-700'
+    },
+    'monitoring': {
+      bg: 'bg-sky-50/90',
+      text: 'text-sky-600',
+      border: 'border-sky-100/80',
+      hoverBg: 'group-hover:bg-sky-100/80',
+      hoverText: 'group-hover:text-sky-700'
+    },
+    'testing': {
+      bg: 'bg-purple-50/90',
+      text: 'text-purple-600',
+      border: 'border-purple-100/80',
+      hoverBg: 'group-hover:bg-purple-100/80',
+      hoverText: 'group-hover:text-purple-700'
+    },
+    'devops': {
+      bg: 'bg-orange-50/90',
+      text: 'text-orange-600',
+      border: 'border-orange-100/80',
+      hoverBg: 'group-hover:bg-orange-100/80',
+      hoverText: 'group-hover:text-orange-700'
+    },
+    'compliance': {
+      bg: 'bg-emerald-50/90',
+      text: 'text-emerald-600',
+      border: 'border-emerald-100/80',
+      hoverBg: 'group-hover:bg-emerald-100/80',
+      hoverText: 'group-hover:text-emerald-700'
+    },
+    'analytics': {
+      bg: 'bg-amber-50/90',
+      text: 'text-amber-600',
+      border: 'border-amber-100/80',
+      hoverBg: 'group-hover:bg-amber-100/80',
+      hoverText: 'group-hover:text-amber-700'
+    },
+    'audit': {
+      bg: 'bg-rose-50/90',
+      text: 'text-rose-600',
+      border: 'border-rose-100/80',
+      hoverBg: 'group-hover:bg-rose-100/80',
+      hoverText: 'group-hover:text-rose-700'
+    },
+    'gamifications': {
+      bg: 'bg-amber-50/90',
+      text: 'text-amber-600',
+      border: 'border-amber-200/80',
+      hoverBg: 'group-hover:bg-amber-100/80',
+      hoverText: 'group-hover:text-amber-700'
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 select-none animate-fade-in">
       {/* Backdrop to handle click-outside */}
@@ -81,30 +150,40 @@ export const AppLauncher: React.FC = () => {
           </div>
         </div>
 
-        {/* Scrollable 3-Column App Grid matching Image 2 Layout with existing colors */}
+        {/* Scrollable 3-Column App Grid with Mild Colors per product */}
         <div className="flex-1 overflow-y-auto p-3.5 bg-white">
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-3 gap-2">
-              {filteredProducts.map(product => (
-                <button
-                  key={product.id}
-                  onClick={() => {
-                    navigateToProduct(product.id);
-                    setIsAppLauncherOpen(false);
-                  }}
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 hover:shadow-xs transition-all group text-center cursor-pointer"
-                >
-                  {/* Existing Brand Blue Icon Box */}
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center mb-1.5 group-hover:scale-105 group-hover:bg-blue-100/70 transition-all">
-                    <IconRenderer name={product.icon} className="w-5 h-5 text-[#2563EB]" />
-                  </div>
+              {filteredProducts.map(product => {
+                const theme = productMildThemes[product.id] || {
+                  bg: 'bg-slate-50',
+                  text: 'text-slate-600',
+                  border: 'border-slate-200/70',
+                  hoverBg: 'group-hover:bg-slate-100',
+                  hoverText: 'group-hover:text-slate-800'
+                };
 
-                  {/* Centered Product Label */}
-                  <span className="text-[12px] font-semibold text-[#0F172A] group-hover:text-[#2563EB] transition-colors truncate w-full text-center leading-tight">
-                    {product.name}
-                  </span>
-                </button>
-              ))}
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      navigateToProduct(product.id);
+                      setIsAppLauncherOpen(false);
+                    }}
+                    className="flex flex-col items-center justify-center p-2.5 rounded-xl hover:bg-slate-50/80 border border-transparent hover:border-slate-100 hover:shadow-xs transition-all group text-center cursor-pointer"
+                  >
+                    {/* Mild Colored Product Icon Box */}
+                    <div className={`w-11 h-11 rounded-xl ${theme.bg} ${theme.border} border flex items-center justify-center mb-1.5 group-hover:scale-105 ${theme.hoverBg} transition-all shadow-2xs`}>
+                      <IconRenderer name={product.icon} className={`w-5 h-5 ${theme.text}`} />
+                    </div>
+
+                    {/* Centered Product Label */}
+                    <span className={`text-[12px] font-semibold text-[#0F172A] ${theme.hoverText} transition-colors truncate w-full text-center leading-tight`}>
+                      {product.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <div className="py-8 text-center text-xs text-[#64748B]">

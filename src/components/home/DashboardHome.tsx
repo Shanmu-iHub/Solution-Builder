@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '../../context/NavigationContext';
 import {
   Sparkles,
@@ -15,7 +15,8 @@ import {
   Share2,
   FileText,
   MoreHorizontal,
-  Layers
+  Layers,
+  Brain
 } from 'lucide-react';
 
 interface WorkItem {
@@ -28,6 +29,7 @@ interface WorkItem {
   status: 'In Progress' | 'Review' | 'Completed';
   statusColor: string;
   icon: React.ReactNode;
+  iconBg: string;
   routeType: 'product' | 'agent' | 'service';
   routeId: string;
 }
@@ -43,6 +45,48 @@ export const DashboardHome: React.FC = () => {
   const [promptText, setPromptText] = useState('');
   const [activeTab, setActiveTab] = useState<'solutions' | 'agents' | 'projects'>('solutions');
 
+  // Typewriter animation phrases
+  const typingPhrases = [
+    'Describe what you want to build...',
+    'Build a customer onboarding platform with Next.js & Postgres...',
+    'Automate IT helpdesk with multi-agent triage and Slack sync...',
+    'Create a real-time FinOps cost anomaly detector in INR...',
+    'Deploy a HIPAA-compliant medical RAG microservice...',
+    'Generate an autonomous sales outreach pipeline with CRM sync...',
+    'Build an e-commerce microservice architecture with Redis cache...'
+  ];
+
+  const [placeholderText, setPlaceholderText] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = typingPhrases[phraseIndex];
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting && charIndex < currentPhrase.length) {
+      timeout = setTimeout(() => {
+        setPlaceholderText(currentPhrase.slice(0, charIndex + 1));
+        setCharIndex(prev => prev + 1);
+      }, 55);
+    } else if (!isDeleting && charIndex === currentPhrase.length) {
+      timeout = setTimeout(() => {
+        setIsDeleting(true);
+      }, 2200);
+    } else if (isDeleting && charIndex > 0) {
+      timeout = setTimeout(() => {
+        setPlaceholderText(currentPhrase.slice(0, charIndex - 1));
+        setCharIndex(prev => prev - 1);
+      }, 25);
+    } else if (isDeleting && charIndex === 0) {
+      setIsDeleting(false);
+      setPhraseIndex(prev => (prev + 1) % typingPhrases.length);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, phraseIndex]);
+
   const promptSuggestions = [
     'Build a customer onboarding platform',
     'Automate IT helpdesk',
@@ -53,60 +97,64 @@ export const DashboardHome: React.FC = () => {
     {
       id: 'item-1',
       name: 'Retail Analytics Platform',
-      desc: 'End-to-end retail insights solution',
+      desc: 'End-to-end retail insights and forecasting solution',
       type: 'Solution',
       typeColor: 'bg-purple-50 text-purple-700 border-purple-200/60',
       lastUpdated: '2 hours ago',
       status: 'In Progress',
       statusColor: 'bg-blue-50 text-blue-700 border-blue-200/60',
       icon: <Box className="w-4 h-4 text-slate-700" />,
+      iconBg: 'bg-purple-50 border border-purple-100',
       routeType: 'product',
       routeId: 'solution-architect'
     },
     {
       id: 'item-2',
       name: 'IT Helpdesk Automation',
-      desc: 'Automated ticket resolution system',
+      desc: 'Automated ticket resolution and triage system',
       type: 'Agent',
       typeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
       lastUpdated: '5 hours ago',
       status: 'Review',
       statusColor: 'bg-amber-50 text-amber-700 border-amber-200/60',
       icon: <Headphones className="w-4 h-4 text-slate-700" />,
+      iconBg: 'bg-emerald-50 border border-emerald-100',
       routeType: 'agent',
       routeId: 'call-for-me'
     },
     {
       id: 'item-3',
       name: 'Supply Chain Optimizer',
-      desc: 'Inventory and demand optimization',
+      desc: 'Inventory planning and demand optimization',
       type: 'Project',
       typeColor: 'bg-slate-100 text-slate-700 border-slate-200/60',
       lastUpdated: '1 day ago',
       status: 'Completed',
       statusColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
       icon: <Share2 className="w-4 h-4 text-slate-700" />,
+      iconBg: 'bg-slate-100 border border-slate-200',
       routeType: 'product',
       routeId: 'solution-factor'
     },
     {
       id: 'item-4',
       name: 'Customer Onboarding',
-      desc: 'KYC and account setup automation',
+      desc: 'Automated KYC verification and account setup',
       type: 'Solution',
       typeColor: 'bg-purple-50 text-purple-700 border-purple-200/60',
       lastUpdated: '2 days ago',
       status: 'In Progress',
       statusColor: 'bg-blue-50 text-blue-700 border-blue-200/60',
       icon: <FileText className="w-4 h-4 text-slate-700" />,
+      iconBg: 'bg-blue-50 border border-blue-100',
       routeType: 'product',
       routeId: 'solution-architect'
     }
   ];
 
-  // Filter items according to the active tab
+  // Filter items according to active tab
   const filteredWorkItems = workItems.filter(item => {
-    if (activeTab === 'solutions') return item.type === 'Solution' || true;
+    if (activeTab === 'solutions') return item.type === 'Solution';
     if (activeTab === 'agents') return item.type === 'Agent';
     if (activeTab === 'projects') return item.type === 'Project';
     return true;
@@ -115,37 +163,38 @@ export const DashboardHome: React.FC = () => {
   const handleBuildPrompt = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!promptText.trim()) {
-      navigateToProduct('solution-architect');
+      setCurrentView('solution-builder-fullstack');
     } else {
-      navigateToProduct('solution-architect');
+      setCurrentView('solution-builder-fullstack');
     }
   };
 
   return (
-    <div className="space-y-8 animate-fade-in w-full pb-12 select-none">
+    <div className="space-y-8 animate-fade-in w-full pb-16 select-none">
       
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Minimal Colors, Soft Ice-Blue Ambient Gradient, Full Width) */}
+      {/* 1. CLEAN & MINIMAL ENTERPRISE HERO SECTION                                */}
       {/* ========================================================================= */}
-      <section className="relative rounded-3xl bg-gradient-to-br from-slate-50 via-[#F3F7FC] to-[#E9F1FA] border border-slate-200/80 p-6 sm:p-10 lg:p-12 overflow-hidden shadow-xs w-full">
+      <section className="relative rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-[#F3F7FC] to-[#E9F1FA] border border-slate-200/80 p-6 sm:p-10 lg:p-12 overflow-hidden shadow-xs w-full">
         
-        {/* Decorative Floating Glass Graphic on the Right */}
+        {/* Decorative Clean Floating Glass Graphics on the Right */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none hidden md:flex items-center justify-end pr-8 lg:pr-16">
           <div className="relative w-80 lg:w-96 h-64 flex items-center justify-center">
-            {/* Background blur orb */}
+            
+            {/* Soft Ambient Blur Orb */}
             <div className="absolute w-56 h-56 rounded-full bg-blue-400/10 blur-2xl" />
             
             {/* Floating Glass Panel 1: Ideas to Impact */}
-            <div className="absolute top-4 right-10 bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-white/90 shadow-lg w-48 rotate-[-4deg] animate-float">
+            <div className="absolute top-4 right-8 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/90 shadow-lg w-48 rotate-[-3deg]">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 IDEAS TO IMPACT
               </span>
               <div className="w-8 h-1 bg-blue-500 rounded-full my-2" />
-              <div className="flex items-center gap-2 mt-3">
+              <div className="flex items-center gap-2.5 mt-3">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
                   <Box className="w-4 h-4" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="w-16 h-2 bg-slate-200 rounded" />
                   <div className="w-10 h-1.5 bg-slate-100 rounded" />
                 </div>
@@ -153,57 +202,59 @@ export const DashboardHome: React.FC = () => {
             </div>
 
             {/* Floating Mini Card: Metric */}
-            <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md p-3.5 rounded-xl border border-white shadow-md flex items-center gap-2.5 rotate-[3deg]">
+            <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-3.5 rounded-xl border border-white shadow-md flex items-center gap-2.5 rotate-[2deg]">
               <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                 <BarChart2 className="w-3.5 h-3.5" />
               </div>
-              <div className="space-y-1">
-                <div className="w-12 h-2 bg-slate-300 rounded" />
-                <div className="w-8 h-1.5 bg-slate-200 rounded" />
+              <div className="space-y-1.5">
+                <div className="w-12 h-2 bg-slate-200 rounded" />
+                <div className="w-8 h-1.5 bg-slate-100 rounded" />
               </div>
             </div>
 
             {/* Floating Category Badges */}
             <div className="absolute right-2 bottom-8 flex flex-col gap-1.5 text-[10px] font-bold text-slate-400 tracking-wider">
-              <span className="px-2 py-0.5 rounded-md bg-white/60 backdrop-blur-xs border border-white/80">AGENTS</span>
-              <span className="px-2 py-0.5 rounded-md bg-white/60 backdrop-blur-xs border border-white/80">SOLUTIONS</span>
-              <span className="px-2 py-0.5 rounded-md bg-white/60 backdrop-blur-xs border border-white/80">SERVICES</span>
-              <span className="px-2 py-0.5 rounded-md bg-white/60 backdrop-blur-xs border border-white/80">PRODUCTS</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/70 backdrop-blur-xs border border-white/80">AGENTS</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/70 backdrop-blur-xs border border-white/80">SOLUTIONS</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/70 backdrop-blur-xs border border-white/80">SERVICES</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/70 backdrop-blur-xs border border-white/80">PRODUCTS</span>
             </div>
+
           </div>
         </div>
 
         {/* Hero Left Content */}
         <div className="relative z-10 max-w-xl">
-          {/* Overline Tag */}
-          <div className="inline-flex items-center gap-2 text-[11px] font-bold text-[#64748B] tracking-widest uppercase mb-3">
-            <span>BUILD</span>
-            <span>·</span>
-            <span>AUTOMATE</span>
-            <span>·</span>
-            <span>SCALE</span>
+          
+          {/* Overline Eyebrow with Direct Mild Text Colors */}
+          <div className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase mb-3">
+            <span className="text-blue-600">BUILD</span>
+            <span className="text-slate-300 font-normal">·</span>
+            <span className="text-indigo-600">AUTOMATE</span>
+            <span className="text-slate-300 font-normal">·</span>
+            <span className="text-emerald-600">SCALE</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#0F172A] tracking-tight leading-[1.15]">
+          <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-extrabold text-[#0F172A] tracking-tight leading-[1.14]">
             Your ideas. <br />
             <span className="text-[#0F172A]">Amplified by AI.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xs sm:text-sm text-[#64748B] mt-3 font-normal leading-relaxed max-w-md">
+          <p className="text-xs sm:text-sm text-slate-500 mt-3 font-normal leading-relaxed max-w-md">
             SNS Square helps you design, build, deploy and operate enterprise solutions with AI agents, services and products.
           </p>
 
-          {/* Interactive AI Prompt Input */}
+          {/* Clean Prompt Input Bar */}
           <form onSubmit={handleBuildPrompt} className="mt-6">
-            <div className="flex items-center bg-white rounded-2xl border border-slate-200/90 shadow-sm p-1.5 pl-3.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+            <div className="flex items-center bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-1.5 pl-3.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
               <Sparkles className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
               <input
                 type="text"
                 value={promptText}
                 onChange={e => setPromptText(e.target.value)}
-                placeholder="Describe what you want to build..."
+                placeholder={placeholderText || "Describe what you want to build..."}
                 className="w-full text-xs sm:text-sm text-[#0F172A] placeholder-slate-400 outline-none font-normal bg-transparent"
               />
               <button
@@ -223,31 +274,37 @@ export const DashboardHome: React.FC = () => {
                 key={idx}
                 onClick={() => {
                   setPromptText(suggestion);
-                  navigateToProduct('solution-architect');
+                  setCurrentView('solution-builder-fullstack');
                 }}
-                className="text-[11px] text-[#475569] hover:text-[#0F172A] bg-white/90 hover:bg-white border border-slate-200/80 rounded-full px-3 py-1 transition-all cursor-pointer shadow-2xs font-normal"
+                className="text-[11px] text-slate-600 hover:text-slate-900 bg-white/90 hover:bg-white border border-slate-200/80 rounded-full px-3 py-1 transition-all cursor-pointer shadow-2xs font-normal"
               >
                 {suggestion}
               </button>
             ))}
           </div>
 
-          {/* Hero Bottom Tag */}
-          <div className="mt-8 text-[10px] font-bold text-slate-400 tracking-wider uppercase">
-            SECURE · SCALABLE · ENTERPRISE READY
+          {/* Hero Bottom Tag with Direct Mild Text Colors */}
+          <div className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase">
+            <span className="text-emerald-600">SECURE</span>
+            <span className="text-slate-300 font-normal">·</span>
+            <span className="text-sky-600">SCALABLE</span>
+            <span className="text-slate-300 font-normal">·</span>
+            <span className="text-purple-600">ENTERPRISE READY</span>
           </div>
+
         </div>
+
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. METRIC KPI STATS BAR (Minimal Clean 4-Cards Row) */}
+      {/* 2. METRIC KPI STATS BAR (Minimal Clean 4-Cards Row)                       */}
       {/* ========================================================================= */}
       <section className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
           
           {/* Stat 1: Active Projects */}
           <div className="flex items-center gap-3.5 px-2 sm:px-4 pt-2 lg:pt-0">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
               <Folder className="w-5 h-5" />
             </div>
             <div>
@@ -258,7 +315,7 @@ export const DashboardHome: React.FC = () => {
 
           {/* Stat 2: Deployed Agents */}
           <div className="flex items-center gap-3.5 px-2 sm:px-4 pt-2 lg:pt-0">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
               <Bot className="w-5 h-5" />
             </div>
             <div>
@@ -269,7 +326,7 @@ export const DashboardHome: React.FC = () => {
 
           {/* Stat 3: Credits Remaining */}
           <div className="flex items-center gap-3.5 px-2 sm:px-4 pt-2 lg:pt-0">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0">
               <Coins className="w-5 h-5" />
             </div>
             <div>
@@ -280,7 +337,7 @@ export const DashboardHome: React.FC = () => {
 
           {/* Stat 4: Platform Uptime */}
           <div className="flex items-center gap-3.5 px-2 sm:px-4 pt-2 lg:pt-0">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shrink-0">
               <Activity className="w-5 h-5" />
             </div>
             <div>
@@ -293,7 +350,7 @@ export const DashboardHome: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. "Explore SNS Square" 4-CARDS GRID */}
+      {/* 3. "Explore SNS Square" 4-CARDS GRID                                      */}
       {/* ========================================================================= */}
       <section className="space-y-3">
         <div>
@@ -309,14 +366,14 @@ export const DashboardHome: React.FC = () => {
           
           {/* Card 1: Build and Create */}
           <button
-            onClick={() => navigateToProduct('solution-architect')}
+            onClick={() => setCurrentView('solution-builder-fullstack')}
             className="flex flex-col justify-between p-5 rounded-2xl bg-white hover:bg-slate-50/70 border border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-sm transition-all text-left group cursor-pointer"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <Box className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
+              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-blue-600 transition-colors">
                 Build and Create
               </h3>
               <p className="text-xs text-[#64748B] mt-1 font-normal leading-relaxed">
@@ -324,28 +381,28 @@ export const DashboardHome: React.FC = () => {
               </p>
             </div>
             <div className="flex justify-end mt-4">
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
             </div>
           </button>
 
-          {/* Card 2: Marketplace */}
+          {/* Card 2: Custom Agent Studio */}
           <button
-            onClick={() => navigateToProduct('ai-models')}
+            onClick={() => setCurrentView('custom-agent')}
             className="flex flex-col justify-between p-5 rounded-2xl bg-white hover:bg-slate-50/70 border border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-sm transition-all text-left group cursor-pointer"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <Store className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Brain className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
-                Marketplace
+              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-emerald-600 transition-colors">
+                Custom Agent
               </h3>
               <p className="text-xs text-[#64748B] mt-1 font-normal leading-relaxed">
-                Discover templates, agents and solutions.
+                Build and instruct bespoke autonomous AI agents.
               </p>
             </div>
             <div className="flex justify-end mt-4">
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
             </div>
           </button>
 
@@ -355,10 +412,10 @@ export const DashboardHome: React.FC = () => {
             className="flex flex-col justify-between p-5 rounded-2xl bg-white hover:bg-slate-50/70 border border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-sm transition-all text-left group cursor-pointer"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <LayoutGrid className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
+              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors">
                 AI Services
               </h3>
               <p className="text-xs text-[#64748B] mt-1 font-normal leading-relaxed">
@@ -366,7 +423,7 @@ export const DashboardHome: React.FC = () => {
               </p>
             </div>
             <div className="flex justify-end mt-4">
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
             </div>
           </button>
 
@@ -376,10 +433,10 @@ export const DashboardHome: React.FC = () => {
             className="flex flex-col justify-between p-5 rounded-2xl bg-white hover:bg-slate-50/70 border border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-sm transition-all text-left group cursor-pointer"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <BarChart2 className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
+              <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-cyan-600 transition-colors">
                 Products
               </h3>
               <p className="text-xs text-[#64748B] mt-1 font-normal leading-relaxed">
@@ -387,7 +444,7 @@ export const DashboardHome: React.FC = () => {
               </p>
             </div>
             <div className="flex justify-end mt-4">
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-600 group-hover:translate-x-0.5 transition-all" />
             </div>
           </button>
 
@@ -395,7 +452,7 @@ export const DashboardHome: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. "Continue Your Work" TABLE SECTION */}
+      {/* 4. "Continue Your Work" TABLE SECTION                                     */}
       {/* ========================================================================= */}
       <section className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -408,7 +465,7 @@ export const DashboardHome: React.FC = () => {
             </p>
           </div>
 
-          {/* Filter Tabs matching mockup */}
+          {/* Filter Tabs */}
           <div className="flex items-center gap-4 text-xs border-b sm:border-b-0 border-slate-200">
             <button
               onClick={() => setActiveTab('solutions')}
@@ -477,7 +534,7 @@ export const DashboardHome: React.FC = () => {
                     {/* Name Column */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/70 flex items-center justify-center shrink-0 group-hover:border-blue-300 transition-colors">
+                        <div className={`w-8 h-8 rounded-lg ${item.iconBg} flex items-center justify-center shrink-0`}>
                           {item.icon}
                         </div>
                         <div>
@@ -533,4 +590,3 @@ export const DashboardHome: React.FC = () => {
     </div>
   );
 };
-

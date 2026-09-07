@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Breadcrumb } from '../common/Breadcrumb';
 import { MetricCard } from '../common/MetricCard';
 import { StatusBadge } from '../common/StatusBadge';
+import { ProductLandingLayout } from '../common/ProductLandingLayout';
+import { getOfferingConfig } from '../../data/offeringsData';
 import { 
   GitBranch, 
   Play, 
@@ -13,7 +15,9 @@ import {
   Terminal, 
   GitCommit, 
   Layers,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft,
+  Infinity as InfinityIcon
 } from 'lucide-react';
 
 interface PipelineStage {
@@ -23,6 +27,7 @@ interface PipelineStage {
 }
 
 export const DevOpsWorkspace: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'landing' | 'console'>('landing');
   const [isDeploying, setIsDeploying] = useState(false);
   const [stages, setStages] = useState<PipelineStage[]>([
     { name: '1. Lint & Types', status: 'passed', duration: '14s' },
@@ -58,14 +63,14 @@ export const DevOpsWorkspace: React.FC = () => {
     },
     {
       id: 'dep-4089',
-      commit: 'f332a90',
-      message: 'fix: reconcile idempotency header race condition',
-      branch: 'hotfix/idempotency',
-      environment: 'Staging-Cluster-02',
+      commit: 'e812d90',
+      message: 'fix: handle token expiration during stream reconnect',
+      branch: 'main',
+      environment: 'Production (US-East-1)',
       status: 'Success',
-      duration: '2m 54s',
-      author: 'Elena Rostova',
-      timestamp: '1 day ago'
+      duration: '3m 05s',
+      author: 'Sanmugavel S',
+      timestamp: '5 hours ago'
     }
   ]);
 
@@ -93,8 +98,39 @@ export const DevOpsWorkspace: React.FC = () => {
     }, 1500);
   };
 
+  const config = getOfferingConfig('devops');
+
+  if (viewMode === 'landing' && config) {
+    return <ProductLandingLayout config={config} onOpenConsole={() => setViewMode('console')} />;
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-[#E2E8F0] shadow-2xs">
+        <button
+          onClick={() => setViewMode('landing')}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-orange-600 hover:text-orange-800 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to DevOps Overview</span>
+        </button>
+
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+          <button
+            onClick={() => setViewMode('landing')}
+            className="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all font-medium cursor-pointer"
+          >
+            Product Overview
+          </button>
+          <button
+            onClick={() => setViewMode('console')}
+            className="px-3 py-1 rounded-lg bg-white text-orange-600 shadow-2xs font-semibold cursor-pointer"
+          >
+            Live Console
+          </button>
+        </div>
+      </div>
+
       <Breadcrumb items={[{ label: 'Products' }, { label: 'DevOps' }]} />
 
       {/* Hero */}

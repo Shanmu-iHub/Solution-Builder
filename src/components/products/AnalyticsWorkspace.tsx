@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Breadcrumb } from '../common/Breadcrumb';
 import { MetricCard } from '../common/MetricCard';
 import { StatusBadge } from '../common/StatusBadge';
+import { ProductLandingLayout } from '../common/ProductLandingLayout';
+import { getOfferingConfig } from '../../data/offeringsData';
 import { 
   BarChart3, 
   Play, 
@@ -12,10 +14,12 @@ import {
   Database, 
   Zap,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft
 } from 'lucide-react';
 
 export const AnalyticsWorkspace: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'landing' | 'console'>('landing');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'sql'>('dashboard');
   const [sqlQuery, setSqlQuery] = useState(
     "SELECT\n  date_trunc('day', timestamp) AS event_date,\n  product_name,\n  count(*) AS total_invocations,\n  avg(latency_ms) AS avg_latency\nFROM workspace_events\nWHERE timestamp >= now() - INTERVAL '7 days'\nGROUP BY 1, 2\nORDER BY 1 DESC;"
@@ -35,8 +39,39 @@ export const AnalyticsWorkspace: React.FC = () => {
     }, 600);
   };
 
+  const config = getOfferingConfig('analytics');
+
+  if (viewMode === 'landing' && config) {
+    return <ProductLandingLayout config={config} onOpenConsole={() => setViewMode('console')} />;
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-[#E2E8F0] shadow-2xs">
+        <button
+          onClick={() => setViewMode('landing')}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Analytics Overview</span>
+        </button>
+
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+          <button
+            onClick={() => setViewMode('landing')}
+            className="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all font-medium cursor-pointer"
+          >
+            Product Overview
+          </button>
+          <button
+            onClick={() => setViewMode('console')}
+            className="px-3 py-1 rounded-lg bg-white text-amber-600 shadow-2xs font-semibold cursor-pointer"
+          >
+            Live Console
+          </button>
+        </div>
+      </div>
+
       <Breadcrumb items={[{ label: 'Products' }, { label: 'Analytics' }]} />
 
       {/* Hero */}

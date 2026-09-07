@@ -15,37 +15,43 @@ import {
 
 export const UsageBillingPage: React.FC = () => {
   const invoices = [
-    { id: 'INV-2026-08', date: 'Aug 31, 2026', amount: '$24,850.00', status: 'Paid', pdfUrl: '#' },
-    { id: 'INV-2026-07', date: 'Jul 31, 2026', amount: '$22,410.00', status: 'Paid', pdfUrl: '#' },
-    { id: 'INV-2026-06', date: 'Jun 30, 2026', amount: '$19,800.00', status: 'Paid', pdfUrl: '#' },
+    { id: 'INV-2026-08', date: 'Aug 31, 2026', amount: '₹24,85,000.00', status: 'Paid', pdfUrl: '#' },
+    { id: 'INV-2026-07', date: 'Jul 31, 2026', amount: '₹22,41,000.00', status: 'Paid', pdfUrl: '#' },
+    { id: 'INV-2026-06', date: 'Jun 30, 2026', amount: '₹19,80,000.00', status: 'Paid', pdfUrl: '#' },
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Breadcrumb items={[{ label: 'Workspace' }, { label: 'Usage & Billing' }]} />
+      <Breadcrumb items={[{ label: 'Workspace' }, { label: 'Credits & Billing' }]} />
 
       {/* Hero */}
       <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-[#2563EB] uppercase tracking-wider mb-1">
             <CreditCard className="w-4 h-4" />
-            <span>Plan & Quotas</span>
+            <span>Plan & Credits Quotas</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Billing & Resource Quotas</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Billing & Resource Credits (INR)</h1>
           <p className="text-xs text-[#64748B] mt-1 max-w-xl">
-            Monitor API token consumption, compute hours, active plan tier, and enterprise invoices.
+            Monitor Indian Rupee (₹ INR) credit consumption, compute hours, active plan tier, and tax-compliant GST enterprise invoices.
           </p>
         </div>
 
-        <span className="px-3.5 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs">
-          Enterprise Tier: Active
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Currency: INR (₹)
+          </span>
+          <span className="px-3.5 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs">
+            Enterprise Tier: Active
+          </span>
+        </div>
       </div>
 
       {/* KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Current Month Total" value="$24,850.00" subtitle="Sep 1 - Sep 30" isPositive />
-        <MetricCard label="Allocated Cloud Budget" value="$30,000.00" subtitle="82.4% utilized" isPositive />
+        <MetricCard label="Current Month Total" value="₹24,85,000.00" subtitle="Sep 1 - Sep 30 (INR)" isPositive />
+        <MetricCard label="Allocated Cloud Budget" value="₹30,00,000.00" subtitle="82.4% utilized" isPositive />
         <MetricCard label="AI Tokens Consumed" value="84.2M Tokens" subtitle="30+ frontier models" isPositive />
         <MetricCard label="Next Invoice Date" value="Oct 1, 2026" subtitle="Auto-pay active" isPositive />
       </div>
