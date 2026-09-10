@@ -132,7 +132,7 @@ export const GamificationsWorkspace: React.FC = () => {
       
       {/* 1. Breadcrumb and Return Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
-        <Breadcrumb items={[{ label: 'Products' }, { label: 'Gamifications Console' }]} />
+        <Breadcrumb items={[{ label: 'Products' }, { label: 'Rewards & Engagement Console' }]} />
 
         <button
           onClick={() => setViewMode('landing')}

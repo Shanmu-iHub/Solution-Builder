@@ -1,32 +1,271 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigation } from '../../context/NavigationContext';
-import { 
-  Layers, 
-  Settings, 
-  Code2, 
-  ArrowRight, 
-  ChevronRight, 
+import {
   Sparkles,
   Cloud,
   Database,
-  Terminal,
-  CheckCircle2,
-  Cpu,
-  Boxes,
-  Zap,
-  Play,
+  Code2,
+  Check,
+  ChevronRight,
+  ArrowRight,
+  LayoutGrid,
+  Globe,
+  Smartphone,
+  ShoppingCart,
+  GitBranch,
+  Laptop,
+  Layers,
   Server,
-  Workflow,
-  Check
+  Terminal,
+  Zap,
+  ExternalLink,
+  Search,
+  Eye,
+  X,
+  Boxes,
+  Play,
+  CheckCircle2,
+  Flame,
+  Star,
+  Monitor
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 
+interface ProjectTypeOption {
+  id: string;
+  title: string;
+  category: 'projects' | 'web' | 'mobile' | 'ecommerce' | 'existing';
+  icon: React.ReactNode;
+  description: string;
+  tags: string[];
+  recommended?: boolean;
+}
+
+interface TemplateOption {
+  id: string;
+  title: string;
+  category: 'restaurant' | 'service' | 'personal' | 'data' | 'others';
+  categoryLabel: string;
+  description: string;
+  imageBg: string;
+  accentColor: string;
+  framework: string;
+  stars: number;
+  previewUrl?: string;
+}
+
 export const SolutionBuilderFullStack: React.FC = () => {
   const { setCurrentView, navigateToProduct } = useNavigation();
-  const [isFullStackModalOpen, setIsFullStackModalOpen] = useState(false);
+
+  // Category Tab state for "What are you building?"
+  const [selectedCategory, setSelectedCategory] = useState<'projects' | 'web' | 'mobile' | 'ecommerce' | 'existing'>('web');
+
+  // Template Filter state
+  const [selectedTemplateFilter, setSelectedTemplateFilter] = useState<'all' | 'restaurant' | 'service' | 'personal' | 'data' | 'others'>('all');
+
+  // Modals & Project Setup States
+  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<ProjectTypeOption | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption | null>(null);
+  const [projectName, setProjectName] = useState('');
+  const [projectDb, setProjectDb] = useState('PostgreSQL (Supabase / Neon)');
+  const [projectDeploy, setProjectDeploy] = useState('Cloudflare Pages & Workers');
+  const [projectCreatedToast, setProjectCreatedToast] = useState(false);
+
+  // Category Options Data (matching Image 1 with support for all tabs)
+  const categoryOptions: Record<'projects' | 'web' | 'mobile' | 'ecommerce' | 'existing', ProjectTypeOption[]> = {
+    web: [
+      {
+        id: 'web-simple',
+        title: 'Simple Website or Web App',
+        category: 'web',
+        icon: <Laptop className="w-5 h-5 text-blue-600" />,
+        description: 'Perfect for quick prototypes, landing pages, and small applications. Includes built-in database support.',
+        tags: ['QUICK PROTOTYPES', 'LANDING PAGES', 'BUILT-IN DB']
+      },
+      {
+        id: 'web-fullstack',
+        title: 'Full-Stack Websites or App',
+        category: 'web',
+        icon: <Layers className="w-5 h-5 text-indigo-600" />,
+        description: 'Production-ready stack with auth, account management, backend, and database. Built with Hono framework on Node.js and optimized for Cloudflare Pages deployment.',
+        tags: ['HONO', 'NODE.JS', 'AUTH + DB', 'CLOUDFLARE PAGES'],
+        recommended: true
+      }
+    ],
+    projects: [
+      {
+        id: 'proj-microservice',
+        title: 'Enterprise Microservice Architecture',
+        category: 'projects',
+        icon: <Server className="w-5 h-5 text-emerald-600" />,
+        description: 'Decoupled event-driven backend microservices with Kafka, Redis caching, and Kubernetes orchestration.',
+        tags: ['KUBERNETES', 'KAFKA', 'GO / RUST', 'MULTI-REGION']
+      },
+      {
+        id: 'proj-ai-agent',
+        title: 'Autonomous AI Agent System',
+        category: 'projects',
+        icon: <Sparkles className="w-5 h-5 text-purple-600" />,
+        description: 'Multi-agent orchestration pipeline with vector databases, memory buffers, and custom LLM tool calling.',
+        tags: ['LANGGRAPH', 'PGVECTOR', 'MULTI-AGENT', 'STREAMING'],
+        recommended: true
+      }
+    ],
+    mobile: [
+      {
+        id: 'mob-react-native',
+        title: 'Universal Cross-Platform Mobile App',
+        category: 'mobile',
+        icon: <Smartphone className="w-5 h-5 text-sky-600" />,
+        description: 'Single codebase targeting iOS and Android built on Expo React Native with native animations and offline sync.',
+        tags: ['EXPO', 'REACT NATIVE', 'OFFLINE SYNC', 'TAILWIND']
+      },
+      {
+        id: 'mob-flutter',
+        title: 'High-Performance Flutter App',
+        category: 'mobile',
+        icon: <Zap className="w-5 h-5 text-cyan-600" />,
+        description: '60fps GPU-accelerated mobile experiences with Dart, Firebase push notifications, and biometric auth.',
+        tags: ['FLUTTER', 'DART', 'FIREBASE', 'BIOMETRICS']
+      }
+    ],
+    ecommerce: [
+      {
+        id: 'ecom-store',
+        title: 'Headless E-Commerce Storefront',
+        category: 'ecommerce',
+        icon: <ShoppingCart className="w-5 h-5 text-amber-600" />,
+        description: 'High-converting headless storefront with Stripe Elements checkout, cart persistence, and dynamic inventory.',
+        tags: ['NEXT.JS', 'STRIPE', 'MEDUSA / SHOPIFY', 'SSR']
+      },
+      {
+        id: 'ecom-marketplace',
+        title: 'Multi-Vendor Marketplace Platform',
+        category: 'ecommerce',
+        icon: <Boxes className="w-5 h-5 text-orange-600" />,
+        description: 'Scalable merchant platform with vendor onboarding, split payouts, order fulfillment, and reviews.',
+        tags: ['MULTI-TENANT', 'ESCROW PAYMENTS', 'GRAPHQL', 'ADMIN PORTAL']
+      }
+    ],
+    existing: [
+      {
+        id: 'ext-github',
+        title: 'Import GitHub / GitLab Repository',
+        category: 'existing',
+        icon: <GitBranch className="w-5 h-5 text-slate-800" />,
+        description: 'Connect your existing remote repo to analyze architecture, generate missing documentation, and run automated refactoring.',
+        tags: ['GITHUB CI/CD', 'AUTO-SCAFFOLD', 'LINTERS', 'PR BOT']
+      },
+      {
+        id: 'ext-archive',
+        title: 'Upload Local Archive / Monorepo',
+        category: 'existing',
+        icon: <Terminal className="w-5 h-5 text-blue-700" />,
+        description: 'Drop a .zip or configure local file watcher to inspect dependencies and attach SNS Square AI Copilot.',
+        tags: ['ZIP UPLOAD', 'MONOREPO', 'AST PARSER', 'INSTANT SYNC']
+      }
+    ]
+  };
+
+  // Templates Data matching Image 1
+  const templates: TemplateOption[] = [
+    {
+      id: 'tpl-1',
+      title: 'Modern Bistro & Restaurant',
+      category: 'restaurant',
+      categoryLabel: 'Restaurant',
+      description: 'Elegant digital menu, table reservation engine, and Stripe order checkout.',
+      imageBg: 'from-amber-50 to-orange-100/60',
+      accentColor: 'border-amber-200 text-amber-800 bg-amber-50',
+      framework: 'Next.js + Tailwind',
+      stars: 142
+    },
+    {
+      id: 'tpl-2',
+      title: 'SaaS & Enterprise Services Platform',
+      category: 'service',
+      categoryLabel: 'Service',
+      description: 'Subscription pricing tiers, feature comparison tables, and customer testimonials.',
+      imageBg: 'from-blue-50 to-indigo-100/60',
+      accentColor: 'border-blue-200 text-blue-800 bg-blue-50',
+      framework: 'React + Hono',
+      stars: 389
+    },
+    {
+      id: 'tpl-3',
+      title: 'Executive Portfolio & Resume',
+      category: 'personal',
+      categoryLabel: 'Personal',
+      description: 'Interactive case studies, project timelines, skill radar, and contact form.',
+      imageBg: 'from-emerald-50 to-teal-100/60',
+      accentColor: 'border-emerald-200 text-emerald-800 bg-emerald-50',
+      framework: 'Vite + React',
+      stars: 215
+    },
+    {
+      id: 'tpl-4',
+      title: 'Real-Time Analytics & Data Exhibition',
+      category: 'data',
+      categoryLabel: 'Data Exhibition',
+      description: 'Interactive data charts, filtering matrix, exportable CSVs, and dark mode.',
+      imageBg: 'from-purple-50 to-violet-100/60',
+      accentColor: 'border-purple-200 text-purple-800 bg-purple-50',
+      framework: 'Next.js + D3.js',
+      stars: 490
+    },
+    {
+      id: 'tpl-5',
+      title: 'Artisan Bakery & Cafe Store',
+      category: 'restaurant',
+      categoryLabel: 'Restaurant',
+      description: 'Daily fresh bakery schedule, cart drawer, and local pickup selector.',
+      imageBg: 'from-stone-100 to-amber-100/50',
+      accentColor: 'border-amber-200 text-amber-800 bg-amber-50',
+      framework: 'React + Shopify',
+      stars: 98
+    },
+    {
+      id: 'tpl-6',
+      title: 'AI Developer Studio & Documentation',
+      category: 'others',
+      categoryLabel: 'Others',
+      description: 'MDX documentation, live code sandbox, API playground, and syntax highlighter.',
+      imageBg: 'from-slate-100 to-slate-200/70',
+      accentColor: 'border-slate-300 text-slate-800 bg-slate-100',
+      framework: 'Nextra + Tailwind',
+      stars: 312
+    }
+  ];
+
+  const filteredTemplates = useMemo(() => {
+    if (selectedTemplateFilter === 'all') return templates;
+    return templates.filter(t => t.category === selectedTemplateFilter);
+  }, [selectedTemplateFilter]);
+
+  const handleOpenStartModal = (option: ProjectTypeOption) => {
+    setSelectedOption(option);
+    setSelectedTemplate(null);
+    setProjectName(option.title);
+    setIsStartModalOpen(true);
+  };
+
+  const handleUseTemplate = (tpl: TemplateOption) => {
+    setSelectedTemplate(tpl);
+    setSelectedOption(null);
+    setProjectName(tpl.title);
+    setIsStartModalOpen(true);
+  };
+
+  const handleConfirmProjectCreation = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsStartModalOpen(false);
+    setProjectCreatedToast(true);
+    setTimeout(() => setProjectCreatedToast(false), 3500);
+  };
 
   return (
-    <div className="space-y-8 animate-fade-in select-none pb-16 max-w-7xl mx-auto">
+    <div className="space-y-10 animate-fade-in select-none pb-20 max-w-7xl mx-auto">
       
       {/* 1. Breadcrumb Top Navigation */}
       <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
@@ -42,365 +281,461 @@ export const SolutionBuilderFullStack: React.FC = () => {
         <span className="text-slate-900 font-semibold">Full Stack</span>
       </nav>
 
-      {/* 2. Enhanced Enterprise Hero Section */}
-      <section className="relative rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0]/40 border border-slate-200/90 p-6 sm:p-10 lg:p-12 overflow-hidden shadow-xs">
+      {/* 2. "START BUILDING SOMETHING GREAT" SECTION */}
+      <section className="space-y-8 pt-4">
         
-        {/* Ambient Background Mesh & Grid Glow */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-blue-400/15 via-indigo-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-gradient-to-tr from-sky-300/15 via-cyan-200/10 to-transparent rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
+        {/* Section Heading: Centered on a Single Line with Multicolor Gradient */}
+        <div className="text-center max-w-5xl mx-auto space-y-2">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] font-black tracking-tight leading-tight whitespace-nowrap">
+            <span className="text-[#0F172A]">Start Building </span>
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+              Something Great
+            </span>
+          </h2>
+          <p className="text-sm sm:text-base text-slate-500 font-normal">
+            Pick a category to get started.
+          </p>
+        </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-14">
+        {/* Category Selector Cards: Matching Image 2 Design */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 pt-1">
           
-          {/* Left Column: Typography & Badges */}
-          <div className="flex-1 max-w-xl">
-            {/* Pill Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-blue-200/80 text-blue-700 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>SOLUTION BUILDER PLATFORM</span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight leading-[1.15] mb-4">
-              Full Stack <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-transparent">Architecture</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed mb-6">
-              Build complete enterprise solutions with end-to-end system architecture, autonomous code scaffolding, and multi-cloud deployment.
-            </p>
-
-            {/* Capability Feature Badges */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
-                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
-                <span>AI Architecture Canvas</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
-                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
-                <span>Code & API Factory</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
-                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
-                <span>Multi-Cloud IaC</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Right Column: High-End 3D Architecture Canvas */}
-          <div className="w-full lg:w-[560px] h-[320px] sm:h-[350px] relative flex items-center justify-center">
-            
-            {/* Connecting Circuit SVG with Glowing Pulses */}
-            <svg className="w-full h-full absolute inset-0 pointer-events-none" viewBox="0 0 560 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="glowLine" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#94A3B8" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#6366F1" stopOpacity="0.8" />
-                </linearGradient>
-                <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-
-              {/* Grid Connection Pathways */}
-              <path d="M 100 175 L 150 175 L 200 125 L 320 125" stroke="url(#glowLine)" strokeWidth="2" strokeDasharray="4 4" />
-              <path d="M 280 75 L 340 75 L 380 120 L 490 120" stroke="url(#glowLine)" strokeWidth="2" />
-              <path d="M 390 75 L 450 75 L 500 75" stroke="#CBD5E1" strokeWidth="2" />
-              <path d="M 380 220 L 440 220 L 490 220" stroke="url(#glowLine)" strokeWidth="2" strokeDasharray="3 3" />
-              <path d="M 260 260 L 320 260 L 360 220" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
-
-              {/* Glowing Terminal Node Rings */}
-              <circle cx="340" cy="75" r="5" fill="#2563EB" filter="url(#glowEffect)" />
-              <circle cx="340" cy="75" r="2.5" fill="#FFFFFF" />
-              
-              <circle cx="500" cy="75" r="5" fill="#6366F1" filter="url(#glowEffect)" />
-              <circle cx="500" cy="75" r="2.5" fill="#FFFFFF" />
-
-              <circle cx="490" cy="220" r="5" fill="#0EA5E9" filter="url(#glowEffect)" />
-              <circle cx="490" cy="220" r="2.5" fill="#FFFFFF" />
-            </svg>
-
-            {/* Stage Tags matching reference */}
-            <div className="absolute top-10 left-[56%] px-2.5 py-0.5 rounded-md bg-white/90 border border-slate-200 shadow-2xs text-[10px] font-extrabold tracking-widest text-slate-700 uppercase flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
-              PLAN
-            </div>
-            
-            <div className="absolute top-10 right-2 px-2.5 py-0.5 rounded-md bg-white/90 border border-slate-200 shadow-2xs text-[10px] font-extrabold tracking-widest text-slate-700 uppercase flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-              BUILD
-            </div>
-
-            <div className="absolute top-[58%] right-2 px-2.5 py-0.5 rounded-md bg-white/90 border border-slate-200 shadow-2xs text-[10px] font-extrabold tracking-widest text-slate-700 uppercase flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-              DEPLOY
-            </div>
-
-            {/* Left "FROM IDEA TO IMPACT" Stacked Badge */}
-            <div className="absolute left-2 sm:left-6 top-[38%] bg-white/90 border border-slate-200/90 rounded-xl p-2.5 shadow-2xs flex flex-col items-center">
-              <span className="text-[9px] font-extrabold text-slate-500 tracking-[0.15em] uppercase leading-tight text-center">
-                FROM<br />IDEA TO<br />IMPACT
-              </span>
-              <div className="w-6 h-0.5 bg-blue-600 mt-1.5 rounded-full" />
-            </div>
-
-            {/* Central 3D Dark IDE Terminal Window */}
-            <div 
-              className="absolute left-[24%] top-[18%] w-[170px] sm:w-[195px] bg-[#0F172A] rounded-2xl shadow-2xl p-3 flex flex-col justify-between border border-slate-700/80 transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 z-20"
-            >
-              {/* IDE Header */}
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-rose-500" />
-                  <div className="w-2 h-2 rounded-full bg-amber-500" />
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                </div>
-                <span className="text-[9px] font-mono text-slate-400">solution.config.ts</span>
-              </div>
-
-              {/* Code Lines Mockup */}
-              <div className="space-y-1.5 py-2.5 font-mono text-[9px]">
-                <div className="flex items-center gap-1">
-                  <span className="text-purple-400">const</span>
-                  <span className="text-blue-300">stack</span>
-                  <span className="text-slate-400">=</span>
-                  <span className="text-amber-300">&#123;</span>
-                </div>
-                <div className="pl-3 text-slate-300">
-                  arch: <span className="text-emerald-400">'Microservices'</span>,
-                </div>
-                <div className="pl-3 text-slate-300">
-                  cloud: <span className="text-sky-400">'AWS + K8s'</span>
-                </div>
-                <div className="text-amber-300">&#125;;</div>
-              </div>
-
-              {/* IDE Footer Live Status */}
-              <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/80 text-[8px] text-slate-400">
-                <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Ready to Deploy
-                </span>
-                <span className="font-mono">v2.4</span>
-              </div>
-            </div>
-
-            {/* Satellite 3D Tile 1: Code Tile </> */}
-            <div 
-              className="absolute right-[22%] top-[14%] w-16 sm:w-18 h-16 sm:h-18 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/90 flex flex-col items-center justify-center text-slate-800 transform rotate-6 hover:rotate-0 hover:scale-110 transition-all duration-300 z-30 group/tile"
-            >
-              <div className="p-2 rounded-xl bg-blue-50 text-blue-600 mb-0.5 group-hover/tile:bg-blue-600 group-hover/tile:text-white transition-colors">
-                <Code2 className="w-6 h-6 stroke-[2]" />
-              </div>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">CODE</span>
-            </div>
-
-            {/* Satellite 3D Tile 2: Cloud Tile */}
-            <div 
-              className="absolute right-[32%] bottom-[10%] w-14 sm:w-16 h-14 sm:h-16 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/90 flex flex-col items-center justify-center text-slate-700 transform -rotate-6 hover:rotate-0 hover:scale-110 transition-all duration-300 z-20 group/tile"
-            >
-              <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 mb-0.5 group-hover/tile:bg-indigo-600 group-hover/tile:text-white transition-colors">
-                <Cloud className="w-5 h-5 stroke-[2]" />
-              </div>
-              <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider">CLOUD</span>
-            </div>
-
-            {/* Satellite 3D Tile 3: Database Tile */}
-            <div 
-              className="absolute right-[8%] bottom-[12%] w-14 sm:w-16 h-14 sm:h-16 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/90 flex flex-col items-center justify-center text-slate-700 transform rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 z-20 group/tile"
-            >
-              <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 mb-0.5 group-hover/tile:bg-emerald-600 group-hover/tile:text-white transition-colors">
-                <Database className="w-5 h-5 stroke-[2]" />
-              </div>
-              <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider">DATA</span>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* 3. Three Main Feature Cards matching Reference Image with Polished Finish */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Card 1: Solution Architect */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-7 sm:p-8 shadow-xs hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-13 h-13 rounded-2xl bg-blue-50/90 border border-blue-100/80 flex items-center justify-center text-blue-600 group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-2xs">
-                <Layers className="w-6 h-6 stroke-[2]" />
-              </div>
-              <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/60">
-                Design
-              </span>
-            </div>
-
-            <h2 className="text-xl font-bold text-slate-900 mt-6 group-hover:text-blue-600 transition-colors">
-              Solution Architect
-            </h2>
-
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2.5 mb-8">
-              Create robust solution architectures and designs for your business requirements with the help of AI.
-            </p>
-          </div>
-
+          {/* 1. Projects */}
           <button
-            onClick={() => navigateToProduct('solution-architect')}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-blue-600 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs group-hover:shadow-md"
+            type="button"
+            onClick={() => setSelectedCategory('projects')}
+            className={`p-3 rounded-2xl transition-all flex items-center gap-3 text-left cursor-pointer ${
+              selectedCategory === 'projects'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white border border-blue-500 shadow-md shadow-blue-500/15'
+                : 'bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300'
+            }`}
           >
-            <span>Open Solution Architect</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-          </button>
-        </div>
-
-        {/* Card 2: Solution Factory */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-7 sm:p-8 shadow-xs hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-13 h-13 rounded-2xl bg-indigo-50/90 border border-indigo-100/80 flex items-center justify-center text-indigo-600 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
-                <Settings className="w-6 h-6 stroke-[2]" />
-              </div>
-              <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/60">
-                Build
-              </span>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              selectedCategory === 'projects'
+                ? 'bg-blue-800/60 text-white border border-blue-400/40'
+                : 'bg-white border border-slate-200/80 text-slate-900'
+            }`}>
+              <LayoutGrid className="w-5 h-5" />
             </div>
+            <div className="min-w-0 flex-1">
+              <div className={`text-xs sm:text-sm font-bold truncate ${
+                selectedCategory === 'projects' ? 'text-white' : 'text-slate-900'
+              }`}>
+                Projects
+              </div>
+              <div className={`text-[11px] truncate ${
+                selectedCategory === 'projects' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                Build from scratch
+              </div>
+            </div>
+          </button>
 
-            <h2 className="text-xl font-bold text-slate-900 mt-6 group-hover:text-indigo-600 transition-colors">
-              Solution Factory
-            </h2>
-
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2.5 mb-8">
-              Orchestrate solution creation with pre-built templates, agents and automation to accelerate development.
-            </p>
-          </div>
-
+          {/* 2. Web */}
           <button
-            onClick={() => navigateToProduct('solution-factor')}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-indigo-600 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs group-hover:shadow-md"
+            type="button"
+            onClick={() => setSelectedCategory('web')}
+            className={`p-3 rounded-2xl transition-all flex items-center gap-3 text-left cursor-pointer ${
+              selectedCategory === 'web'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white border border-blue-500 shadow-md shadow-blue-500/15'
+                : 'bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300'
+            }`}
           >
-            <span>Open Solution Factory</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-          </button>
-        </div>
-
-        {/* Card 3: Full Stack */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-7 sm:p-8 shadow-xs hover:shadow-xl hover:border-sky-300 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="w-13 h-13 rounded-2xl bg-sky-50/90 border border-sky-100/80 flex items-center justify-center text-sky-600 group-hover:scale-105 group-hover:bg-sky-600 group-hover:text-white transition-all shadow-2xs">
-                <Code2 className="w-6 h-6 stroke-[2]" />
-              </div>
-              <span className="px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/60">
-                End-to-End
-              </span>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              selectedCategory === 'web'
+                ? 'bg-blue-800/60 text-white border border-blue-400/40'
+                : 'bg-white border border-slate-200/80 text-slate-900'
+            }`}>
+              <Globe className="w-5 h-5" />
             </div>
+            <div className="min-w-0 flex-1">
+              <div className={`text-xs sm:text-sm font-bold truncate ${
+                selectedCategory === 'web' ? 'text-white' : 'text-slate-900'
+              }`}>
+                Web
+              </div>
+              <div className={`text-[11px] truncate ${
+                selectedCategory === 'web' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                Web experiences
+              </div>
+            </div>
+          </button>
 
-            <h2 className="text-xl font-bold text-slate-900 mt-6 group-hover:text-sky-600 transition-colors">
-              Full Stack
-            </h2>
-
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-2.5 mb-8">
-              Build and deliver complete, production-ready solutions with frontend, backend, integrations and deployment.
-            </p>
-          </div>
-
+          {/* 3. Mobile Apps */}
           <button
-            onClick={() => setIsFullStackModalOpen(true)}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-sky-600 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs group-hover:shadow-md"
+            type="button"
+            onClick={() => setSelectedCategory('mobile')}
+            className={`p-3 rounded-2xl transition-all flex items-center gap-3 text-left cursor-pointer ${
+              selectedCategory === 'mobile'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white border border-blue-500 shadow-md shadow-blue-500/15'
+                : 'bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300'
+            }`}
           >
-            <span>Open Full Stack</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              selectedCategory === 'mobile'
+                ? 'bg-blue-800/60 text-white border border-blue-400/40'
+                : 'bg-white border border-slate-200/80 text-slate-900'
+            }`}>
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className={`text-xs sm:text-sm font-bold truncate ${
+                selectedCategory === 'mobile' ? 'text-white' : 'text-slate-900'
+              }`}>
+                Mobile Apps
+              </div>
+              <div className={`text-[11px] truncate ${
+                selectedCategory === 'mobile' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                iOS & Android
+              </div>
+            </div>
           </button>
+
+          {/* 4. E-commerce */}
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('ecommerce')}
+            className={`p-3 rounded-2xl transition-all flex items-center gap-3 text-left cursor-pointer ${
+              selectedCategory === 'ecommerce'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white border border-blue-500 shadow-md shadow-blue-500/15'
+                : 'bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300'
+            }`}
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              selectedCategory === 'ecommerce'
+                ? 'bg-blue-800/60 text-white border border-blue-400/40'
+                : 'bg-white border border-slate-200/80 text-slate-900'
+            }`}>
+              <ShoppingCart className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className={`text-xs sm:text-sm font-bold truncate ${
+                selectedCategory === 'ecommerce' ? 'text-white' : 'text-slate-900'
+              }`}>
+                E-commerce
+              </div>
+              <div className={`text-[11px] truncate ${
+                selectedCategory === 'ecommerce' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                Sell and scale
+              </div>
+            </div>
+          </button>
+
+          {/* 5. Existing code */}
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('existing')}
+            className={`p-3 rounded-2xl transition-all flex items-center gap-3 text-left cursor-pointer ${
+              selectedCategory === 'existing'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white border border-blue-500 shadow-md shadow-blue-500/15'
+                : 'bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300'
+            }`}
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+              selectedCategory === 'existing'
+                ? 'bg-blue-800/60 text-white border border-blue-400/40'
+                : 'bg-white border border-slate-200/80 text-slate-900'
+            }`}>
+              <GitBranch className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className={`text-xs sm:text-sm font-bold truncate ${
+                selectedCategory === 'existing' ? 'text-white' : 'text-slate-900'
+              }`}>
+                Existing code
+              </div>
+              <div className={`text-[11px] truncate ${
+                selectedCategory === 'existing' ? 'text-blue-100' : 'text-slate-400'
+              }`}>
+                Use your codebase
+              </div>
+            </div>
+          </button>
+
         </div>
 
-      </section>
+        {/* Category Option Cards (2 Columns as shown in Image 1) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {categoryOptions[selectedCategory].map((opt) => (
+            <div
+              key={opt.id}
+              className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group relative"
+            >
+              <div>
+                {/* Header with Icon, Title, and Start Button */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center shrink-0">
+                      {opt.icon}
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {opt.title}
+                    </h3>
+                  </div>
 
-      {/* Full Stack Execution Engine Modal */}
-      <Modal
-        isOpen={isFullStackModalOpen}
-        onClose={() => setIsFullStackModalOpen(false)}
-        title="Full Stack Solution Pipeline"
-        maxWidth="2xl"
-      >
-        <div className="space-y-5">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div className="flex items-center gap-2 text-slate-900 font-semibold text-sm mb-1">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span>Autonomous Full-Stack Generator</span>
-            </div>
-            <p className="text-xs text-slate-600">
-              Combines Solution Architect's system topology generation and Solution Factory's scaffold templates into an end-to-end deployable repository.
-            </p>
-          </div>
+                  <button
+                    onClick={() => handleOpenStartModal(opt)}
+                    className="px-3.5 py-1.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-2xs shrink-0 cursor-pointer"
+                  >
+                    <span>Start</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Layers className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-slate-900">Step 1: System Topology & Data Schema</div>
-                  <div className="text-[11px] text-slate-500">Design cloud microservices, auth, and database</div>
-                </div>
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-4 mb-6">
+                  {opt.description}
+                </p>
               </div>
-              <button 
-                onClick={() => {
-                  setIsFullStackModalOpen(false);
-                  navigateToProduct('solution-architect');
-                }}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 px-3 py-1.5 bg-blue-50 rounded-lg"
-              >
-                Launch Architect
-              </button>
-            </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-400 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                  <Settings className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-slate-900">Step 2: PRD Spec & Boilerplate Factory</div>
-                  <div className="text-[11px] text-slate-500">Generate frontend React components & backend APIs</div>
-                </div>
+              {/* Tag Badges */}
+              <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
+                {opt.tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100/90 border border-slate-200/60 text-[10px] font-bold text-slate-600 tracking-wider uppercase"
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
-              <button 
-                onClick={() => {
-                  setIsFullStackModalOpen(false);
-                  navigateToProduct('solution-factor');
-                }}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-3 py-1.5 bg-indigo-50 rounded-lg"
-              >
-                Launch Factory
-              </button>
             </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        {/* 4. "START FROM A TEMPLATE" SECTION (Image 1 Bottom Section) */}
+        <div className="space-y-5 pt-6">
+          
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Start from a template</h3>
+              <p className="text-xs text-slate-500">Kickstart your production build with verified architectures & pre-configured stacks.</p>
+            </div>
+
             <button
-              onClick={() => setIsFullStackModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900"
+              onClick={() => setSelectedTemplateFilter('all')}
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
             >
-              Close
-            </button>
-            <button
-              onClick={() => {
-                setIsFullStackModalOpen(false);
-                navigateToProduct('solution-architect');
-              }}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5"
-            >
-              <span>Start End-to-End Build</span>
+              <span>View all templates</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Template Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+            {[
+              { id: 'all', label: 'All Templates' },
+              { id: 'restaurant', label: 'Restaurant' },
+              { id: 'service', label: 'Service' },
+              { id: 'personal', label: 'Personal' },
+              { id: 'data', label: 'Data Exhibition' },
+              { id: 'others', label: 'Others' }
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setSelectedTemplateFilter(f.id as any)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                  selectedTemplateFilter === f.id
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Template Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredTemplates.map((tpl) => (
+              <div
+                key={tpl.id}
+                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
+              >
+                {/* Visual Thumbnail Area */}
+                <div className={`h-36 sm:h-40 bg-gradient-to-br ${tpl.imageBg} border-b border-slate-200/60 p-4 flex flex-col justify-between relative overflow-hidden`}>
+                  {/* Subtle Grid Mockup Overlay */}
+                  <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:12px_12px] opacity-30" />
+                  
+                  {/* Top Badges */}
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${tpl.accentColor}`}>
+                      {tpl.categoryLabel}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/70 shadow-2xs">
+                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      {tpl.stars}
+                    </span>
+                  </div>
+
+                  {/* Mock Browser Header */}
+                  <div className="relative z-10 bg-white/90 backdrop-blur-xs rounded-xl p-2.5 shadow-xs border border-slate-200/80 group-hover:translate-y-[-2px] transition-transform">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-2 h-2 rounded-full bg-rose-400" />
+                      <div className="w-2 h-2 rounded-full bg-amber-400" />
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <div className="w-24 h-1.5 bg-slate-200 rounded-full ml-1" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="w-3/4 h-2 bg-slate-300 rounded-full" />
+                      <div className="w-1/2 h-1.5 bg-slate-200 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Content & CTAs */}
+                <div className="p-5 flex flex-col justify-between flex-1 space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {tpl.title}
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed mt-1.5">
+                      {tpl.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-slate-400">
+                      {tpl.framework}
+                    </span>
+
+                    <button
+                      onClick={() => handleUseTemplate(tpl)}
+                      className="px-3 py-1.5 bg-[#0F172A] hover:bg-blue-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                    >
+                      <span>Use Template</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
-      </Modal>
+
+      </section>
+
+      {/* MODAL: PROJECT CREATION SETUP */}
+      {isStartModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95 duration-150"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">
+                    Configure Solution Pipeline
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    {selectedOption?.title || selectedTemplate?.title}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsStartModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmProjectCreation} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Project Name</label>
+                <input
+                  type="text"
+                  required
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-400 text-slate-800"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Database Layer</label>
+                  <select
+                    value={projectDb}
+                    onChange={(e) => setProjectDb(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-400 text-slate-800"
+                  >
+                    <option value="PostgreSQL (Supabase / Neon)">PostgreSQL (Neon)</option>
+                    <option value="Cloudflare D1 (SQLite)">Cloudflare D1</option>
+                    <option value="MongoDB Atlas">MongoDB Atlas</option>
+                    <option value="Redis KV">Redis KV</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Deployment Target</label>
+                  <select
+                    value={projectDeploy}
+                    onChange={(e) => setProjectDeploy(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-400 text-slate-800"
+                  >
+                    <option value="Cloudflare Pages & Workers">Cloudflare Pages</option>
+                    <option value="Vercel Edge">Vercel Edge</option>
+                    <option value="AWS Lambda & S3">AWS ECS / S3</option>
+                    <option value="Docker Container">Docker Container</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80 space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Autonomous Pipeline Setup</span>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  SNS Square will provision repository scaffolding, generate API schemas, configure authentication guards, and wire CI/CD deployment pipelines.
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsStartModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#0F172A] hover:bg-blue-600 text-white font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Launch Solution Builder</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICATION TOAST */}
+      {projectCreatedToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0F172A] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="text-xs font-bold">Solution Pipeline Initialized</div>
+            <div className="text-[11px] text-slate-400">Scaffolding workspace generated successfully.</div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
 };
+export default SolutionBuilderFullStack;

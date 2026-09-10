@@ -7,7 +7,7 @@ export const mockProjects: Project[] = [
     key: 'OFC',
     description: 'Enterprise multi-tenant microservices architecture with event-driven checkout and real-time fraud scoring.',
     status: 'Active',
-    productsUsed: ['Solution Architect', 'Monitoring', 'DevOps', 'Testing'],
+    productsUsed: ['Solution Architect', 'Observability', 'DevOps', 'Quality Engineering'],
     owner: 'Sanmugavel S',
     updatedAt: '10 minutes ago',
     membersCount: 8
@@ -29,7 +29,7 @@ export const mockProjects: Project[] = [
     key: 'HCS',
     description: 'HIPAA & SOC 2 audit readiness system with continuous cloud asset discovery and immutable logging.',
     status: 'In Review',
-    productsUsed: ['Compliance', 'Audit', 'Testing'],
+    productsUsed: ['Risk & Compliance', 'Audit Management', 'Quality Engineering'],
     owner: 'Elena Rostova',
     updatedAt: '1 day ago',
     membersCount: 12
@@ -40,7 +40,7 @@ export const mockProjects: Project[] = [
     key: 'VGA',
     description: 'Autonomous multi-lingual telephone dispatching agent connected to CRM and telephony gateways.',
     status: 'Active',
-    productsUsed: ['AI Models', 'Monitoring', 'Testing'],
+    productsUsed: ['AI Models', 'Observability', 'Quality Engineering'],
     owner: 'Sanmugavel S',
     updatedAt: '3 days ago',
     membersCount: 6

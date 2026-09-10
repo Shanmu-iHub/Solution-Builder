@@ -199,7 +199,7 @@ export const moreServicesOfferingsConfigs: Record<string, OfferingLandingConfig>
       { id: 'ai-chat', type: 'service', name: 'AI Chat Assistant', desc: 'Conversational reasoning.', icon: <MessageSquare className="w-4 h-4" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-700', iconBorder: 'border-blue-100' },
       { id: 'ai-music', type: 'service', name: 'AI Music Studio', desc: 'Generative soundtracks.', icon: <Music className="w-4 h-4" />, iconBg: 'bg-violet-50', iconColor: 'text-violet-700', iconBorder: 'border-violet-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Video & Slides Walkthrough',
@@ -379,7 +379,7 @@ export const moreServicesOfferingsConfigs: Record<string, OfferingLandingConfig>
       { id: 'ai-image', type: 'service', name: 'AI Image Studio', desc: 'Generative 8K graphics.', icon: <ImageIcon className="w-4 h-4" />, iconBg: 'bg-pink-50', iconColor: 'text-pink-700', iconBorder: 'border-pink-100' },
       { id: 'ai-chat', type: 'service', name: 'AI Chat Assistant', desc: 'Conversational reasoning.', icon: <MessageSquare className="w-4 h-4" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-700', iconBorder: 'border-blue-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Music Studio Walkthrough',
@@ -559,7 +559,7 @@ export const moreServicesOfferingsConfigs: Record<string, OfferingLandingConfig>
       { id: 'ai-music', type: 'service', name: 'AI Music Studio', desc: 'Generative soundtracks.', icon: <Music className="w-4 h-4" />, iconBg: 'bg-violet-50', iconColor: 'text-violet-700', iconBorder: 'border-violet-100' },
       { id: 'ai-image', type: 'service', name: 'AI Image Studio', desc: 'Generative 8K graphics.', icon: <ImageIcon className="w-4 h-4" />, iconBg: 'bg-pink-50', iconColor: 'text-pink-700', iconBorder: 'border-pink-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Audio & Speech Walkthrough',
@@ -739,7 +739,7 @@ export const moreServicesOfferingsConfigs: Record<string, OfferingLandingConfig>
       { id: 'ai-video', type: 'service', name: 'AI Video & Slides', desc: 'Automated video creation.', icon: <Video className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' },
       { id: 'ai-audio', type: 'service', name: 'AI Audio & Speech', desc: 'Ultra-realistic voices.', icon: <Mic className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize GPU expenditure.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Compute Pods Walkthrough',

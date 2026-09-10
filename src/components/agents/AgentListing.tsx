@@ -97,7 +97,7 @@ export const AgentListing: React.FC = () => {
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-3">
               <button
-                onClick={() => setCurrentView('custom-agent')}
+                onClick={() => setCurrentView('agent-builder')}
                 className="px-6 py-3.5 bg-[#0F172A] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer group"
               >
                 <span>Open Agent Builder</span>
@@ -432,7 +432,7 @@ export const AgentListing: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setCurrentView('custom-agent')}
+          onClick={() => setCurrentView('agent-builder')}
           className="px-6 py-3.5 bg-[#0F172A] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer group"
         >
           <span>Open Agent Builder</span>

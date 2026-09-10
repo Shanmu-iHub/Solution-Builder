@@ -1,7 +1,9 @@
 import React from 'react';
 import { NavigationProvider, useNavigation } from './context/NavigationContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppShell } from './components/layout/AppShell';
+import { LandingPage } from './components/landing/LandingPage';
 
 // Home
 import { DashboardHome } from './components/home/DashboardHome';
@@ -34,6 +36,7 @@ import { AIPodsWorkspace } from './components/services/AIPodsWorkspace';
 
 // Agents
 import { AgentListing } from './components/agents/AgentListing';
+import { AgentBuilderCanvas } from './components/agents/AgentBuilderCanvas';
 import { AgentWorkspace } from './components/agents/AgentWorkspace';
 import { CustomAgentWorkspace } from './components/agents/CustomAgentWorkspace';
 
@@ -106,6 +109,9 @@ const AppContent: React.FC = () => {
 
       // Agents
       case 'agents':
+      case 'agent-builder':
+        return <AgentBuilderCanvas />;
+      case 'agent-listing':
         return <AgentListing />;
       case 'custom-agent':
         return <CustomAgentWorkspace />;
@@ -151,13 +157,23 @@ const AppContent: React.FC = () => {
   return <AppShell>{renderContent()}</AppShell>;
 };
 
-export function App() {
+const RootGate: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <LandingPage />;
   return (
     <NavigationProvider>
       <NotificationProvider>
         <AppContent />
       </NotificationProvider>
     </NavigationProvider>
+  );
+};
+
+export function App() {
+  return (
+    <AuthProvider>
+      <RootGate />
+    </AuthProvider>
   );
 }
 

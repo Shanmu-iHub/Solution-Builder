@@ -35,7 +35,7 @@ export const ProductListing: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // 8 Core Operational Products exactly matching the user request
+  // 8 Core Operational Products
   const operationalProducts: OperationalProduct[] = [
     {
       id: 'finops',
@@ -48,8 +48,8 @@ export const ProductListing: React.FC = () => {
     },
     {
       id: 'monitoring',
-      name: 'Monitoring',
-      desc: 'Monitor applications, agents, workflows and infrastructure in real time.',
+      name: 'Observability',
+      desc: 'Monitor applications, agents, workflows and infrastructure with full-stack observability.',
       icon: <Activity className="w-5 h-5" />,
       iconBg: 'bg-sky-50/90',
       iconText: 'text-sky-700',
@@ -57,8 +57,8 @@ export const ProductListing: React.FC = () => {
     },
     {
       id: 'testing',
-      name: 'Testing',
-      desc: 'Test and validate your solutions with AI-powered testing capabilities.',
+      name: 'Quality Engineering',
+      desc: 'Test and validate your solutions with AI-powered quality engineering and validation.',
       icon: <FlaskConical className="w-5 h-5" />,
       iconBg: 'bg-purple-50/90',
       iconText: 'text-purple-700',
@@ -67,7 +67,7 @@ export const ProductListing: React.FC = () => {
     {
       id: 'devops',
       name: 'DevOps',
-      desc: 'Build, deploy and operate faster with integrated DevOps tools.',
+      desc: 'Build, deploy and operate faster with integrated DevOps CI/CD tools.',
       icon: <InfinityIcon className="w-5 h-5" />,
       iconBg: 'bg-orange-50/90',
       iconText: 'text-orange-700',
@@ -75,8 +75,8 @@ export const ProductListing: React.FC = () => {
     },
     {
       id: 'compliance',
-      name: 'Compliance',
-      desc: 'Manage regulatory compliance and policy requirements efficiently.',
+      name: 'Risk & Compliance',
+      desc: 'Manage enterprise risks, regulatory compliance and policy controls efficiently.',
       icon: <ShieldCheck className="w-5 h-5" />,
       iconBg: 'bg-emerald-50/90',
       iconText: 'text-emerald-700',
@@ -85,7 +85,7 @@ export const ProductListing: React.FC = () => {
     {
       id: 'analytics',
       name: 'Analytics',
-      desc: 'Analyze platform, business and operational data to drive insights.',
+      desc: 'Analyze platform, business and operational data to drive real-time insights.',
       icon: <BarChart2 className="w-5 h-5" />,
       iconBg: 'bg-amber-50/90',
       iconText: 'text-amber-700',
@@ -93,8 +93,8 @@ export const ProductListing: React.FC = () => {
     },
     {
       id: 'audit',
-      name: 'Audit',
-      desc: 'Track, review and audit activities across your enterprise.',
+      name: 'Audit Management',
+      desc: 'Track, review and manage audit activities and compliance evidence across your enterprise.',
       icon: <FileText className="w-5 h-5" />,
       iconBg: 'bg-rose-50/90',
       iconText: 'text-rose-700',
@@ -102,8 +102,8 @@ export const ProductListing: React.FC = () => {
     },
     {
       id: 'gamifications',
-      name: 'Gamifications',
-      desc: 'Motivate engineers with quests, XP rewards, streaks, and squad leaderboards.',
+      name: 'Rewards & Engagement',
+      desc: 'Motivate engineers with quests, XP rewards, streaks, and engagement leaderboards.',
       icon: <Trophy className="w-5 h-5" />,
       iconBg: 'bg-amber-50/90',
       iconText: 'text-amber-700',

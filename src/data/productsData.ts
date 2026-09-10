@@ -24,8 +24,8 @@ export const productsList: ProductItem[] = [
   },
   {
     id: 'monitoring',
-    name: 'Monitoring',
-    shortDesc: 'Monitor infrastructure, applications, services, and AI workloads.',
+    name: 'Observability',
+    shortDesc: 'Monitor infrastructure, applications, services, and AI workloads in real time.',
     longDesc: 'Unified observability suite providing deep tracing, metric telemetry, real-time log analysis, AI model latency monitoring, and intelligent anomaly alerting.',
     category: 'Operations & Cost',
     icon: 'Activity',
@@ -45,8 +45,8 @@ export const productsList: ProductItem[] = [
   },
   {
     id: 'testing',
-    name: 'Testing',
-    shortDesc: 'Validate applications, APIs, workflows, and infrastructure.',
+    name: 'Quality Engineering',
+    shortDesc: 'Validate applications, APIs, workflows, and infrastructure with AI-driven quality assurance.',
     longDesc: 'Enterprise-grade continuous validation platform for automated unit, integration, API contract, performance, security, and AI regression testing.',
     category: 'Engineering & Cloud',
     icon: 'CheckCircle2',
@@ -85,8 +85,8 @@ export const productsList: ProductItem[] = [
   },
   {
     id: 'compliance',
-    name: 'Compliance',
-    shortDesc: 'Manage policies, controls, risks, and compliance requirements.',
+    name: 'Risk & Compliance',
+    shortDesc: 'Manage policies, controls, enterprise risks, and compliance requirements.',
     longDesc: 'Continuous compliance automation engine supporting SOC 2 Type II, ISO 27001, HIPAA, and Indian DPDP Act with automated evidence collection and auditor portals.',
     category: 'Security & Governance',
     icon: 'FileCheck',
@@ -126,8 +126,8 @@ export const productsList: ProductItem[] = [
   },
   {
     id: 'audit',
-    name: 'Audit',
-    shortDesc: 'Track activity, changes, access, and operational history.',
+    name: 'Audit Management',
+    shortDesc: 'Track activity, changes, access, and operational audit history.',
     longDesc: 'Immutable audit trail for all workspace actions, API calls, IAM role changes, and deployment activities with tamper-evident cryptographic verification.',
     category: 'Security & Governance',
     icon: 'ShieldCheck',
@@ -146,7 +146,7 @@ export const productsList: ProductItem[] = [
   },
   {
     id: 'gamifications',
-    name: 'Gamifications',
+    name: 'Rewards & Engagement',
     shortDesc: 'Incentivize engineering excellence with quests, XP, streaks, and squad leaderboards.',
     longDesc: 'Enterprise developer motivation platform transforming sprint milestones, FinOps cost cutting, and zero-bug releases into engaging bounties and rewards.',
     category: 'Engineering & Cloud',

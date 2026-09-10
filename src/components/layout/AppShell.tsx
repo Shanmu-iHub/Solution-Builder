@@ -11,7 +11,8 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const { isSidebarExpanded } = useNavigation();
+  const { isSidebarExpanded, currentView } = useNavigation();
+  const isCanvasView = currentView === 'agents' || currentView === 'agent-builder';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
@@ -27,15 +28,23 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
         {/* Main Content Area */}
         <main
-          className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ${isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-[68px]'
-            }`}
+          className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ${
+            isSidebarExpanded ? 'lg:pl-64' : 'lg:pl-[68px]'
+          }`}
         >
-          <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">
-            {children}
-          </div>
-
-          {/* Footer */}
-          <Footer />
+          {isCanvasView ? (
+            <div className="flex-1 w-full h-[calc(100vh-56px)] overflow-hidden">
+              {children}
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">
+                {children}
+              </div>
+              {/* Footer */}
+              <Footer />
+            </>
+          )}
         </main>
       </div>
 

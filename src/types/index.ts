@@ -40,6 +40,8 @@ export type WorkspaceView =
   | 'products'
   | 'services'
   | 'agents'
+  | 'agent-builder'
+  | 'agent-listing'
   | 'custom-agent'
   | 'marketplace'
   | 'solution-builder-fullstack'

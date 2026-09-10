@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigation } from '../../context/NavigationContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   User,
   Briefcase,
@@ -13,6 +14,7 @@ import {
 
 export const UserMenu: React.FC = () => {
   const { setCurrentView, setIsUserMenuOpen, setActiveSettingsTab } = useNavigation();
+  const { logout, user } = useAuth();
 
   const handleNav = (view: any, settingsTab?: string) => {
     setCurrentView(view);
@@ -22,17 +24,22 @@ export const UserMenu: React.FC = () => {
     setIsUserMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    setIsUserMenuOpen(false);
+    logout();
+  };
+
   return (
     <div className="absolute top-12 right-0 w-64 bg-white rounded-2xl shadow-dropdown border border-[#E2E8F0] overflow-hidden z-50 animate-slide-down text-[#0F172A]">
       {/* User Header Info */}
       <div className="p-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-slate-900 font-bold text-sm flex items-center justify-center border border-white shadow-sm shrink-0">
-            SS
+            {user?.initials || 'SS'}
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-[#0F172A] truncate">Sanmugavel S</h4>
-            <p className="text-[11px] text-[#64748B] truncate">sanmugavel@snssquare.com</p>
+            <h4 className="text-xs font-bold text-[#0F172A] truncate">{user?.name || 'Sanmugavel S'}</h4>
+            <p className="text-[11px] text-[#64748B] truncate">{user?.email || 'sanmugavel@snssquare.com'}</p>
             <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
               Enterprise Admin
             </span>
@@ -94,10 +101,7 @@ export const UserMenu: React.FC = () => {
       {/* Footer / Sign Out */}
       <div className="p-2 border-t border-[#E2E8F0] bg-[#F8FAFC]">
         <button
-          onClick={() => {
-            alert('Signed out from SNS Square Enterprise Workspace');
-            setIsUserMenuOpen(false);
-          }}
+          onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 text-left font-medium transition-colors text-xs"
         >
           <LogOut className="w-4 h-4" />

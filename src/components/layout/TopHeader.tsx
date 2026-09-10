@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, Search, Bell, ChevronDown } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import { AppLauncher } from './AppLauncher';
 import { NotificationPanel } from './NotificationPanel';
 import { UserMenu } from './UserMenu';
@@ -21,6 +22,7 @@ export const TopHeader: React.FC = () => {
   } = useNavigation();
 
   const { unreadCount } = useNotifications();
+  const { user } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-[#07111F] border-b border-[#1E293B] z-40 px-3 lg:px-4 flex items-center justify-between select-none shadow-sm">
@@ -134,13 +136,13 @@ export const TopHeader: React.FC = () => {
           >
             {/* Avatar */}
             <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-slate-900 font-bold text-xs flex items-center justify-center border border-white/20 shadow-sm shrink-0">
-              SS
+              {user?.initials || 'SS'}
             </div>
 
             {/* Name and Org */}
             <div className="hidden lg:flex flex-col text-left text-xs leading-tight">
-              <span className="text-white font-medium text-[12px] truncate max-w-[120px]">Sanmugavel S</span>
-              <span className="text-slate-400 text-[10px] font-normal">SNS Square</span>
+              <span className="text-white font-medium text-[12px] truncate max-w-[120px]">{user?.name || 'Sanmugavel S'}</span>
+              <span className="text-slate-400 text-[10px] font-normal">{user?.org || 'SNS Square'}</span>
             </div>
 
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />

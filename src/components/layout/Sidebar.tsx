@@ -67,7 +67,6 @@ export const Sidebar: React.FC = () => {
   const isSolutionBuilderActive =
     currentView === 'solution-builder-fullstack' ||
     currentView === 'solution-builder-frontend' ||
-    currentView === 'solution-builder-superagent' ||
     currentView === 'product-solution-architect' ||
     currentView === 'product-solution-factor' ||
     currentView === 'agent-deep-research';
@@ -108,43 +107,8 @@ export const Sidebar: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Drawer Configurations for sub-items (Image 4)
+  // Drawer Configurations for sub-items
   const drawers: Record<string, DrawerConfig> = {
-    solutionBuilder: {
-      key: 'solutionBuilder',
-      title: 'Solution Builder',
-      subtitle: 'Build end-to-end solutions with AI',
-      icon: <Box className="w-5 h-5 text-[#0F172A]" />,
-      items: [
-        {
-          id: 'fullstack',
-          label: 'Full Stack',
-          icon: <Layers className="w-4 h-4" />,
-          action: () => {
-            handleNav('solution-builder-fullstack');
-          },
-          isActive: currentView === 'solution-builder-fullstack'
-        },
-        {
-          id: 'frontend',
-          label: 'Frontend',
-          icon: <Monitor className="w-4 h-4" />,
-          action: () => {
-            handleNav('solution-builder-frontend');
-          },
-          isActive: currentView === 'solution-builder-frontend'
-        },
-        {
-          id: 'superagent',
-          label: 'Super Agent',
-          icon: <Sparkles className="w-4 h-4" />,
-          action: () => {
-            handleNav('solution-builder-superagent');
-          },
-          isActive: currentView === 'solution-builder-superagent'
-        }
-      ]
-    },
     aiServices: {
       key: 'aiServices',
       title: 'AI Factory',
@@ -227,7 +191,7 @@ export const Sidebar: React.FC = () => {
         },
         {
           id: 'monitoring',
-          label: 'Monitoring',
+          label: 'Observability',
           icon: <Activity className="w-4 h-4" />,
           action: () => {
             navigateToProduct('monitoring');
@@ -238,7 +202,7 @@ export const Sidebar: React.FC = () => {
         },
         {
           id: 'testing',
-          label: 'Testing',
+          label: 'Quality Engineering',
           icon: <FlaskConical className="w-4 h-4" />,
           action: () => {
             navigateToProduct('testing');
@@ -260,7 +224,7 @@ export const Sidebar: React.FC = () => {
         },
         {
           id: 'compliance',
-          label: 'Compliance',
+          label: 'Risk & Compliance',
           icon: <FileCheck className="w-4 h-4" />,
           action: () => {
             navigateToProduct('compliance');
@@ -282,7 +246,7 @@ export const Sidebar: React.FC = () => {
         },
         {
           id: 'audit',
-          label: 'Audit',
+          label: 'Audit Management',
           icon: <ShieldCheck className="w-4 h-4" />,
           action: () => {
             navigateToProduct('audit');
@@ -293,7 +257,7 @@ export const Sidebar: React.FC = () => {
         },
         {
           id: 'gamifications',
-          label: 'Gamifications',
+          label: 'Rewards & Engagement',
           icon: <Trophy className="w-4 h-4" />,
           action: () => {
             navigateToProduct('gamifications');
@@ -445,24 +409,32 @@ export const Sidebar: React.FC = () => {
               'Solution Builder',
               <Box className="w-[18px] h-[18px]" />,
               isSolutionBuilderActive,
-              () => handleNav('solution-builder-fullstack'),
-              true,
-              activeDrawer === 'solutionBuilder',
-              () => handleToggleDrawer('solutionBuilder')
+              () => handleNav('solution-builder-fullstack')
             )}
 
             {renderNavItem(
               'Agent Builder',
               <User className="w-[18px] h-[18px]" />,
-              currentView === 'agents',
+              currentView === 'agents' || currentView === 'agent-builder',
               () => handleNav('agents')
             )}
+          </div>
 
+          {/* Section: AGENT STUDIO */}
+          {renderSectionHeader('AGENT STUDIO')}
+          <div className="space-y-0.5">
             {renderNavItem(
               'Custom Agent',
               <Brain className="w-[18px] h-[18px]" />,
               currentView === 'custom-agent',
               () => handleNav('custom-agent')
+            )}
+
+            {renderNavItem(
+              'Super Agent',
+              <Sparkles className="w-[18px] h-[18px]" />,
+              currentView === 'solution-builder-superagent',
+              () => handleNav('solution-builder-superagent')
             )}
           </div>
 

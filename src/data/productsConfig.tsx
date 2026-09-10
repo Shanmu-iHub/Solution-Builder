@@ -47,7 +47,7 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     id: 'testing',
     type: 'product',
     breadcrumbCategory: 'Products',
-    badgeTitle: 'Testing',
+    badgeTitle: 'Quality Engineering',
     badgeIcon: <FlaskConical className="w-3.5 h-3.5 text-purple-600" />,
     heroIcon: <FlaskConical className="w-6 h-6" />,
     heroIconBg: 'bg-purple-50/90',
@@ -56,7 +56,7 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     headline1: 'Autonomous test suites.',
     headline2: 'Zero-regression deployments.',
     subtitle: 'Automate AI evaluation, end-to-end integration tests, load simulations, and synthetic traffic generation with intelligent test assertions.',
-    openButtonText: 'Open Testing',
+    openButtonText: 'Open Quality Engineering',
     heroIllustration: {
       cardTitle: 'Continuous Test Runner',
       cardSub: 'Regression & AI Evals',
@@ -208,11 +208,11 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     relatedHeadline: 'Explore related developer products',
     relatedOfferings: [
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Automate build & delivery.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Enforce policy rules.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Enforce policy rules.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize cloud costs.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Measure system insights.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' },
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Review release logs.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Review release logs.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
     ],
     videoModal: {
       title: 'Testing Overview Walkthrough',
@@ -387,12 +387,12 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     ctaSubtitle: 'Connect your GitHub or GitLab repository and trigger your first automated deploy in 3 minutes.',
     relatedHeadline: 'Explore related engineering products',
     relatedOfferings: [
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Live system observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automated test suite runs.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Live system observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automated test suite runs.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize infrastructure spend.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Enforce deployment policies.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Enforce deployment policies.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Developer velocity boards.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' },
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Immutable deployment logs.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Immutable deployment logs.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
     ],
     videoModal: {
       title: 'DevOps Platform Walkthrough',
@@ -406,7 +406,7 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     id: 'gamifications',
     type: 'product',
     breadcrumbCategory: 'Products',
-    badgeTitle: 'Gamifications',
+    badgeTitle: 'Rewards & Engagement',
     badgeIcon: <Trophy className="w-3.5 h-3.5 text-amber-600" />,
     heroIcon: <Trophy className="w-6 h-6" />,
     heroIconBg: 'bg-amber-50/90',
@@ -415,7 +415,7 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     headline1: 'Developer motivation engine.',
     headline2: 'Engagement & Quest Rewards.',
     subtitle: 'Transform engineering sprints, cloud optimization goals, and compliance drills into rewarding milestones with XP, leaderboards, and streak multiplier badges.',
-    openButtonText: 'Open Gamifications',
+    openButtonText: 'Open Rewards & Engagement',
     heroIllustration: {
       cardTitle: 'Enterprise Quest Hub',
       cardSub: 'XP, Streaks & Team Trophies',
@@ -514,10 +514,10 @@ export const productsOfferingsConfigs: Record<string, OfferingLandingConfig> = {
     relatedHeadline: 'Explore related operational products',
     relatedOfferings: [
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Continuous delivery pipelines.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Live system observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automated test suite runs.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Live system observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automated test suite runs.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Cloud cost intelligence.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Regulatory policy enforcement.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Regulatory policy enforcement.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Developer velocity boards.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' }
     ],
     videoModal: {

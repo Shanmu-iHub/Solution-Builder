@@ -194,10 +194,10 @@ export const solutionBuilderConfigs: Record<string, OfferingLandingConfig> = {
     relatedOfferings: [
       { id: 'solution-factor', type: 'product', name: 'Solution Factor', desc: 'Component synthesis.', icon: <Layers className="w-4 h-4" />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-700', iconBorder: 'border-indigo-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Streamline CI/CD deployment.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize multi-cloud costs.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' }
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' }
     ],
     videoModal: {
       title: 'Solution Architect Walkthrough',
@@ -374,8 +374,8 @@ export const solutionBuilderConfigs: Record<string, OfferingLandingConfig> = {
     relatedOfferings: [
       { id: 'solution-architect', type: 'product', name: 'Solution Architect', desc: 'System architecture.', icon: <Box className="w-4 h-4" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-700', iconBorder: 'border-blue-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Streamline CI/CD deployment.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize multi-cloud costs.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Transform data to insights.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' }
     ],
@@ -554,9 +554,9 @@ export const solutionBuilderConfigs: Record<string, OfferingLandingConfig> = {
       { id: 'ai-chat', type: 'service', name: 'AI Chat Assistant', desc: 'Conversational reasoning.', icon: <MessageSquare className="w-4 h-4" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-700', iconBorder: 'border-blue-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize multi-cloud costs.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
       { id: 'solution-architect', type: 'product', name: 'Solution Architect', desc: 'System architecture.', icon: <Box className="w-4 h-4" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-700', iconBorder: 'border-blue-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' }
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' }
     ],
     videoModal: {
       title: 'AI Models Marketplace Walkthrough',

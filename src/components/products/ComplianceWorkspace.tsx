@@ -98,7 +98,7 @@ export const ComplianceWorkspace: React.FC = () => {
           className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Compliance Overview</span>
+          <span>Back to Risk & Compliance Overview</span>
         </button>
 
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
@@ -117,7 +117,7 @@ export const ComplianceWorkspace: React.FC = () => {
         </div>
       </div>
 
-      <Breadcrumb items={[{ label: 'Products' }, { label: 'Compliance' }]} />
+      <Breadcrumb items={[{ label: 'Products' }, { label: 'Risk & Compliance' }]} />
 
       {/* Hero */}
       <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

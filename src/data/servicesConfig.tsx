@@ -199,7 +199,7 @@ export const servicesOfferingsConfigs: Record<string, OfferingLandingConfig> = {
       { id: 'ai-audio', type: 'service', name: 'AI Audio & Speech', desc: 'Ultra-realistic voices.', icon: <Mic className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'ai-music', type: 'service', name: 'AI Music Studio', desc: 'Generative soundtracks.', icon: <Music className="w-4 h-4" />, iconBg: 'bg-violet-50', iconColor: 'text-violet-700', iconBorder: 'border-violet-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Chat Walkthrough',
@@ -379,7 +379,7 @@ export const servicesOfferingsConfigs: Record<string, OfferingLandingConfig> = {
       { id: 'ai-audio', type: 'service', name: 'AI Audio & Speech', desc: 'Ultra-realistic voices.', icon: <Mic className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'ai-music', type: 'service', name: 'AI Music Studio', desc: 'Generative soundtracks.', icon: <Music className="w-4 h-4" />, iconBg: 'bg-violet-50', iconColor: 'text-violet-700', iconBorder: 'border-violet-100' },
       { id: 'ai-pods', type: 'service', name: 'AI Compute Pods', desc: 'Serverless GPU clusters.', icon: <Cpu className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' }
     ],
     videoModal: {
       title: 'AI Image Studio Walkthrough',

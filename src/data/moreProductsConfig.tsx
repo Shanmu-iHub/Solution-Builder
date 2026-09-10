@@ -34,7 +34,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     id: 'compliance',
     type: 'product',
     breadcrumbCategory: 'Products',
-    badgeTitle: 'Compliance',
+    badgeTitle: 'Risk & Compliance',
     badgeIcon: <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />,
     heroIcon: <ShieldCheck className="w-6 h-6" />,
     heroIconBg: 'bg-emerald-50/90',
@@ -43,7 +43,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     headline1: 'Continuous compliance.',
     headline2: 'Automated audit evidence.',
     subtitle: 'Automate SOC 2, HIPAA, ISO 27001, and GDPR compliance checks across multi-cloud infrastructure and employee workstations with zero manual spreadsheet work.',
-    openButtonText: 'Open Compliance',
+    openButtonText: 'Open Risk & Compliance',
     heroIllustration: {
       cardTitle: 'Security & Posture Score',
       cardSub: 'Continuous Control Monitor',
@@ -194,10 +194,10 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     ctaSubtitle: 'Connect your cloud providers and get an instant audit-readiness posture assessment.',
     relatedHeadline: 'Explore related enterprise governance products',
     relatedOfferings: [
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Immutable trail of records.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' },
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Immutable trail of records.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize cloud expenditure.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Automate release pipelines.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Platform operational data.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' }
     ],
@@ -214,7 +214,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     id: 'monitoring',
     type: 'product',
     breadcrumbCategory: 'Products',
-    badgeTitle: 'Monitoring',
+    badgeTitle: 'Observability',
     badgeIcon: <Activity className="w-3.5 h-3.5 text-sky-600" />,
     heroIcon: <Activity className="w-6 h-6" />,
     heroIconBg: 'bg-sky-50/90',
@@ -223,7 +223,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     headline1: 'Unified observability.',
     headline2: 'Intelligent anomaly detection.',
     subtitle: 'Full-stack observability platform that unifies distributed tracing, metric telemetry, real-time log analysis, AI model latency monitoring, and automated anomaly alerting across every service and cloud region.',
-    openButtonText: 'Open Monitoring',
+    openButtonText: 'Open Observability',
     heroIllustration: {
       cardTitle: 'Observability Command Center',
       cardSub: '48 Nodes · 99.99% Uptime',
@@ -374,12 +374,12 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     ctaSubtitle: 'Connect your cloud accounts and instrument your first service in under 5 minutes with OpenTelemetry auto-instrumentation.',
     relatedHeadline: 'Explore related operational intelligence products',
     relatedOfferings: [
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automate SOC 2 and regulatory controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Immutable cryptographic event trail.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automate SOC 2 and regulatory controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Immutable cryptographic event trail.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize cloud expenditure and waste.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Autonomous CI/CD pipeline automation.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Unified data warehouse intelligence.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automated synthetic load & eval testing.', icon: <Sliders className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' }
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automated synthetic load & eval testing.', icon: <Sliders className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' }
     ],
     videoModal: {
       title: 'Monitoring Platform Walkthrough',
@@ -554,12 +554,12 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     ctaSubtitle: 'Connect your database or telemetry stream and generate executive dashboards in minutes.',
     relatedHeadline: 'Explore related operational products',
     relatedOfferings: [
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize multi-cloud costs.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automate audit controls.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Streamline CI/CD deployment.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Immutable trail of records.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Immutable trail of records.', icon: <FileText className="w-4 h-4" />, iconBg: 'bg-rose-50', iconColor: 'text-rose-700', iconBorder: 'border-rose-100' }
     ],
     videoModal: {
       title: 'Analytics Platform Walkthrough',
@@ -574,7 +574,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     id: 'audit',
     type: 'product',
     breadcrumbCategory: 'Products',
-    badgeTitle: 'Audit',
+    badgeTitle: 'Audit Management',
     badgeIcon: <FileText className="w-3.5 h-3.5 text-rose-600" />,
     heroIcon: <FileText className="w-6 h-6" />,
     heroIconBg: 'bg-rose-50/90',
@@ -583,7 +583,7 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     headline1: 'Immutable audit trails.',
     headline2: 'Zero-tampering forensics.',
     subtitle: 'Cryptographically sealed audit logging, role-based change tracking, automated forensic investigations, and full activity provenance across your enterprise.',
-    openButtonText: 'Open Audit',
+    openButtonText: 'Open Audit Management',
     heroIllustration: {
       cardTitle: 'Tamper-Evident Event Ledger',
       cardSub: 'Immutable Cryptographic Chain',
@@ -734,10 +734,10 @@ export const moreProductsConfigs: Record<string, OfferingLandingConfig> = {
     ctaSubtitle: 'Enable tamper-evident logging across all services and infrastructure in under 2 minutes.',
     relatedHeadline: 'Explore related enterprise products',
     relatedOfferings: [
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automate regulatory checks.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automate regulatory checks.', icon: <ShieldCheck className="w-4 h-4" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700', iconBorder: 'border-emerald-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time observability.', icon: <Activity className="w-4 h-4" />, iconBg: 'bg-sky-50', iconColor: 'text-sky-700', iconBorder: 'border-sky-100' },
       { id: 'finops', type: 'product', name: 'FinOps', desc: 'Optimize cloud expenditure.', icon: <DollarSign className="w-4 h-4" />, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-700', iconBorder: 'border-cyan-100' },
-      { id: 'testing', type: 'product', name: 'Testing', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
+      { id: 'testing', type: 'product', name: 'Quality Engineering', desc: 'Automate synthetic evals.', icon: <FlaskConical className="w-4 h-4" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-700', iconBorder: 'border-purple-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Streamline CI/CD pipelines.', icon: <InfinityIcon className="w-4 h-4" />, iconBg: 'bg-orange-50', iconColor: 'text-orange-700', iconBorder: 'border-orange-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Transform data to insights.', icon: <BarChart2 className="w-4 h-4" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-700', iconBorder: 'border-amber-100' }
     ],

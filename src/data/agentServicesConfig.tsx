@@ -203,9 +203,9 @@ export const agentServicesConfigs: Record<string, OfferingLandingConfig> = {
     relatedOfferings: [
       { id: 'ai-chat', type: 'service', name: 'AI Chat', desc: 'Next-gen enterprise multi-modal chat assistant with tool calling.', icon: <MessageSquare className="w-5 h-5" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-600', iconBorder: 'border-blue-100' },
       { id: 'ai-audio', type: 'service', name: 'AI Audio & Speech', desc: 'Studio-grade voice cloning, podcast mastering, and speech-to-text.', icon: <Headphones className="w-5 h-5" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-600', iconBorder: 'border-purple-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automated SOC 2, HIPAA, and PCI-DSS compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automated SOC 2, HIPAA, and PCI-DSS compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Unified cross-cloud data warehouse intelligence and telemetry.', icon: <BarChart2 className="w-5 h-5" />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600', iconBorder: 'border-indigo-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time infrastructure observability and APM telemetry.', icon: <Activity className="w-5 h-5" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-600', iconBorder: 'border-amber-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time infrastructure observability and APM telemetry.', icon: <Activity className="w-5 h-5" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-600', iconBorder: 'border-amber-100' },
       { id: 'ai-video', type: 'service', name: 'AI Slides & Video', desc: 'Generate high-converting video presentations and decks from text.', icon: <Video className="w-5 h-5" />, iconBg: 'bg-pink-50', iconColor: 'text-pink-600', iconBorder: 'border-pink-100' }
     ],
     videoModal: {
@@ -382,7 +382,7 @@ export const agentServicesConfigs: Record<string, OfferingLandingConfig> = {
       { id: 'ai-chat', type: 'service', name: 'AI Chat', desc: 'Next-gen enterprise multi-modal chat assistant with tool calling.', icon: <MessageSquare className="w-5 h-5" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-600', iconBorder: 'border-blue-100' },
       { id: 'ai-audio', type: 'service', name: 'AI Audio & Speech', desc: 'Studio-grade voice cloning, podcast mastering, and speech-to-text.', icon: <Headphones className="w-5 h-5" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-600', iconBorder: 'border-purple-100' },
       { id: 'ai-video', type: 'service', name: 'AI Slides & Video', desc: 'Generate high-converting video presentations and decks from text.', icon: <Video className="w-5 h-5" />, iconBg: 'bg-pink-50', iconColor: 'text-pink-600', iconBorder: 'border-pink-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Unified cross-cloud data warehouse intelligence and telemetry.', icon: <BarChart2 className="w-5 h-5" />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600', iconBorder: 'border-indigo-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Autonomous CI/CD pipeline automation and GitOps deployments.', icon: <InfinityIcon className="w-5 h-5" />, iconBg: 'bg-slate-50', iconColor: 'text-slate-600', iconBorder: 'border-slate-200' }
     ],
@@ -559,9 +559,9 @@ export const agentServicesConfigs: Record<string, OfferingLandingConfig> = {
     relatedOfferings: [
       { id: 'ai-chat', type: 'service', name: 'AI Chat', desc: 'Next-gen enterprise multi-modal chat assistant with tool calling.', icon: <MessageSquare className="w-5 h-5" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-600', iconBorder: 'border-blue-100' },
       { id: 'ai-video', type: 'service', name: 'AI Slides & Video', desc: 'Generate high-converting video presentations and decks from text.', icon: <Video className="w-5 h-5" />, iconBg: 'bg-pink-50', iconColor: 'text-pink-600', iconBorder: 'border-pink-100' },
-      { id: 'monitoring', type: 'product', name: 'Monitoring', desc: 'Real-time infrastructure observability and APM telemetry.', icon: <Activity className="w-5 h-5" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-600', iconBorder: 'border-amber-100' },
+      { id: 'monitoring', type: 'product', name: 'Observability', desc: 'Real-time infrastructure observability and APM telemetry.', icon: <Activity className="w-5 h-5" />, iconBg: 'bg-amber-50', iconColor: 'text-amber-600', iconBorder: 'border-amber-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Autonomous CI/CD pipeline automation and GitOps deployments.', icon: <InfinityIcon className="w-5 h-5" />, iconBg: 'bg-slate-50', iconColor: 'text-slate-600', iconBorder: 'border-slate-200' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Unified cross-cloud data warehouse intelligence and telemetry.', icon: <BarChart2 className="w-5 h-5" />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600', iconBorder: 'border-indigo-100' }
     ],
     videoModal: {
@@ -738,8 +738,8 @@ export const agentServicesConfigs: Record<string, OfferingLandingConfig> = {
       { id: 'ai-chat', type: 'service', name: 'AI Chat', desc: 'Next-gen enterprise multi-modal chat assistant with tool calling.', icon: <MessageSquare className="w-5 h-5" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-600', iconBorder: 'border-blue-100' },
       { id: 'solution-architect', type: 'product', name: 'Solution Architect', desc: 'AI-assisted cloud architecture design and IaC generator.', icon: <Box className="w-5 h-5" />, iconBg: 'bg-blue-50', iconColor: 'text-blue-600', iconBorder: 'border-blue-100' },
       { id: 'analytics', type: 'product', name: 'Analytics', desc: 'Unified cross-cloud data warehouse intelligence and telemetry.', icon: <BarChart2 className="w-5 h-5" />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600', iconBorder: 'border-indigo-100' },
-      { id: 'compliance', type: 'product', name: 'Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
-      { id: 'audit', type: 'product', name: 'Audit', desc: 'Multi-cloud security posture, IAM permissions, and access auditing.', icon: <FileCheck className="w-5 h-5" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-600', iconBorder: 'border-purple-100' },
+      { id: 'compliance', type: 'product', name: 'Risk & Compliance', desc: 'Automated SOC 2, HIPAA, and ISO 27001 compliance auditing.', icon: <ShieldCheck className="w-5 h-5" />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', iconBorder: 'border-emerald-100' },
+      { id: 'audit', type: 'product', name: 'Audit Management', desc: 'Multi-cloud security posture, IAM permissions, and access auditing.', icon: <FileCheck className="w-5 h-5" />, iconBg: 'bg-purple-50', iconColor: 'text-purple-600', iconBorder: 'border-purple-100' },
       { id: 'devops', type: 'product', name: 'DevOps', desc: 'Autonomous CI/CD pipeline automation and GitOps deployments.', icon: <InfinityIcon className="w-5 h-5" />, iconBg: 'bg-slate-50', iconColor: 'text-slate-600', iconBorder: 'border-slate-200' }
     ],
     videoModal: {
