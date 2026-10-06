@@ -48,6 +48,8 @@ import { SettingsPage } from './components/workspace/SettingsPage';
 import { HelpSupportPage } from './components/workspace/HelpSupportPage';
 import { VaultPage } from './components/workspace/VaultPage';
 import { MarketplacePage } from './components/marketplace/MarketplacePage';
+import { RequirementGatheringWorkspace } from './components/requirement-gathering/RequirementGatheringWorkspace';
+import { SolutionBuilderIDE } from './components/products/solution-builder-ide/SolutionBuilderIDE';
 
 const AppContent: React.FC = () => {
   const { currentView } = useNavigation();
@@ -58,6 +60,10 @@ const AppContent: React.FC = () => {
         return <DashboardHome />;
 
       // Solution Builder
+      case 'requirement-gathering':
+        return <RequirementGatheringWorkspace />;
+      case 'solution-builder-ide':
+        return <SolutionBuilderIDE />;
       case 'solution-builder-fullstack':
         return <SolutionBuilderFullStack />;
       case 'solution-builder-frontend':

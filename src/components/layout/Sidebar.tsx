@@ -29,7 +29,8 @@ import {
   GitBranch,
   Brain,
   Trophy,
-  FlaskConical
+  FlaskConical,
+  Terminal
 } from 'lucide-react';
 
 interface DrawerConfig {
@@ -60,11 +61,16 @@ export const Sidebar: React.FC = () => {
     setActiveSettingsTab
   } = useNavigation();
 
+  // Solution Builder sub-items toggle
+  const [isSolutionBuilderOpen, setIsSolutionBuilderOpen] = useState<boolean>(true);
+
   // Active flyout drawer for items with sub-menus (Image 4 design)
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
 
   // Auto-detect if current view belongs to a sub-menu to highlight the parent
   const isSolutionBuilderActive =
+    currentView === 'requirement-gathering' ||
+    currentView === 'solution-builder-ide' ||
     currentView === 'solution-builder-fullstack' ||
     currentView === 'solution-builder-frontend' ||
     currentView === 'product-solution-architect' ||
@@ -284,11 +290,10 @@ export const Sidebar: React.FC = () => {
       <div
         onClick={onClick}
         title={label}
-        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 text-left group cursor-pointer relative select-none ${
-          isActive || isDrawerOpen
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 text-left group cursor-pointer relative select-none ${isActive || isDrawerOpen
             ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold'
             : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
-        }`}
+          }`}
       >
         {/* Active Blue Left Indicator Bar */}
         {(isActive || isDrawerOpen) && (
@@ -297,9 +302,8 @@ export const Sidebar: React.FC = () => {
 
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <span
-            className={`w-[18px] h-[18px] shrink-0 transition-colors flex items-center justify-center ${
-              isActive || isDrawerOpen ? 'text-[#0F172A]' : 'text-[#334155] group-hover:text-[#0F172A]'
-            }`}
+            className={`w-[18px] h-[18px] shrink-0 transition-colors flex items-center justify-center ${isActive || isDrawerOpen ? 'text-[#0F172A]' : 'text-[#334155] group-hover:text-[#0F172A]'
+              }`}
           >
             {icon}
           </span>
@@ -320,16 +324,14 @@ export const Sidebar: React.FC = () => {
               }
             }}
             title={`Toggle ${label} menu`}
-            className={`p-1 -mr-1 rounded-lg transition-all duration-150 shrink-0 hover:bg-slate-200/70 ${
-              isDrawerOpen
+            className={`p-1 -mr-1 rounded-lg transition-all duration-150 shrink-0 hover:bg-slate-200/70 ${isDrawerOpen
                 ? 'text-[#2563EB] bg-blue-100/60'
                 : 'text-slate-400 hover:text-slate-700'
-            }`}
+              }`}
           >
             <ChevronRight
-              className={`w-4 h-4 transition-transform duration-150 ${
-                isDrawerOpen ? 'translate-x-0.5' : ''
-              }`}
+              className={`w-4 h-4 transition-transform duration-150 ${isDrawerOpen ? 'translate-x-0.5' : ''
+                }`}
             />
           </button>
         )}
@@ -372,9 +374,8 @@ export const Sidebar: React.FC = () => {
 
       {/* Main Sidebar Container */}
       <aside
-        className={`fixed top-14 bottom-0 left-0 z-40 bg-white border-r border-slate-200/90 select-none transition-all duration-200 flex flex-col ${
-          isSidebarExpanded ? 'lg:w-64' : 'lg:w-[68px]'
-        } ${isMobileSidebarOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'}`}
+        className={`fixed top-14 bottom-0 left-0 z-40 bg-white border-r border-slate-200/90 select-none transition-all duration-200 flex flex-col ${isSidebarExpanded ? 'lg:w-64' : 'lg:w-[68px]'
+          } ${isMobileSidebarOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Mobile Header with close button */}
         <div className="lg:hidden p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -409,7 +410,48 @@ export const Sidebar: React.FC = () => {
               'Solution Builder',
               <Box className="w-[18px] h-[18px]" />,
               isSolutionBuilderActive,
-              () => handleNav('solution-builder-fullstack')
+              () => handleNav('requirement-gathering'),
+              true,
+              isSolutionBuilderOpen,
+              () => setIsSolutionBuilderOpen(!isSolutionBuilderOpen)
+            )}
+
+            {isSolutionBuilderOpen && isSidebarExpanded && (
+              <div className="pl-6 space-y-0.5 pt-0.5 pb-1 animate-fade-in">
+                <button
+                  type="button"
+                  onClick={() => handleNav('requirement-gathering')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'requirement-gathering'
+                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                    }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span className="truncate">Requirement Gathering</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNav('solution-builder-ide')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'solution-builder-ide'
+                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                    }`}
+                >
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span className="truncate">Solution Builder IDE</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNav('product-solution-architect')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-architect'
+                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                    }`}
+                >
+                  <Box className="w-3.5 h-3.5" />
+                  <span className="truncate">Solution Architect</span>
+                </button>
+              </div>
             )}
 
             {renderNavItem(
@@ -527,9 +569,8 @@ export const Sidebar: React.FC = () => {
       {/* Secondary Flyout Drawer Panel (Image 4 Design) */}
       {activeDrawer && drawers[activeDrawer] && (
         <aside
-          className={`fixed top-14 bottom-0 z-40 bg-white border-r border-slate-200/90 shadow-xl select-none transition-all duration-200 flex flex-col w-64 animate-slide-right ${
-            isSidebarExpanded ? 'left-64' : 'left-[68px]'
-          }`}
+          className={`fixed top-14 bottom-0 z-40 bg-white border-r border-slate-200/90 shadow-xl select-none transition-all duration-200 flex flex-col w-64 animate-slide-right ${isSidebarExpanded ? 'left-64' : 'left-[68px]'
+            }`}
         >
           {/* Drawer Header matching Image 4 */}
           <div className="p-4 pb-3 border-b border-slate-100 flex items-start justify-between bg-white">
@@ -560,16 +601,14 @@ export const Sidebar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={item.action}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 text-left cursor-pointer group ${
-                  item.isActive
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 text-left cursor-pointer group ${item.isActive
                     ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold shadow-2xs'
                     : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <span
-                  className={`w-4 h-4 shrink-0 transition-colors ${
-                    item.isActive ? 'text-[#2563EB]' : 'text-slate-500 group-hover:text-[#0F172A]'
-                  }`}
+                  className={`w-4 h-4 shrink-0 transition-colors ${item.isActive ? 'text-[#2563EB]' : 'text-slate-500 group-hover:text-[#0F172A]'
+                    }`}
                 >
                   {item.icon}
                 </span>

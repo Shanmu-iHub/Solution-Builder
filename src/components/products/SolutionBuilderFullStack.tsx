@@ -281,8 +281,39 @@ export const SolutionBuilderFullStack: React.FC = () => {
         <span className="text-slate-900 font-semibold">Full Stack</span>
       </nav>
 
+      {/* Quick Launch Solution Builder IDE Banner */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-indigo-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">LIVE WORKSPACE</span>
+              <span className="text-white/40">•</span>
+              <span className="text-xs font-semibold text-emerald-400">C-Suite Validation Integrated</span>
+            </div>
+            <h3 className="text-sm sm:text-base font-bold text-white">
+              OmniBoard Support Hub & ExpensifyIQ Solution IDE
+            </h3>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Access the live solution builder environment with execution pipeline and executive sign-off layers.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setCurrentView('solution-builder-ide')}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+        >
+          <span>OPEN SOLUTION BUILDER IDE</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
       {/* 2. "START BUILDING SOMETHING GREAT" SECTION */}
-      <section className="space-y-8 pt-4">
+      <section className="space-y-8 pt-2">
         
         {/* Section Heading: Centered on a Single Line with Multicolor Gradient */}
         <div className="text-center max-w-5xl mx-auto space-y-2">

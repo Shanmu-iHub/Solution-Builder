@@ -44,6 +44,8 @@ export type WorkspaceView =
   | 'agent-listing'
   | 'custom-agent'
   | 'marketplace'
+  | 'requirement-gathering'
+  | 'solution-builder-ide'
   | 'solution-builder-fullstack'
   | 'solution-builder-frontend'
   | 'solution-builder-superagent'

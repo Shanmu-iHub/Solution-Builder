@@ -36,6 +36,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
             <div className="flex-1 w-full h-[calc(100vh-56px)] overflow-hidden">
               {children}
             </div>
+          ) : currentView === 'requirement-gathering' ? (
+            <div className="flex-1 w-full flex flex-col">
+              {children}
+              <Footer />
+            </div>
           ) : (
             <>
               <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">

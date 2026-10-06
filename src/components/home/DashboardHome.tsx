@@ -162,11 +162,7 @@ export const DashboardHome: React.FC = () => {
 
   const handleBuildPrompt = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!promptText.trim()) {
-      setCurrentView('solution-builder-fullstack');
-    } else {
-      setCurrentView('solution-builder-fullstack');
-    }
+    setCurrentView('requirement-gathering');
   };
 
   return (
@@ -274,7 +270,7 @@ export const DashboardHome: React.FC = () => {
                 key={idx}
                 onClick={() => {
                   setPromptText(suggestion);
-                  setCurrentView('solution-builder-fullstack');
+                  setCurrentView('requirement-gathering');
                 }}
                 className="text-[11px] text-slate-600 hover:text-slate-900 bg-white/90 hover:bg-white border border-slate-200/80 rounded-full px-3 py-1 transition-all cursor-pointer shadow-2xs font-normal"
               >
