@@ -60,7 +60,8 @@ export type WorkspaceView =
   | 'api-keys'
   | 'integrations'
   | 'settings'
-  | 'vault';
+  | 'vault'
+  | 'skills-library';
 
 export interface ProductItem {
   id: ProductId;

@@ -11,8 +11,8 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const { isSidebarExpanded, currentView } = useNavigation();
-  const isCanvasView = currentView === 'agents' || currentView === 'agent-builder';
+  const { isSidebarExpanded, currentView, isCanvasMode } = useNavigation();
+  const isCanvasView = currentView === 'agents' || currentView === 'agent-builder' || isCanvasMode;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
@@ -33,7 +33,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           }`}
         >
           {isCanvasView ? (
-            <div className="flex-1 w-full h-[calc(100vh-56px)] overflow-hidden">
+            <div className="flex-none w-full h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] overflow-hidden">
               {children}
             </div>
           ) : (
