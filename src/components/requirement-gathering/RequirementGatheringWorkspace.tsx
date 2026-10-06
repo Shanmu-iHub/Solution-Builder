@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '../../context/NavigationContext';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { StageId, StageStatus, ExecutiveReview, StageGateEvaluation } from '../../services/csuite/types';
 import { StageRouter } from '../../services/csuite/StageRouter';
 import { MasterAgent } from '../../services/csuite/MasterAgent';
 import { StageStepper } from './StageStepper';
-import { CSuiteValidationPanel } from './CSuiteValidationPanel';
 
 // 10 Stages
 import { IdeaUnderstandingStage } from './stages/IdeaUnderstandingStage';
@@ -58,6 +58,8 @@ export const RequirementGatheringWorkspace: React.FC = () => {
   const [isRevalidating, setIsRevalidating] = useState<boolean>(false);
 
   const currentStageConfig = StageRouter.resolve(currentStageId);
+  const prevStageId = StageRouter.getPreviousStage(currentStageId);
+  const prevStageConfig = prevStageId ? StageRouter.resolve(prevStageId) : null;
   const nextStageId = StageRouter.getNextStage(currentStageId);
   const nextStageConfig = nextStageId ? StageRouter.resolve(nextStageId) : null;
   const currentScenario = stageScenarios[currentStageId] || 'approved';
@@ -213,20 +215,41 @@ export const RequirementGatheringWorkspace: React.FC = () => {
         {/* 3. Main Stage Content */}
         {renderActiveStageContent()}
 
-        {/* 4. C-Suite Validation & Stage Gate Panel */}
-        {gateEvaluation && (
-          <CSuiteValidationPanel
-            stageId={currentStageId}
-            nextStageTitle={nextStageConfig?.title}
-            reviews={reviews}
-            gateEvaluation={gateEvaluation}
-            onContinue={handleContinue}
-            onRevalidate={handleRevalidate}
-            onScenarioChange={handleScenarioChange}
-            activeScenario={currentScenario}
-            isRevalidating={isRevalidating}
-          />
-        )}
+        {/* 4. Stage Progression Navigation */}
+        <div className="mt-12 pt-6 border-t border-slate-200 flex items-center justify-between gap-4">
+          {prevStageId ? (
+            <button
+              type="button"
+              onClick={handlePrevStage}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Previous Stage ({prevStageConfig?.title || 'Back'})</span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          {nextStageId ? (
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#18181b] hover:bg-black text-white text-xs font-bold transition-all shadow-xs cursor-pointer group"
+            >
+              <span>Continue to {nextStageConfig?.title || 'Next Stage'}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCurrentView('solution-builder-ide')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#18181b] hover:bg-black text-white text-xs font-bold transition-all shadow-xs cursor-pointer group"
+            >
+              <span>Proceed to Solution Builder IDE</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
