@@ -30,7 +30,8 @@ import {
   Brain,
   Trophy,
   FlaskConical,
-  Terminal
+  Terminal,
+  Cpu
 } from 'lucide-react';
 
 interface DrawerConfig {
@@ -73,8 +74,6 @@ export const Sidebar: React.FC = () => {
     currentView === 'solution-builder-ide' ||
     currentView === 'solution-builder-fullstack' ||
     currentView === 'solution-builder-frontend' ||
-    currentView === 'product-solution-architect' ||
-    currentView === 'product-solution-factor' ||
     currentView === 'agent-deep-research';
 
   const isAiServicesActive =
@@ -455,6 +454,20 @@ export const Sidebar: React.FC = () => {
             )}
 
             {renderNavItem(
+              'Solution Architect',
+              <Layers className="w-[18px] h-[18px]" />,
+              currentView === 'product-solution-architect',
+              () => handleNav('product-solution-architect')
+            )}
+
+            {renderNavItem(
+              'Solution Factory',
+              <Box className="w-[18px] h-[18px]" />,
+              currentView === 'product-solution-factor',
+              () => handleNav('product-solution-factor')
+            )}
+
+            {renderNavItem(
               'Agent Builder',
               <User className="w-[18px] h-[18px]" />,
               currentView === 'agents' || currentView === 'agent-builder',
@@ -526,6 +539,13 @@ export const Sidebar: React.FC = () => {
               <Database className="w-[18px] h-[18px]" />,
               currentView === 'vault',
               () => handleNav('vault')
+            )}
+
+            {renderNavItem(
+              'Skills Library',
+              <Cpu className="w-[18px] h-[18px]" />,
+              currentView === 'skills-library',
+              () => handleNav('skills-library')
             )}
 
             {renderNavItem(
