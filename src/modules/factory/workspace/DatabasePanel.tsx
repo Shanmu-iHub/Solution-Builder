@@ -1,52 +1,208 @@
 import React, { useState } from 'react';
-import { Database, KeyRound, Table2 } from 'lucide-react';
-import { Badge, Card, EmptyBlock, Tabs, cx } from '../../ui';
-import { dbCollections } from '../mockData';
+import {
+  Database,
+  Eye,
+  Layers,
+  RefreshCw,
+  Shield,
+  Table2,
+} from 'lucide-react';
+import { cx, useToast } from '../../ui';
 
-export const DatabasePanel: React.FC<{ hasSchema: boolean }> = ({ hasSchema }) => {
-  const [active, setActive] = useState(dbCollections[0].name);
-  const [view, setView] = useState<'data' | 'schema'>('data');
-  const c = dbCollections.find(x => x.name === active)!;
+interface DatabasePanelProps {
+  connected: boolean;
+  onConnect: () => void;
+  projectName?: string;
+}
 
-  if (!hasSchema) {
-    return <EmptyBlock icon={<Database className="w-6 h-6" />} title="Database connection required" message="The inspector appears once the application has a data layer. Build the app first, then come back to browse its tables and collections." />;
-  }
+const COLLECTIONS = [
+  'receipt_assets',
+  'workflows',
+  'categories',
+  'policy_violations',
+  'file_assets',
+  'receipts',
+  'reimbursements',
+  'users',
+  'audit_logs',
+  'approval_rules',
+  'organizations',
+  'vendors',
+  'budgets',
+];
+
+export const DatabasePanel: React.FC<DatabasePanelProps> = ({
+  connected,
+  onConnect,
+  projectName = 'expensifyiq',
+}) => {
+  const { toast } = useToast();
+  const [uri, setUri] = useState('mongodb+srv://admin:cluster99.mongodb.net/expensifyiq');
+  const [dbName, setDbName] = useState(projectName.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const [selectedCollection, setSelectedCollection] = useState('receipt_assets');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdate = () => {
+    setIsUpdating(true);
+    setTimeout(() => {
+      setIsUpdating(false);
+      onConnect();
+      toast({
+        title: 'Cluster Connected',
+        description: `MongoDB cluster connected to '${dbName || 'expensifyiq'}' with 13 collections.`,
+      });
+    }, 600);
+  };
 
   return (
-    <div className="flex h-full w-full rounded-2xl border border-slate-200 bg-white overflow-hidden">
-      <aside className="w-56 shrink-0 border-r border-slate-200 bg-slate-50/60 flex flex-col">
-        <div className="px-4 h-12 flex items-center gap-2 border-b border-slate-200"><span className="relative flex w-2 h-2"><span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" /><span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-500" /></span><span className="text-[13.5px] font-bold uppercase tracking-wider text-[#0F172A]">Live inspector</span></div>
-        <div className="flex-1 overflow-auto p-2 space-y-1">
-          {dbCollections.map(x => (
-            <button key={x.name} onClick={() => setActive(x.name)} className={cx('w-full text-left px-3 py-2 rounded-xl text-[13.5px] transition cursor-pointer', active === x.name ? 'bg-blue-50 text-[#1D4ED8]' : 'text-slate-600 hover:bg-slate-100')}>
-              <span className="flex items-center gap-2 font-semibold"><Table2 className="w-3.5 h-3.5" />{x.name}</span>
-              <span className="flex items-center justify-between mt-0.5 text-[11.5px] text-slate-400"><span>{x.engine}</span><span>{x.count.toLocaleString()} rows</span></span>
+    <div className="flex h-full w-full flex-col bg-white overflow-hidden font-sans">
+      {/* Top Header */}
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center">
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-[15px] font-bold text-slate-900 leading-tight">
+                MongoDB Live Inspector
+              </h2>
+              {connected ? (
+                <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                  CONNECTED
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200 animate-pulse">
+                  AWAITING CLUSTER
+                </span>
+              )}
+            </div>
+            <p className="text-[12px] text-slate-500 leading-tight mt-0.5">
+              Cluster: {dbName || 'expensifyiq'} ({COLLECTIONS.length} Collections)
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => toast({ title: 'Status Synchronized', description: 'Collections & schema refreshed.' })}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[12px] font-medium shadow-xs transition cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+          <span>Sync Status</span>
+        </button>
+      </div>
+
+      {/* Main Split Layout */}
+      <div className="flex-1 min-h-0 flex overflow-hidden">
+        {/* Left Column: Credentials & Live Collections list */}
+        <div className="w-80 md:w-96 shrink-0 border-r border-slate-200 bg-slate-50/50 flex flex-col overflow-y-auto p-4 space-y-6">
+          {/* Cluster Credentials */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-[11.5px] uppercase tracking-wider">
+              <Layers className="w-4 h-4 text-slate-500" />
+              <span>CLUSTER CREDENTIALS</span>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[12px] font-medium text-slate-700 mb-1">
+                  MongoDB Connection URI <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={uri}
+                  onChange={e => setUri(e.target.value)}
+                  placeholder="mongodb+srv://..."
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px] font-mono text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-slate-700 mb-1">
+                  Database Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={dbName}
+                  onChange={e => setDbName(e.target.value)}
+                  placeholder="expensifyiq"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px] font-sans text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition"
+                />
+              </div>
+
+              <button
+                onClick={handleUpdate}
+                disabled={isUpdating}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold shadow-xs cursor-pointer transition disabled:opacity-50"
+              >
+                <Shield className="w-4 h-4" />
+                <span>{isUpdating ? 'Connecting…' : 'Update Credentials'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Live Collections */}
+          <div className="space-y-2 pt-2 border-t border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-slate-800 font-bold text-[11.5px] uppercase tracking-wider">
+                <Table2 className="w-4 h-4 text-slate-500" />
+                <span>LIVE COLLECTIONS</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                {COLLECTIONS.length}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              {COLLECTIONS.map(col => {
+                const isSelected = selectedCollection === col;
+                return (
+                  <button
+                    key={col}
+                    onClick={() => setSelectedCollection(col)}
+                    className={cx(
+                      'w-full flex items-center justify-between px-3 py-2 rounded-xl text-[12.5px] font-mono transition cursor-pointer text-left',
+                      isSelected
+                        ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200/60'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    )}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Table2 className={cx('w-3.5 h-3.5 shrink-0', isSelected ? 'text-blue-600' : 'text-slate-400')} />
+                      <span className="truncate">{col}</span>
+                    </div>
+                    {isSelected && <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Selected Collection Records */}
+        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+            <div className="flex items-center gap-2">
+              <Table2 className="w-4 h-4 text-blue-600" />
+              <h3 className="text-[14px] font-mono font-semibold text-slate-900">
+                {selectedCollection} <span className="text-slate-400 font-normal font-sans">(0 Records)</span>
+              </h3>
+            </div>
+            <button
+              onClick={() => toast({ title: 'Live Sync Triggered', description: `Checking ${selectedCollection} records.` })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[12px] font-medium shadow-xs transition cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+              <span>Live Sync</span>
             </button>
-          ))}
-        </div>
-      </aside>
-      <div className="flex-1 min-w-0 flex flex-col">
-        <div className="flex items-center justify-between px-4 h-12 border-b border-slate-200">
-          <div className="flex items-center gap-2"><span className="text-[15px] font-bold text-[#0F172A]">{c.name}</span><Badge tone={c.engine === 'MongoDB' ? 'green' : 'blue'}>{c.engine}</Badge></div>
-          <Tabs active={view} onChange={setView} tabs={[{ id: 'data', label: 'Data' }, { id: 'schema', label: 'Schema' }]} className="!border-0" />
-        </div>
-        <div className="flex-1 overflow-auto p-4">
-          {view === 'data' ? (
-            <Card padded={false} className="overflow-auto">
-              <table className="w-full text-[13.5px]">
-                <thead className="bg-slate-50 text-left"><tr>{c.fields.map(f => <th key={f.name} className="px-3 py-2.5 font-bold text-slate-600 whitespace-nowrap">{f.name}</th>)}</tr></thead>
-                <tbody>{c.rows.map((r, i) => <tr key={i} className="border-t border-slate-100">{c.fields.map(f => <td key={f.name} className="px-3 py-2.5 font-mono text-slate-700 whitespace-nowrap">{String(r[f.name] ?? '')}</td>)}</tr>)}</tbody>
-              </table>
-              <p className="px-3 py-2 text-[12.5px] text-slate-400 border-t border-slate-100">Showing {c.rows.length} of {c.count.toLocaleString()} rows (read-only sample)</p>
-            </Card>
-          ) : (
-            <Card padded={false} className="overflow-hidden">
-              <table className="w-full text-[13.5px]">
-                <thead className="bg-slate-50 text-left"><tr><th className="px-3 py-2.5 font-bold text-slate-600">Field</th><th className="px-3 py-2.5 font-bold text-slate-600">Type</th><th className="px-3 py-2.5 font-bold text-slate-600">Index</th></tr></thead>
-                <tbody>{c.fields.map(f => <tr key={f.name} className="border-t border-slate-100"><td className="px-3 py-2.5 font-mono font-semibold">{f.name}</td><td className="px-3 py-2.5 text-slate-600">{f.type}</td><td className="px-3 py-2.5">{f.indexed ? <Badge tone="indigo"><KeyRound className="w-3 h-3" />indexed</Badge> : <span className="text-slate-300">—</span>}</td></tr>)}</tbody>
-              </table>
-            </Card>
-          )}
+          </div>
+
+          {/* Empty state container matching Screenshot 1 */}
+          <div className="flex-1 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 flex items-center justify-center p-8 text-center">
+            <p className="text-[13.5px] text-slate-400">
+              No records in &apos;{selectedCollection}&apos; yet.
+            </p>
+          </div>
         </div>
       </div>
     </div>

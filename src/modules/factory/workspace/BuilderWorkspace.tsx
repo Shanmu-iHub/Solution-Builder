@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   BarChart3,
+  CheckCircle2,
   Cloud,
   Code,
   Database,
@@ -21,12 +22,13 @@ import { FactoryProject } from '../types';
 import { ArchitecturePanel } from './ArchitecturePanel';
 import { ChatPane, StoryStage } from './ChatPane';
 import { CodePanel } from './CodePanel';
+import { CSuiteValidationModal } from './CSuiteValidationModal';
 import { DatabasePanel } from './DatabasePanel';
 import { DeploymentPanel } from './DeploymentPanel';
 import { GitPanel } from './GitPanel';
 import { PlanPanel } from './PlanPanel';
 import { PreviewPanel } from './PreviewPanel';
-import { TokenDialog } from './TokenDialog';
+import { TokenConsumptionDrawer } from './TokenConsumptionDrawer';
 import { WorkflowPanel } from './WorkflowPanel';
 
 type Tab = 'plan' | 'preview' | 'code' | 'git' | 'database' | 'workflow' | 'deployment' | 'credit';
@@ -67,6 +69,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
   const [showArchitecture, setShowArchitecture] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
+  const [cSuiteOpen, setCSuiteOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
@@ -300,6 +303,14 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               <span className={cx('w-1.5 h-1.5 rounded-full', status.dot)} />
               {status.label}
             </span>
+
+            <button
+              onClick={() => setCSuiteOpen(true)}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[11px] font-bold uppercase tracking-wider shrink-0 transition cursor-pointer"
+            >
+              <CheckCircle2 size={13} className="text-emerald-600" />
+              <span>C-SUITE VALIDATION</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -407,8 +418,13 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
         </div>
       </div>
 
-      {/* Dialogs */}
-      <TokenDialog open={tokensOpen} onClose={() => setTokensOpen(false)} logs={state.tokens} />
+      {/* Drawers & Dialogs */}
+      <TokenConsumptionDrawer open={tokensOpen} onClose={() => setTokensOpen(false)} />
+      <CSuiteValidationModal
+        open={cSuiteOpen}
+        projectName={project.projectName}
+        onClose={() => setCSuiteOpen(false)}
+      />
       <Dialog
         open={shareOpen}
         onClose={() => setShareOpen(false)}

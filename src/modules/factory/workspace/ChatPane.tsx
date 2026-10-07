@@ -71,6 +71,7 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
       args: {
         pipeline: 'Full-Stack Application Builder',
         action: 'analyze_specifications',
+        active_skills: ['Requirements Analyst', 'Domain Expert'],
       },
       result: {
         status: 'success',
@@ -87,15 +88,21 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
       args: {
         pipeline: 'Full-Stack Application Builder',
         action: 'discovery_request',
+        active_skills: ['Skill Discovery Agent', 'Skill Catalog Registry'],
       },
       result: {
         status: 'success',
-        skills_gathered: 4,
+        skills_gathered: 9,
         available: [
-          'nextjs_fullstack_scaffolder',
-          'mongodb_prisma_schema_generator',
-          'tailwind_component_synthesizer',
-          'agent_builder_workflow_connector',
+          'Requirements Analyst',
+          'Database Engineer',
+          'Database Schema Architect',
+          'Fullstack Code Generator',
+          'Next.js 15 Specialist',
+          'Tailwind UI Designer',
+          'Agent Workflow Architect',
+          'TypeScript & Lint Checker',
+          'Runtime Smoke Tester',
         ],
       },
     },
@@ -107,6 +114,7 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
       args: {
         pipeline: 'Full-Stack Application Builder',
         action: 'compile_architecture_graph',
+        active_skills: ['Solutions Architect', 'Agent Workflow Architect'],
       },
       result: {
         status: 'architecture_planned',
@@ -123,6 +131,7 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
       args: {
         pipeline: 'Full-Stack Application Builder',
         template: 'nextjs-enterprise-saas',
+        active_skills: ['Next.js 15 Specialist', 'Package Scaffolder'],
       },
       result: {
         status: 'project_initialized',
@@ -132,12 +141,12 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
     },
   },
   'database-initializer-awaiting': {
-    operation: 'mongodb_cluster_init',
+    operation: 'database_initializer',
     json: {
-      operation: 'mongodb_cluster_init',
+      operation: 'database_initializer',
       args: {
-        pipeline: 'Full-Stack Application Builder',
-        state: 'awaiting_connection',
+        database_name: 'expensifyiq',
+        active_skills: ['Database Engineer', 'Database Schema Architect'],
       },
       result: {
         status: 'awaiting_cluster',
@@ -146,42 +155,44 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
     },
   },
   'database-initializer-ready': {
-    operation: 'database_connection_test',
+    operation: 'database_initializer',
     json: {
-      operation: 'database_connection_test',
+      operation: 'database_initializer',
       args: {
-        cluster: 'mongodb+srv://cluster0.example.mongodb.net/expensify',
+        database_name: 'expensifyiq',
+        active_skills: ['Database Engineer', 'Database Schema Architect'],
       },
       result: {
-        status: 'connected',
-        latency_ms: 28,
+        status: 'database_configured',
         collections_ready: ['users', 'expenses', 'policies', 'receipts'],
       },
     },
   },
   'code-writer': {
-    operation: 'fullstack_code_generator',
+    operation: 'code_writer',
     json: {
-      operation: 'fullstack_code_generator',
+      operation: 'code_writer',
       args: {
-        pipeline: 'Full-Stack Application Builder',
-        target: 'all_files',
+        target_files: 55,
+        active_skills: [
+          'Fullstack Code Generator',
+          'Next.js 15 Specialist',
+          'Tailwind UI Designer',
+        ],
       },
       result: {
         status: 'completed',
-        files_generated: 56,
-        components: 9,
-        pages: 9,
-        api_routes: 10,
+        files_generated: 55,
       },
     },
   },
   'code-validator': {
-    operation: 'syntax_and_type_check',
+    operation: 'code_validator',
     json: {
-      operation: 'syntax_and_type_check',
+      operation: 'code_validator',
       args: {
         engine: 'typescript_tsc',
+        active_skills: ['TypeScript & Lint Checker'],
       },
       result: {
         status: 'code_validated',
@@ -191,11 +202,12 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
     },
   },
   'build-executor': {
-    operation: 'next_build_runner',
+    operation: 'build_executor',
     json: {
-      operation: 'next_build_runner',
+      operation: 'build_executor',
       args: {
         command: 'next build',
+        active_skills: ['Build Engine'],
       },
       result: {
         status: 'build_executed',
@@ -205,11 +217,12 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
     },
   },
   'build-validator': {
-    operation: 'runtime_smoke_test',
+    operation: 'build_validator',
     json: {
-      operation: 'runtime_smoke_test',
+      operation: 'build_validator',
       args: {
         port: 3000,
+        active_skills: ['Runtime Smoke Tester'],
       },
       result: {
         status: 'build_validated',
@@ -219,6 +232,55 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
     },
   },
 };
+
+const GENERATED_FILES_55: string[] = [
+  'README.md',
+  '.env.example',
+  'src/models/userModel.ts',
+  'src/models/expenseModel.ts',
+  'src/models/receiptAssetModel.ts',
+  'src/models/policyModel.ts',
+  'src/models/approvalHierarchyModel.ts',
+  'src/app/layout.tsx',
+  'src/app/page.tsx',
+  'src/app/expenses/page.tsx',
+  'src/app/expenses/new/page.tsx',
+  'src/app/expenses/[id]/page.tsx',
+  'src/app/approvals/page.tsx',
+  'src/app/policies/page.tsx',
+  'src/app/analytics/page.tsx',
+  'src/app/settings/page.tsx',
+  'src/app/login/page.tsx',
+  'src/components/ExpenseTable.tsx',
+  'src/components/ReceiptUploader.tsx',
+  'src/components/ApprovalWorkflow.tsx',
+  'src/components/SpendAnalyticsChart.tsx',
+  'src/components/PolicyRuleEditor.tsx',
+  'src/components/Sidebar.tsx',
+  'src/components/Navbar.tsx',
+  'src/components/StatCard.tsx',
+  'src/app/api/auth/login/route.ts',
+  'src/app/api/auth/register/route.ts',
+  'src/app/api/users/route.ts',
+  'src/app/api/expenses/route.ts',
+  'src/app/api/expenses/[id]/route.ts',
+  'src/app/api/receipts/route.ts',
+  'src/app/api/categories/route.ts',
+  'src/app/api/policies/route.ts',
+  'src/app/api/reports/route.ts',
+  'src/app/api/notifications/route.ts',
+  'src/lib/db.ts',
+  'src/lib/data.ts',
+  'src/lib/auth.ts',
+  'src/lib/ocrService.ts',
+  'src/lib/policyEngine.ts',
+  'src/lib/utils.ts',
+  'prisma/schema.prisma',
+  'tailwind.config.js',
+  'postcss.config.js',
+  'tsconfig.json',
+  'package.json',
+];
 
 export const ChatPane: React.FC<Props> = ({
   projectName,
@@ -241,11 +303,9 @@ export const ChatPane: React.FC<Props> = ({
   onViewArchitecture,
   onOpenDatabase,
   suggestions,
-  prompts = [],
 }) => {
   const { toast } = useToast();
-  const userCount = state.messages.filter(m => m.role === 'user').length;
-  const [draft, setDraft] = useState(prompts[userCount] ?? '');
+  const [draft, setDraft] = useState('');
 
   // Track expanded execution traces by key
   const [expandedTraces, setExpandedTraces] = useState<Record<string, boolean>>({
@@ -345,7 +405,7 @@ export const ChatPane: React.FC<Props> = ({
               {cleanProjectName.toUpperCase()}
             </h3>
             <p className="text-[13px] text-slate-500 leading-relaxed max-w-[280px] mb-8">
-              Discovery &amp; Planning context (BRD, PRD, SAD, Epics, Wireframes) is loaded. Click below to analyze specs and generate your technical implementation plan.
+              Discovery &amp; Planning context is loaded. Click below to analyze specs and generate your technical implementation plan.
             </p>
             <button
               onClick={onStartGeneration}
@@ -693,7 +753,11 @@ export const ChatPane: React.FC<Props> = ({
                     {/* Step 5: database-initializer */}
                     {pipeline1Step >= 4 && (
                       <div className="flex items-start gap-2.5 animate-fade-in">
-                        {storyStage !== 'pipeline1_running' ? (
+                        {storyStage === 'pipeline2_running' || storyStage === 'completed' ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : storyStage === 'awaiting_db' ? (
                           <div className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
                             <Clock className="w-2.5 h-2.5" />
                           </div>
@@ -704,8 +768,12 @@ export const ChatPane: React.FC<Props> = ({
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-[12px] font-semibold text-slate-800">database-initializer</span>
-                            {storyStage !== 'pipeline1_running' ? (
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">database-init..</span>
+                            {storyStage === 'pipeline2_running' || storyStage === 'completed' ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                DATABASE CONFIGURED
+                              </span>
+                            ) : storyStage === 'awaiting_db' ? (
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200">
                                 AWAITING CLUSTER
                               </span>
@@ -715,7 +783,7 @@ export const ChatPane: React.FC<Props> = ({
                               </span>
                             )}
                           </div>
-                          {storyStage !== 'pipeline1_running' && (
+                          {(storyStage === 'awaiting_db' || storyStage === 'pipeline2_running' || storyStage === 'completed') && (
                             <>
                               <button
                                 onClick={() => toggleTrace('p1-db')}
@@ -726,10 +794,21 @@ export const ChatPane: React.FC<Props> = ({
                               </button>
                               {expandedTraces['p1-db'] && (
                                 <TraceTerminalView
-                                  title="mongodb_cluster_init"
-                                  data={TRACE_DATA['database-initializer-awaiting'].json}
+                                  title="database_initializer"
+                                  data={
+                                    storyStage === 'pipeline2_running' || storyStage === 'completed'
+                                      ? TRACE_DATA['database-initializer'].json
+                                      : TRACE_DATA['database-initializer-awaiting'].json
+                                  }
                                   copied={copiedTrace === 'p1-db'}
-                                  onCopy={() => copyTraceJson('p1-db', TRACE_DATA['database-initializer-awaiting'].json)}
+                                  onCopy={() =>
+                                    copyTraceJson(
+                                      'p1-db',
+                                      storyStage === 'pipeline2_running' || storyStage === 'completed'
+                                        ? TRACE_DATA['database-initializer'].json
+                                        : TRACE_DATA['database-initializer-awaiting'].json
+                                    )
+                                  }
                                 />
                               )}
                             </>
@@ -762,7 +841,7 @@ export const ChatPane: React.FC<Props> = ({
                       {storyStage === 'awaiting_db' && (
                         <div className="mt-2.5">
                           <button
-                            onClick={onConnectDatabase}
+                            onClick={onOpenDatabase}
                             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11.5px] font-bold shadow-xs transition cursor-pointer hover:scale-105"
                           >
                             <span>Configure Database</span>
@@ -773,22 +852,22 @@ export const ChatPane: React.FC<Props> = ({
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] text-slate-400 pl-2">08:37 AM</span>
+                <span className="text-[10px] text-slate-400 pl-2">08:17 AM</span>
               </div>
             )}
 
             {/* User Message 3: Database connected */}
             {(storyStage === 'pipeline2_running' || storyStage === 'completed') && (
-              <div className="flex flex-col items-end space-y-1 animate-fade-in">
+              <div className="flex flex-col items-start space-y-1 animate-fade-in">
                 <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[12.5px] font-medium shadow-sm flex items-center gap-2">
+                  <div className="rounded-2xl bg-[#0F172A] text-white px-4 py-2.5 text-[12.5px] font-medium shadow-sm max-w-[85%]">
                     <span>Database connected successfully. Proceed with code generation.</span>
                   </div>
-                  <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
                     <User className="w-3.5 h-3.5" />
                   </div>
                 </div>
-                <span className="text-[10px] text-slate-400 pr-8">08:38 AM</span>
+                <span className="text-[10px] text-slate-400 pl-8">08:18 AM</span>
               </div>
             )}
 
@@ -920,11 +999,11 @@ export const ChatPane: React.FC<Props> = ({
                             <span className="font-mono text-[12px] font-semibold text-slate-800">code-writer</span>
                             {pipeline2Step >= 3 ? (
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                56 FILES GENERATED
+                                55 FILES GENERATED
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
-                                WRITING 56 FILES...
+                                WRITING 55 FILES...
                               </span>
                             )}
                           </div>
@@ -935,15 +1014,50 @@ export const ChatPane: React.FC<Props> = ({
                                 className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
                               >
                                 <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-code'] && 'rotate-90')} />
-                                <span>_ View technical trace · 44 events</span>
+                                <span>_ View technical trace · 55 events</span>
                               </button>
                               {expandedTraces['p2-code'] && (
-                                <TraceTerminalView
-                                  title="fullstack_code_generator"
-                                  data={TRACE_DATA['code-writer'].json}
-                                  copied={copiedTrace === 'p2-code'}
-                                  onCopy={() => copyTraceJson('p2-code', TRACE_DATA['code-writer'].json)}
-                                />
+                                <div className="mt-2 rounded-xl border border-stone-200 bg-white p-2.5 shadow-sm space-y-2 animate-fade-in font-sans">
+                                  <div className="flex items-center justify-between px-1">
+                                    <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-800">
+                                      <Code2 className="w-3.5 h-3.5 text-indigo-600" />
+                                      <span>GENERATED CODE FILES (55)</span>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(GENERATED_FILES_55.join('\n'));
+                                        toast({ title: 'Files list copied', description: '55 file paths copied to clipboard.' });
+                                      }}
+                                      className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-stone-100 hover:bg-stone-200 text-stone-600 cursor-pointer"
+                                    >
+                                      <Copy className="w-2.5 h-2.5" />
+                                      <span>Copy</span>
+                                    </button>
+                                  </div>
+
+                                  <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+                                    {GENERATED_FILES_55.map((file, idx) => (
+                                      <div
+                                        key={file}
+                                        className="flex items-center justify-between p-1.5 rounded-lg border border-stone-100 bg-stone-50/70 hover:bg-indigo-50/40 hover:border-indigo-200 transition"
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <span className="text-[10px] font-mono text-slate-400">#{idx + 1}</span>
+                                          <FileCode2 className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                          <span className="font-mono text-[11px] text-slate-800 truncate" title={file}>
+                                            {file}
+                                          </span>
+                                        </div>
+                                        <button
+                                          onClick={() => onJumpToFile(file)}
+                                          className="flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 cursor-pointer shrink-0"
+                                        >
+                                          <span>View</span>
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
                               )}
                             </>
                           )}
