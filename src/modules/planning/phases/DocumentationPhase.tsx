@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Bold, Code, Copy, Database, Download, Edit3, Eye, FileText, CheckCircle2, Italic, List, ListOrdered, Loader2, Maximize2, Minus, Plus, RefreshCw, Save, Sparkles, X } from 'lucide-react';
-import { Button, Dialog, cx, sleep, useToast, CSuiteValidation } from '../../ui';
+import { Button, Dialog, cx, sleep, useToast } from '../../ui';
 import { Markdown } from '../../ui/Markdown';
 import { MermaidDiagram } from '../../ui/MermaidDiagram';
 import { usePlanning } from '../PlanningStore';
@@ -174,7 +174,6 @@ export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, on
           })}
         </div>
         <div className="p-4 mt-auto border-t border-slate-200 bg-slate-50 flex flex-col gap-4">
-          <CSuiteValidation stageId="documents" status={allReady ? 'Validated' : 'Pending'} />
           <Primary className="w-full" disabled={!allReady} onClick={onComplete}>Continue to validation</Primary>
         </div>
       </div>

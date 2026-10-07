@@ -5,7 +5,6 @@ import { usePlanning } from '../PlanningStore';
 import { DIMENSION_CRITERIA, DOC_DEFS, makeDocContent, makeFindings } from '../content';
 import { SkillsPanel, skillsFor, useSkillLoader } from '../SkillsLoader';
 import { Finding } from '../types';
-import { CSuiteValidation } from '../../ui/CSuiteValidation';
 
 const SEV: Record<Finding['severity'], string> = { critical: 'bg-rose-100 text-rose-700', high: 'bg-orange-100 text-orange-700', medium: 'bg-amber-100 text-amber-700', low: 'bg-slate-100 text-slate-600' };
 
@@ -69,7 +68,7 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
   const key = findings.filter(f => f.status === 'failed' || f.status === 'warning' || f.status === 'insufficient_evidence');
 
   const Head: React.FC<{ icon: React.ReactNode; title: string; sub: string; right?: React.ReactNode }> = ({ icon, title, sub, right }) => (
-    <div className="flex items-center justify-between mb-5"><div className="flex items-center gap-3"><div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center">{icon}</div><div><h3 className="font-bold text-[#0F172A]">{title}</h3><p className="text-[13.5px] text-slate-500 mt-0.5">{sub}</p></div></div>{right}</div>
+    <div className="flex flex-wrap items-center justify-between gap-3 mb-5"><div className="flex items-center gap-3"><div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center">{icon}</div><div><h3 className="font-bold text-[#0F172A]">{title}</h3><p className="text-[13.5px] text-slate-500 mt-0.5">{sub}</p></div></div>{right}</div>
   );
 
   return (
@@ -83,8 +82,8 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
-        <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8">
+      <div className="flex-1 overflow-y-auto 2xl:overflow-hidden flex flex-col 2xl:flex-row">
+        <div className="2xl:flex-1 2xl:overflow-y-auto px-6 py-6 lg:px-8">
           <div className="max-w-6xl mx-auto space-y-6">
           {!done && !busy && (
             <div className="p-12 border border-slate-200 rounded-2xl bg-white flex flex-col items-center text-center space-y-4"><Activity className="w-12 h-12 text-slate-300" /><div><h3 className="text-[19px] font-bold text-[#0F172A]">Validation required</h3><p className="text-[15px] text-slate-500 mt-1 max-w-md">Run the validation engine to verify traceability, completeness, and consistency across your 10 architecture documents.</p></div><Button variant="primary" icon={<Play className="w-4 h-4" />} onClick={validate}>Start validation</Button></div>
@@ -94,8 +93,8 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
           {done && (
             <>
               <Card className="shadow-subtle">
-                <Head icon={<Activity className="w-5 h-5" />} title="Validation by dimension" sub="42 criteria evaluated across 4 dimensions." right={<div className="flex items-center gap-3">{v.at && <span className="text-[13.5px] text-slate-400">Last validated: {new Date(v.at).toLocaleString()}</span>}<Button size="sm" onClick={() => setDimModal(true)}>View dimension details <ArrowRight className="w-3.5 h-3.5" /></Button></div>} />
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">{DIMENSION_CRITERIA.map(d => <div key={d.id} className="border border-slate-100 rounded-xl p-4 flex items-center gap-4 hover:shadow-card transition"><div className="flex-1 min-w-0"><p className="text-[15px] font-bold text-[#0F172A] leading-tight">{d.label}</p><p className="text-[13.5px] text-slate-500 mt-0.5">{d.criteria.length} criteria</p></div><Ring value={dimScore(d.label)} color={d.color} /></div>)}</div>
+                <Head icon={<Activity className="w-5 h-5" />} title="Validation by dimension" sub="42 criteria evaluated across 4 dimensions." right={<div className="flex flex-wrap items-center gap-3">{v.at && <span className="text-[13.5px] text-slate-400">Last validated: {new Date(v.at).toLocaleString()}</span>}<Button size="sm" onClick={() => setDimModal(true)}>View dimension details <ArrowRight className="w-3.5 h-3.5" /></Button></div>} />
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">{DIMENSION_CRITERIA.map(d => <div key={d.id} className="border border-slate-100 rounded-xl p-4 flex items-center justify-between gap-3 hover:shadow-card transition"><div className="min-w-0 flex-1"><p className="text-[15px] font-bold text-[#0F172A] leading-tight break-words">{d.label}</p><p className="text-[13.5px] text-slate-500 mt-1">{d.criteria.length} criteria</p></div><Ring value={dimScore(d.label)} color={d.color} /></div>)}</div>
               </Card>
 
               <Card>
@@ -119,7 +118,7 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
 
               <Card>
                 <Head icon={<GitBranch className="w-5 h-5" />} title="Cross-document consistency" sub="Key relationships and consistency checks across architecture documents." />
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
                   {([[<CheckCircle2 key="a" className="w-6 h-6" />, 'green', consistent, 'Consistent relationships', 'Components, decisions and stack agree.'], [<AlertTriangle key="b" className="w-6 h-6" />, 'amber', minor, 'Minor issues', 'Naming differences and missing detail.'], [<XCircle key="c" className="w-6 h-6" />, 'red', conflicts, 'Conflicts found', 'Authentication flow mismatch between HLD and SDD.'], [<LinkIcon key="d" className="w-6 h-6" />, 'purple', missing, 'Missing connections', 'Traceability links not found for some requirements.']] as const).map(([icon, c, n, l, sub], i) => (
                     <div key={i} className={cx('rounded-xl p-4 border', { green: 'bg-emerald-50/60 border-emerald-100 text-emerald-600', amber: 'bg-amber-50/60 border-amber-100 text-amber-600', red: 'bg-rose-50/60 border-rose-100 text-rose-600', purple: 'bg-purple-50/60 border-purple-100 text-purple-600' }[c])}><div className="mb-2">{icon}</div><p className="text-2xl font-bold text-[#0F172A]">{n}</p><p className="text-[15px] font-bold text-slate-700 mt-0.5">{l}</p><p className="text-[13.5px] text-slate-500 mt-1 leading-snug">{sub}</p></div>
                   ))}
@@ -137,9 +136,8 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
           )}
         </div>
         </div>
-        <div className="w-[380px] bg-white border-l border-slate-200 overflow-y-auto shrink-0 flex flex-col p-6 space-y-6">
+        <div className="w-full 2xl:w-[340px] bg-white border-t 2xl:border-t-0 2xl:border-l border-slate-200 2xl:overflow-y-auto shrink-0 flex flex-col p-6 space-y-6">
           <SkillsPanel skills={skills} status={loader.status} loading={loader.loading} />
-          <CSuiteValidation stageId="architecture_validation" status={done ? 'Validated' : 'Pending'} />
         </div>
       </div>
 

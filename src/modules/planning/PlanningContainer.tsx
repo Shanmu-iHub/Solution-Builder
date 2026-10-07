@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ShieldCheck, Lock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Lock, AlertTriangle } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
 import { cx, useToast } from '../ui';
 import { usePlanning } from './PlanningStore';
@@ -24,6 +24,12 @@ import { RequirementNavRail } from './navigation/RequirementNavRail';
 import { DependencyBanner } from './shared/DependencyBanner';
 import { CSuiteExecutivePanel } from './executive/CSuiteExecutivePanel';
 import { PHASE_CONFIGS, ORDERED_PHASES, isPhaseInputCompleted, isPhaseUnlocked } from './map/mapData';
+import { PlanningNavRail } from './navigation/PlanningNavRail';
+import { PlanningStageHeader } from './shared/PlanningStageHeader';
+import { PlanningExecutivePanel } from './executive/PlanningExecutivePanel';
+import { INITIAL_PLANNING_EXEC, avgScore } from './executive/planningExecutives';
+import { PLANNING_STAGE_BY_ID, PLANNING_STAGE_IDS, PlanningStageId, getStageStatus } from './map/planningMap';
+import { CSuiteMemberReview } from './executive/csuiteData';
 
 const STAGES: { id: PlanningStage; label: string }[] = [
   { id: 'requirement_context', label: 'Requirement Gathering' },
@@ -34,27 +40,6 @@ const STAGES: { id: PlanningStage; label: string }[] = [
   { id: 'wireframe_generation', label: 'Wireframe' },
   { id: 'task_breakdown', label: 'Task Breakdown' },
 ];
-
-const Stepper: React.FC<{ items: { key: string; label: string }[]; active: string; reachable: (i: number) => boolean; done: (i: number) => boolean; onSelect: (k: string) => void }> = ({ items, active, reachable, done, onSelect }) => (
-  <nav className="w-full overflow-x-auto flex mt-1">
-    <ol className="flex items-center min-w-max mx-auto">
-      {items.map((it, i) => {
-        const isActive = it.key === active;
-        const isDone = done(i) && !isActive;
-        const can = reachable(i);
-        return (
-          <li key={it.key} className="flex items-center shrink-0">
-            <button type="button" disabled={!can} onClick={() => can && onSelect(it.key)} aria-current={isActive ? 'step' : undefined} className={cx('flex items-center gap-2 px-1.5 py-1 rounded-lg transition-colors', can && !isActive ? 'cursor-pointer hover:bg-slate-50' : 'cursor-default')}>
-              <span className={cx('flex items-center justify-center w-6 h-6 rounded-full border text-[12.5px] font-bold transition-colors', isActive ? 'bg-[#2563EB] text-white border-[#2563EB] ring-4 ring-blue-100' : isDone ? 'bg-emerald-500 text-white border-emerald-500' : can ? 'bg-white text-slate-500 border-slate-300' : 'bg-white text-slate-300 border-slate-200')}>{isDone ? <Check className="w-3.5 h-3.5" strokeWidth={3} /> : i + 1}</span>
-              <span className={cx('text-[12.5px] uppercase tracking-[0.12em] transition-colors', isActive ? 'text-[#0F172A] font-bold' : isDone ? 'text-slate-600 font-semibold' : can ? 'text-slate-400 font-semibold' : 'text-slate-300 font-semibold')}>{it.label}</span>
-            </button>
-            {i < items.length - 1 && <span aria-hidden className={cx('mx-1.5 h-px w-7 rounded-full', isDone || (done(i + 1) && i < items.length) ? 'bg-emerald-500' : 'bg-slate-200')} />}
-          </li>
-        );
-      })}
-    </ol>
-  </nav>
-);
 
 export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void; mode: 'requirement' | 'planning' }> = ({ projectId, onBack }) => {
   const { projects, state, patch, setStage } = usePlanning();
@@ -72,6 +57,10 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
   const [executivePanelOpen, setExecutivePanelOpen] = useState(false);
   // Navigation rail collapse state
   const [railCollapsed, setRailCollapsed] = useState(false);
+  // Solution Planning: nav rail, executive panel and per-stage C-Suite reviews
+  const [planRailCollapsed, setPlanRailCollapsed] = useState(false);
+  const [planExecOpen, setPlanExecOpen] = useState(false);
+  const [planExec, setPlanExec] = useState<Record<PlanningStageId, CSuiteMemberReview[]>>(INITIAL_PLANNING_EXEC);
 
   useEffect(() => { setCanvasMode(true); return () => setCanvasMode(false); }, [setCanvasMode]);
 
@@ -215,29 +204,18 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
               </>
             ) : (
               <button
-                type="button"
-                onClick={() => setActive('requirement_context')}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                onClick={() => setPlanExecOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200/90 hover:bg-purple-100 transition-colors cursor-pointer shadow-2xs"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to Requirement Gathering</span>
+                <ShieldCheck className="w-4 h-4 text-purple-600" />
+                <span>Executive Panel</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px] font-extrabold uppercase">
+                  C-Suite
+                </span>
               </button>
             )}
           </div>
         </div>
-
-        {/* Planning Stepper only when in Solution Planning mode */}
-        {!isRequirementMode && (
-          <div className="mt-2 pt-2 border-t border-slate-100">
-            <Stepper 
-              items={planningStages.map(id => ({ key: id, label: STAGES.find(x => x.id === id)!.label }))} 
-              active={active} 
-              reachable={i => i <= maxReached} 
-              done={i => i < maxReached} 
-              onSelect={k => setActive(k as PlanningStage)} 
-            />
-          </div>
-        )}
       </div>
 
       {/* Main Content Area */}
@@ -333,15 +311,35 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
           </div>
         )}
 
-        {/* CASE 2: In Solution Planning Mode */}
+        {/* CASE 2: In Solution Planning Mode (left rail with locked / open stages, like Requirement Gathering) */}
         {!isRequirementMode && (
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            {active === 'solution_dashboard' && <SolutionDashboardPhase projectId={projectId} projectName={project.name} onComplete={() => advance('documentation')} />}
-            {active === 'documentation' && <DocumentationPhase projectId={projectId} projectName={project.name} onComplete={() => advance('architecture_validation')} />}
-            {active === 'architecture_validation' && <ArchitectureValidation projectId={projectId} onComplete={() => advance('ux_foundation')} />}
-            {active === 'ux_foundation' && <UxFoundation projectId={projectId} projectName={project.name} onComplete={() => advance('wireframe_generation')} />}
-            {active === 'wireframe_generation' && <Wireframes projectId={projectId} onComplete={() => advance('task_breakdown')} />}
-            {active === 'task_breakdown' && <TaskBreakdown projectId={projectId} projectName={project.name} />}
+          <div className="flex-1 flex overflow-hidden">
+            <PlanningNavRail
+              active={active}
+              maxReached={maxReached}
+              scores={Object.fromEntries(PLANNING_STAGE_IDS.map(id => [id, avgScore(planExec[id])])) as Record<PlanningStageId, number>}
+              onSelect={id => setActive(id)}
+              onBackToRequirements={() => setActive('requirement_context')}
+              collapsed={planRailCollapsed}
+              onToggleCollapse={() => setPlanRailCollapsed(!planRailCollapsed)}
+            />
+
+            <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-white">
+              <PlanningStageHeader
+                stage={PLANNING_STAGE_BY_ID[active]}
+                status={getStageStatus(active, active, maxReached)}
+                reviews={planExec[active]}
+                onOpenExecutives={() => setPlanExecOpen(true)}
+              />
+              <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                {active === 'solution_dashboard' && <SolutionDashboardPhase projectId={projectId} projectName={project.name} onComplete={() => advance('documentation')} />}
+                {active === 'documentation' && <DocumentationPhase projectId={projectId} projectName={project.name} onComplete={() => advance('architecture_validation')} />}
+                {active === 'architecture_validation' && <ArchitectureValidation projectId={projectId} onComplete={() => advance('ux_foundation')} />}
+                {active === 'ux_foundation' && <UxFoundation projectId={projectId} projectName={project.name} onComplete={() => advance('wireframe_generation')} />}
+                {active === 'wireframe_generation' && <Wireframes projectId={projectId} onComplete={() => advance('task_breakdown')} />}
+                {active === 'task_breakdown' && <TaskBreakdown projectId={projectId} projectName={project.name} />}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -353,6 +351,16 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
         projectId={projectId}
         projectName={project.name}
         initialPhase={activeWorkspacePage}
+      />
+
+      {/* Solution Planning C-Suite Panel */}
+      <PlanningExecutivePanel
+        open={planExecOpen}
+        onClose={() => setPlanExecOpen(false)}
+        projectName={project.name}
+        reviews={planExec}
+        onChange={(stage, list) => setPlanExec(prev => ({ ...prev, [stage]: list }))}
+        initialStage={active === 'requirement_context' ? 'solution_dashboard' : active}
       />
     </div>
   );
