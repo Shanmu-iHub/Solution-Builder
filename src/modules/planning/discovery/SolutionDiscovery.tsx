@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Button, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -65,6 +66,7 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <StageResourceActivity active={drafting} activity="Comparing solution options against confirmed needs" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
           <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 04 of 10</div>
@@ -79,9 +81,9 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
           
-          <Section num="01" title="Solution packages" summary={PACKAGES.find(p => p.id === selPkg)?.t || ''} need={needPkg ? "Pick one" : null} open={openSecs.pkgs} onToggle={() => toggle('pkgs')}>
+          <Section num="01" title="Recommended Solutions" summary={PACKAGES.find(p => p.id === selPkg)?.t || ''} need={needPkg ? "Pick one" : null} open={openSecs.pkgs} onToggle={() => toggle('pkgs')}>
             <div className="space-y-3 pt-2">
-              <p className="text-[12.5px] text-slate-500 mb-2">Pick the solution package that best addresses the problem.</p>
+              <p className="text-[12.5px] text-slate-500 mb-2">Pick the solution that best addresses the problem.</p>
               {PACKAGES.map(p => (
                 <button 
                   key={p.id} 

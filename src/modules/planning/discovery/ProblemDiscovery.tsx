@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles 
 import { Button, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { PD_QUESTIONS } from '../content';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -74,6 +75,7 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <StageResourceActivity active={drafting} activity="Analyzing problem evidence and framing" skillIds={['SKL-0002']} knowledgeIds={['KNW-0001']} policyIds={['POL-0001']} />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
           <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 03 of 10</div>
@@ -87,7 +89,7 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
-          <Section num="01" title="Problem facets" summary="6 facets prefilled" open={openSecs.facets} onToggle={() => toggle('facets')}>
+          <Section num="01" title="Problem aspects" summary="6 facets prefilled" open={openSecs.facets} onToggle={() => toggle('facets')}>
             <div className="space-y-2 pt-2">
               <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
                 <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest w-1/4">Current process</span>
