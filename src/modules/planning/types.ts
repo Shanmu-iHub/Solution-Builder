@@ -118,15 +118,15 @@ export interface PlanningState {
   oppTab: 'opportunity' | 'market' | 'customers' | 'analysis' | 'brief';
   opportunity: Opportunity | null;
   market: MarketResearch | null;
-  customers: Customers | null;
+  customers: Customers | any;
   analysis: Analysis | null;
-  marketBrief: MarketBrief | null;
+  marketBrief: MarketBrief | string | null;
   oppCompleted: boolean;
   /* problem discovery */
   pdStep: 'understand' | 'root_causes' | 'choose' | 'validate' | 'confirm';
   pdReached: number;
   pdContext: boolean;
-  pdAnswers: Record<string, { value: string[]; other?: string; skipped?: boolean }>;
+  pdAnswers: Record<string, any>;
   chains: RootChain[];
   statements: Statement[];
   selectedStatement: string | null;
@@ -143,4 +143,10 @@ export interface PlanningState {
   journeys: Journey[];
   wireframes: WireframePage[];
   tasks: { epics: EpicNode[]; review: 'pending' | 'approved' | 'changes_requested'; notes: string } | null;
+  /* confirmations */
+  productDefinitionConfirmed?: boolean;
+  businessModelConfirmed?: boolean;
+  documentsConfirmed?: boolean;
+  requirementsConfirmed?: boolean;
+  solutionConfirmed?: boolean;
 }

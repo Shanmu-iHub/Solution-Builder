@@ -46,7 +46,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
     await sleep(2000);
     patch(projectId, { 
       slots: { 
-        idea: { state: 'provided', value: ideaText }, problem: { state: 'inferred', value: 'Paper receipts get lost. Reimbursement takes weeks.' },
+        idea: { state: 'known', value: ideaText }, problem: { state: 'inferred', value: 'Paper receipts get lost. Reimbursement takes weeks.' },
         users: { state: 'inferred', value: 'Field sales reps' }, outcome: { state: 'inferred', value: 'Claims approved faster' },
         context: { state: 'missing', value: '' }, use_cases: { state: 'missing', value: '' }
       },

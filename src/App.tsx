@@ -86,6 +86,7 @@ const AppContent: React.FC = () => {
       case 'product-requirement-gathering':
         return <SolutionPlanningModule mode="requirement" />;
       case 'product-solution-planning':
+      case 'product-solution-architect':
         return <SolutionPlanningModule mode="planning" />;
       case 'product-solution-factor':
         return <SolutionFactoryModule />;

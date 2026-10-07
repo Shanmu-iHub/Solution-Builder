@@ -7,18 +7,27 @@ import { WorkspaceState } from '../types';
 interface Props {
   projectId: string;
   state: WorkspaceState;
+  canProceed?: boolean;
+  isPlanReady?: boolean;
   onSubmitClarifications: (answers: Record<string, { question: string; answer: string }>) => Promise<void>;
   onProceed: () => void;
 }
 
-export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifications, onProceed }) => {
+export const PlanPanel: React.FC<Props> = ({
+  projectId,
+  state,
+  canProceed,
+  isPlanReady = true,
+  onSubmitClarifications,
+  onProceed,
+}) => {
   const [answers, setAnswers] = useState<Record<string, { question: string; answer: string }>>({});
   const [custom, setCustom] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const approved = state.planStatus === 'APPROVED';
-  const showForm = state.questions.length > 0 && !approved && (!state.planMarkdown || state.clarificationStatus === 'AWAITING_USER');
+  const showForm = isPlanReady && state.questions.length > 0 && !approved && (!state.planMarkdown || state.clarificationStatus === 'AWAITING_USER');
   const answeredCount = Object.keys(answers).length;
 
   const copy = async () => {
@@ -45,24 +54,33 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifica
           <div className="w-8 h-8 rounded-xl bg-[#0F172A] text-white flex items-center justify-center">{showForm ? <SlidersHorizontal className="w-4 h-4" /> : <FileText className="w-4 h-4" />}</div>
           <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-[#0F172A] flex items-center gap-2">
             {showForm ? 'Architecture Clarification' : 'Implementation Plan'}
-            <Badge tone={approved ? 'green' : showForm ? 'amber' : 'slate'}>
-              {approved ? <CheckCircle2 className="w-3 h-3" /> : showForm ? <HelpCircle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-              {showForm ? 'Awaiting decisions' : state.planStatus}
+            <Badge tone={!isPlanReady ? 'slate' : approved ? 'green' : showForm ? 'amber' : 'slate'}>
+              {!isPlanReady ? (
+                <>
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Awaiting Generation
+                </>
+              ) : (
+                <>
+                  {approved ? <CheckCircle2 className="w-3 h-3" /> : showForm ? <HelpCircle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                  {showForm ? 'Awaiting decisions' : state.planStatus}
+                </>
+              )}
             </Badge>
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          {state.planMarkdown && !showForm && (
+          {isPlanReady && state.planMarkdown && !showForm && (
             <>
               <Button size="sm" icon={copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />} onClick={copy}>{copied ? 'Copied' : 'Copy'}</Button>
               <Button size="sm" icon={<Download className="w-3.5 h-3.5" />} onClick={download}>Download</Button>
             </>
           )}
-          {showForm ? (
+          {isPlanReady && (showForm ? (
             <Button size="sm" variant="dark" loading={submitting} disabled={answeredCount === 0} icon={<Sparkles className="w-3.5 h-3.5" />} onClick={generate}>{submitting ? 'Generating plan…' : 'Generate plan'}</Button>
-          ) : !approved && state.planMarkdown ? (
+          ) : (canProceed || (!approved && state.planMarkdown)) ? (
             <Button size="sm" variant="primary" icon={<Play className="w-3.5 h-3.5" />} onClick={onProceed}>Proceed to build <ArrowRight className="w-3.5 h-3.5" /></Button>
-          ) : null}
+          ) : null)}
         </div>
       </div>
 
@@ -105,18 +123,33 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifica
             })}
             <div className="flex items-center justify-between text-[13.5px] text-slate-500 font-mono pb-4"><span>{answeredCount} of {state.questions.length} decisions selected</span><span className="text-slate-400">Click “Generate plan” above when ready</span></div>
           </div>
-        ) : state.planMarkdown ? (
+        ) : state.planMarkdown && isPlanReady ? (
           <div className="max-w-4xl mx-auto">
             <Card className="!p-6 md:!p-8">
               <div className="flex items-center gap-2 text-[13.5px] font-mono text-slate-500 pb-4 mb-4 border-b border-slate-200"><FileText className="w-3.5 h-3.5" /><span className="font-semibold uppercase tracking-wider text-[12.5px]">Artifact: implementation_plan.md</span></div>
               <Markdown source={state.planMarkdown} />
+              {canProceed && (
+                <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/80 -mx-6 -mb-6 md:-mx-8 md:-mb-8 p-6 rounded-b-2xl">
+                  <div>
+                    <h4 className="text-[14px] font-bold text-slate-900">Ready for full-stack code generation?</h4>
+                    <p className="text-[12px] text-slate-500 mt-0.5">Approve this plan to trigger autonomous pipeline execution.</p>
+                  </div>
+                  <Button size="md" variant="dark" icon={<Play className="w-3.5 h-3.5 text-emerald-400" />} onClick={onProceed}>
+                    Proceed to Build
+                  </Button>
+                </div>
+              )}
             </Card>
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mb-4"><Sparkles className="w-6 h-6" /></div>
-            <h4 className="text-[15px] font-bold text-[#0F172A] mb-1">No plan yet</h4>
-            <p className="text-[13.5px] text-slate-500 max-w-md">Describe what you want to build in the chat. I’ll ask a few architecture questions and then draft the implementation plan here.</p>
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+              <Sparkles className="w-6 h-6 text-amber-500" />
+            </div>
+            <h4 className="text-[16px] font-bold text-slate-900 mb-1">Synthesizing Implementation Plan</h4>
+            <p className="text-[13px] text-slate-500 max-w-sm">
+              The technical plan will appear here once drafted by the agent. Click &apos;Start Application Generation&apos; in the chat panel to begin.
+            </p>
           </div>
         )}
         {submitting && <div className="fixed inset-0 pointer-events-none flex items-end justify-center pb-10"><span className="bg-[#0F172A] text-white text-[13.5px] px-4 py-2 rounded-full flex items-center gap-2 shadow-modal"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Synthesizing implementation plan…</span></div>}

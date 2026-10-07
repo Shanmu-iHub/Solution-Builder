@@ -31,7 +31,7 @@ const SEGS = [
   { id: 's_mgr', t: 'Line managers', role: 'Approve claims', wants: 'Approve without chasing email', str: 'Claims arrive scattered in the inbox', today: 'Approve manually by email' },
   { id: 's_fin', t: 'Finance team', role: 'Check and pay', wants: 'Clean, policy-checked claims', str: 'Manual processing', today: 'Not provided' },
 ];
-const SUG_SEG = { id: 's_ops', t: 'Sales operations', role: 'Sets expense rules for the sales team' };
+const SUG_SEG = { id: 's_ops', t: 'Sales operations', role: 'Sets expense rules for the sales team', wants: 'Enforce travel & expense rules', str: 'Policy non-compliance', today: 'Spreadsheets & email' };
 
 export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
   const { state, patch } = usePlanning();
@@ -67,7 +67,8 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
     }
   }, [s.marketBrief, projectId, patch]);
 
-  const primaryCust = (s.customers || []).find(c => c.primary) || null;
+  const customerList: any[] = Array.isArray(s.customers) ? s.customers : [];
+  const primaryCust = customerList.find(c => c.primary) || null;
   const canConfirm = !!primaryCust;
 
   return (
@@ -85,9 +86,9 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
-          <Section num="01" title="Opportunity" summary={s.marketBrief || ''} open={openSecs.opp} onToggle={() => toggle('opp')}>
+          <Section num="01" title="Opportunity" summary={typeof s.marketBrief === 'string' ? s.marketBrief : ''} open={openSecs.opp} onToggle={() => toggle('opp')}>
             <div className="space-y-6 pt-2">
-              <p className="text-[17px] font-medium text-[#0F172A] leading-relaxed">{s.marketBrief}</p>
+              <p className="text-[17px] font-medium text-[#0F172A] leading-relaxed">{typeof s.marketBrief === 'string' ? s.marketBrief : ''}</p>
               
               <div>
                 <h4 className="text-[12.5px] font-bold text-slate-800 uppercase mb-3">Four lenses</h4>
@@ -188,9 +189,9 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
             <span className="inline-block mt-1 px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-[11.5px] font-bold uppercase tracking-widest">Draft v0.1</span>
           </div>
           <div className="flex-1 p-5 overflow-y-auto space-y-5">
-            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Opportunity</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{s.marketBrief}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Opportunity</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{typeof s.marketBrief === 'string' ? s.marketBrief : (s.marketBrief ? 'Market Brief Available' : '')}</p></div>
             <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Primary Customer</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{primaryCust?.name || 'Not decided'}</p></div>
-            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Segments</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{(s.customers || []).map(c => c.name).join(', ') || SEGS.map(s => s.t).join(', ')}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Segments</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{customerList.map((c: any) => c.name).join(', ') || SEGS.map(s => s.t).join(', ')}</p></div>
             <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Market Findings</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{FINDS.length} products found</p></div>
             
             <div className="pt-2">

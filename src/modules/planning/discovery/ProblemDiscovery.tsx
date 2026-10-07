@@ -38,6 +38,7 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ facets: true, qs: true, roots: true, frame: true });
   const [drafting, setDrafting] = useState(false);
+  const [generated, setGenerated] = useState(false);
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
   
@@ -118,14 +119,14 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
                 <div key={q.id}>
                   <p className="text-[15px] font-semibold text-[#0F172A] mb-3">{q.text}</p>
                   <div className="flex flex-wrap gap-2">
-                    {q.options.map(o => {
+                    {q.options.map((o: any) => {
                       const v = typeof o === 'string' ? o : o.value;
                       const l = typeof o === 'string' ? o : o.label;
                       return (
                         <button 
                           key={v} 
-                          onClick={() => patch(projectId, st => ({ pdAnswers: { ...(st.pdAnswers || {}), [q.id]: { value: v } } }))}
-                          className={cx("px-4 py-2 rounded-full border text-[13.5px] font-semibold transition-colors cursor-pointer", (s.pdAnswers || {})[q.id]?.value === v ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300")}
+                          onClick={() => patch(projectId, st => ({ pdAnswers: { ...(st.pdAnswers || {}), [q.id]: { value: [v] } } }))}
+                          className={cx("px-4 py-2 rounded-full border text-[13.5px] font-semibold transition-colors cursor-pointer", (s.pdAnswers || {})[q.id]?.value?.[0] === v || (s.pdAnswers || {})[q.id]?.value === v ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300")}
                         >
                           {l}
                         </button>
