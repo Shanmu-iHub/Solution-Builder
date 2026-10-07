@@ -149,60 +149,78 @@ export const DatabasePanel: React.FC<DatabasePanelProps> = ({
                 <span>LIVE COLLECTIONS</span>
               </div>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
-                {COLLECTIONS.length}
+                {connected ? COLLECTIONS.length : 0}
               </span>
             </div>
 
-            <div className="space-y-1">
-              {COLLECTIONS.map(col => {
-                const isSelected = selectedCollection === col;
-                return (
-                  <button
-                    key={col}
-                    onClick={() => setSelectedCollection(col)}
-                    className={cx(
-                      'w-full flex items-center justify-between px-3 py-2 rounded-xl text-[12.5px] font-mono transition cursor-pointer text-left',
-                      isSelected
-                        ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200/60'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    )}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <Table2 className={cx('w-3.5 h-3.5 shrink-0', isSelected ? 'text-blue-600' : 'text-slate-400')} />
-                      <span className="truncate">{col}</span>
-                    </div>
-                    {isSelected && <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
+            {connected ? (
+              <div className="space-y-1">
+                {COLLECTIONS.map(col => {
+                  const isSelected = selectedCollection === col;
+                  return (
+                    <button
+                      key={col}
+                      onClick={() => setSelectedCollection(col)}
+                      className={cx(
+                        'w-full flex items-center justify-between px-3 py-2 rounded-xl text-[12.5px] font-mono transition cursor-pointer text-left',
+                        isSelected
+                          ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200/60'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      )}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <Table2 className={cx('w-3.5 h-3.5 shrink-0', isSelected ? 'text-blue-600' : 'text-slate-400')} />
+                        <span className="truncate">{col}</span>
+                      </div>
+                      {isSelected && <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl border border-dashed border-slate-200 bg-white text-center">
+                <p className="text-[12px] text-slate-400">
+                  Collections will appear here once credentials are authenticated.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right Column: Selected Collection Records */}
         <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-            <div className="flex items-center gap-2">
-              <Table2 className="w-4 h-4 text-blue-600" />
-              <h3 className="text-[14px] font-mono font-semibold text-slate-900">
-                {selectedCollection} <span className="text-slate-400 font-normal font-sans">(0 Records)</span>
-              </h3>
-            </div>
-            <button
-              onClick={() => toast({ title: 'Live Sync Triggered', description: `Checking ${selectedCollection} records.` })}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[12px] font-medium shadow-xs transition cursor-pointer"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-              <span>Live Sync</span>
-            </button>
-          </div>
+          {connected ? (
+            <>
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div className="flex items-center gap-2">
+                  <Table2 className="w-4 h-4 text-blue-600" />
+                  <h3 className="text-[14px] font-mono font-semibold text-slate-900">
+                    {selectedCollection} <span className="text-slate-400 font-normal font-sans">(0 Records)</span>
+                  </h3>
+                </div>
+                <button
+                  onClick={() => toast({ title: 'Live Sync Triggered', description: `Checking ${selectedCollection} records.` })}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[12px] font-medium shadow-xs transition cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Live Sync</span>
+                </button>
+              </div>
 
-          {/* Empty state container matching Screenshot 1 */}
-          <div className="flex-1 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 flex items-center justify-center p-8 text-center">
-            <p className="text-[13.5px] text-slate-400">
-              No records in &apos;{selectedCollection}&apos; yet.
-            </p>
-          </div>
+              {/* Empty state container matching Screenshot 1 */}
+              <div className="flex-1 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 flex items-center justify-center p-8 text-center">
+                <p className="text-[13.5px] text-slate-400">
+                  No records in &apos;{selectedCollection}&apos; yet.
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 flex items-center justify-center p-8 text-center">
+              <p className="text-[13.5px] text-slate-400">
+                Please connect MongoDB cluster above to inspect live collections and records.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

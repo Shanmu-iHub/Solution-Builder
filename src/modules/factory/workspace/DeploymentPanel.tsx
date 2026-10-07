@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Globe,
   Info,
+  Loader2,
   Lock,
   Power,
   Radio,
@@ -41,9 +42,22 @@ export const DeploymentPanel: React.FC<Props> = ({
   const [appName, setAppName] = useState(projectName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'expensifyiq');
   const [customDomain, setCustomDomain] = useState('pfltestt@gmail.com');
   const [publicAccess, setPublicAccess] = useState(state.publicLink);
-  const [isLive, setIsLive] = useState(true);
+  const [isLive, setIsLive] = useState(false);
+  const [deploying, setDeploying] = useState(false);
 
   const liveUrl = `https://${appName}-gkp1ekia1-aravindaihub-3757s-projects.vercel.app`;
+
+  const handleDeploy = () => {
+    setDeploying(true);
+    setTimeout(() => {
+      setDeploying(false);
+      setIsLive(true);
+      toast({
+        title: 'Production Deployment Live!',
+        description: liveUrl,
+      });
+    }, 1200);
+  };
 
   const handleTogglePublic = (val: boolean) => {
     setPublicAccess(val);
@@ -452,6 +466,28 @@ export const DeploymentPanel: React.FC<Props> = ({
                 <AlertCircle className="w-3.5 h-3.5" />
                 <span>Please enter a valid domain name (e.g. app.yourdomain.com), not an email address.</span>
               </p>
+            </div>
+
+            {/* Deploy Action Button */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleDeploy}
+                disabled={deploying}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-bold shadow-md transition cursor-pointer disabled:opacity-60"
+              >
+                {deploying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                    <span>Deploying to {cloudProvider}…</span>
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="w-4 h-4 text-emerald-400" />
+                    <span>Deploy Application</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

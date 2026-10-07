@@ -16,6 +16,7 @@ interface Props {
   state: WorkspaceState;
   onPick: (f: string) => void;
   onSave: (f: string, content: string) => void;
+  isCodeWriterActive?: boolean;
 }
 
 const DEFAULT_PAGE_CODE = `'use client';
@@ -74,7 +75,12 @@ const TERMINAL_LINES = [
   '22 ✓ Ready in 320ms on http://localhost:3000',
 ];
 
-export const CodePanel: React.FC<Props> = ({ state, onPick, onSave }) => {
+export const CodePanel: React.FC<Props> = ({
+  state,
+  onPick,
+  onSave,
+  isCodeWriterActive = true,
+}) => {
   const fileKeys = Object.keys(state.files);
   const files = fileKeys.length > 0 ? fileKeys.sort() : ['page.tsx', 'layout.tsx', 'globals.css'];
   const activeFile = state.activeFile || 'page.tsx';
@@ -87,6 +93,20 @@ export const CodePanel: React.FC<Props> = ({ state, onPick, onSave }) => {
   useEffect(() => {
     setEditing(false);
   }, [activeFile]);
+
+  if (!isCodeWriterActive) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center text-center p-8 bg-[#FAFAFA] font-sans">
+        <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 text-slate-500 flex items-center justify-center mb-4 shadow-sm">
+          <Terminal className="w-6 h-6 text-indigo-500" />
+        </div>
+        <h4 className="text-[16px] font-bold text-slate-900 mb-1">Source Code Files</h4>
+        <p className="text-[13px] text-slate-500 max-w-sm leading-relaxed">
+          Application source code will appear here once the code-writer agent begins generating files in the execution pipeline.
+        </p>
+      </div>
+    );
+  }
 
   const handleCopy = async () => {
     try {
@@ -190,7 +210,7 @@ export const CodePanel: React.FC<Props> = ({ state, onPick, onSave }) => {
         </div>
       </div>
 
-      {/* Bottom Area: Terminal (Matching Screenshot 5) */}
+      {/* Bottom Area: Terminal */}
       <div className="h-44 shrink-0 border-t border-slate-200 bg-white flex flex-col font-mono">
         <div className="flex items-center justify-between px-4 h-8 border-b border-slate-200 bg-slate-50/70 text-[11px]">
           <div className="flex items-center gap-2">
