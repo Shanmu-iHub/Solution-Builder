@@ -16,6 +16,8 @@ export type ProductId =
   | 'audit'
   | 'gamifications'
   | 'solution-architect'
+  | 'requirement-gathering'
+  | 'solution-planning'
   | 'solution-factor'
   | 'ai-models';
 
@@ -62,7 +64,8 @@ export type WorkspaceView =
   | 'api-keys'
   | 'integrations'
   | 'settings'
-  | 'vault';
+  | 'vault'
+  | 'skills-library';
 
 export interface ProductItem {
   id: ProductId;

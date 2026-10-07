@@ -13,8 +13,6 @@ import { ProductListing } from './components/products/ProductListing';
 import { SolutionBuilderFullStack } from './components/products/SolutionBuilderFullStack';
 import { SolutionBuilderFrontend } from './components/products/SolutionBuilderFrontend';
 import { SolutionBuilderSuperAgent } from './components/products/SolutionBuilderSuperAgent';
-import { SolutionArchitectWorkspace } from './components/products/SolutionArchitectWorkspace';
-import { SolutionFactorWorkspace } from './components/products/SolutionFactorWorkspace';
 import { TestingWorkspace } from './components/products/TestingWorkspace';
 import { MonitoringWorkspace } from './components/products/MonitoringWorkspace';
 import { FinOpsWorkspace } from './components/products/FinOpsWorkspace';
@@ -51,6 +49,17 @@ import { MarketplacePage } from './components/marketplace/MarketplacePage';
 import { RequirementGatheringWorkspace } from './components/requirement-gathering/RequirementGatheringWorkspace';
 import { SolutionBuilderIDE } from './components/products/solution-builder-ide/SolutionBuilderIDE';
 
+// Solution Builder prototype modules
+import { ToastProvider } from './modules/ui';
+import { SkillsProvider } from './modules/skills/SkillsStore';
+import { SkillsModule } from './modules/skills/SkillsModule';
+import { KnowledgeProvider } from './modules/knowledge/KnowledgeStore';
+import { ProjectKnowledgePage } from './modules/knowledge/ProjectKnowledgePage';
+import { FactoryProvider } from './modules/factory/FactoryStore';
+import { SolutionFactoryModule } from './modules/factory/FactoryModule';
+import { PlanningProvider } from './modules/planning/PlanningStore';
+import { SolutionPlanningModule } from './modules/planning/PlanningModule';
+
 const AppContent: React.FC = () => {
   const { currentView } = useNavigation();
 
@@ -74,10 +83,12 @@ const AppContent: React.FC = () => {
       // Products
       case 'products':
         return <ProductListing />;
+      case 'product-requirement-gathering':
       case 'product-solution-architect':
-        return <SolutionArchitectWorkspace />;
+      case 'product-solution-planning':
+        return <SolutionPlanningModule mode="requirement" />;
       case 'product-solution-factor':
-        return <SolutionFactorWorkspace />;
+        return <SolutionFactoryModule />;
       case 'product-testing':
         return <TestingWorkspace />;
       case 'product-monitoring':
@@ -136,7 +147,7 @@ const AppContent: React.FC = () => {
 
       // Workspace & Admin
       case 'projects':
-        return <ProjectsPage />;
+        return <ProjectKnowledgePage />;
       case 'activity':
         return <ActivityPage />;
       case 'usage':
@@ -148,6 +159,8 @@ const AppContent: React.FC = () => {
         return <MarketplacePage />;
       case 'vault':
         return <VaultPage />;
+      case 'skills-library':
+        return <SkillsModule />;
       case 'settings':
       case 'team':
       case 'roles':
@@ -169,7 +182,17 @@ const RootGate: React.FC = () => {
   return (
     <NavigationProvider>
       <NotificationProvider>
-        <AppContent />
+        <ToastProvider>
+          <SkillsProvider>
+            <KnowledgeProvider>
+              <FactoryProvider>
+                <PlanningProvider>
+                  <AppContent />
+                </PlanningProvider>
+              </FactoryProvider>
+            </KnowledgeProvider>
+          </SkillsProvider>
+        </ToastProvider>
       </NotificationProvider>
     </NavigationProvider>
   );

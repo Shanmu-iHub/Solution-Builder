@@ -30,7 +30,8 @@ import {
   Brain,
   Trophy,
   FlaskConical,
-  Terminal
+  Terminal,
+  Cpu
 } from 'lucide-react';
 
 interface DrawerConfig {
@@ -69,13 +70,15 @@ export const Sidebar: React.FC = () => {
 
   // Auto-detect if current view belongs to a sub-menu to highlight the parent
   const isSolutionBuilderActive =
-    currentView === 'requirement-gathering' ||
-    currentView === 'solution-builder-ide' ||
-    currentView === 'solution-builder-fullstack' ||
-    currentView === 'solution-builder-frontend' ||
     currentView === 'product-solution-architect' ||
+    currentView === 'product-solution-planning' ||
+    currentView === 'product-requirement-gathering' ||
     currentView === 'product-solution-factor' ||
-    currentView === 'agent-deep-research';
+    currentView === 'requirement-gathering';
+
+  const isAgentBuilderActive =
+    currentView === 'agents' ||
+    currentView === 'agent-builder';
 
   const isAiServicesActive =
     currentView === 'services' ||
@@ -291,8 +294,8 @@ export const Sidebar: React.FC = () => {
         onClick={onClick}
         title={label}
         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 text-left group cursor-pointer relative select-none ${isActive || isDrawerOpen
-            ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold'
-            : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+          ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold'
+          : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
           }`}
       >
         {/* Active Blue Left Indicator Bar */}
@@ -325,8 +328,8 @@ export const Sidebar: React.FC = () => {
             }}
             title={`Toggle ${label} menu`}
             className={`p-1 -mr-1 rounded-lg transition-all duration-150 shrink-0 hover:bg-slate-200/70 ${isDrawerOpen
-                ? 'text-[#2563EB] bg-blue-100/60'
-                : 'text-slate-400 hover:text-slate-700'
+              ? 'text-[#2563EB] bg-blue-100/60'
+              : 'text-slate-400 hover:text-slate-700'
               }`}
           >
             <ChevronRight
@@ -410,7 +413,7 @@ export const Sidebar: React.FC = () => {
               'Solution Builder',
               <Box className="w-[18px] h-[18px]" />,
               isSolutionBuilderActive,
-              () => handleNav('requirement-gathering'),
+              () => setIsSolutionBuilderOpen(!isSolutionBuilderOpen),
               true,
               isSolutionBuilderOpen,
               () => setIsSolutionBuilderOpen(!isSolutionBuilderOpen)
@@ -420,36 +423,25 @@ export const Sidebar: React.FC = () => {
               <div className="pl-6 space-y-0.5 pt-0.5 pb-1 animate-fade-in">
                 <button
                   type="button"
-                  onClick={() => handleNav('requirement-gathering')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'requirement-gathering'
-                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
-                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
-                    }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span className="truncate">Requirement Gathering</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNav('solution-builder-ide')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'solution-builder-ide'
-                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
-                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
-                    }`}
-                >
-                  <Terminal className="w-3.5 h-3.5" />
-                  <span className="truncate">Solution Builder IDE</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => handleNav('product-solution-architect')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-architect'
-                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
-                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-architect' || currentView === 'product-solution-planning' || currentView === 'product-requirement-gathering'
+                    ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                    : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                    }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="truncate">Solution Architect</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNav('product-solution-factor')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-factor'
+                    ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                    : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
                     }`}
                 >
                   <Box className="w-3.5 h-3.5" />
-                  <span className="truncate">Solution Architect</span>
+                  <span className="truncate">Solution Factory</span>
                 </button>
               </div>
             )}
@@ -457,8 +449,8 @@ export const Sidebar: React.FC = () => {
             {renderNavItem(
               'Agent Builder',
               <User className="w-[18px] h-[18px]" />,
-              currentView === 'agents' || currentView === 'agent-builder',
-              () => handleNav('agents')
+              isAgentBuilderActive,
+              () => handleNav('agent-builder')
             )}
           </div>
 
@@ -526,6 +518,20 @@ export const Sidebar: React.FC = () => {
               <Database className="w-[18px] h-[18px]" />,
               currentView === 'vault',
               () => handleNav('vault')
+            )}
+
+            {renderNavItem(
+              'Skills Library',
+              <Cpu className="w-[18px] h-[18px]" />,
+              currentView === 'skills-library',
+              () => handleNav('skills-library')
+            )}
+
+            {renderNavItem(
+              'Skills Library',
+              <Cpu className="w-[18px] h-[18px]" />,
+              currentView === 'skills-library',
+              () => handleNav('skills-library')
             )}
 
             {renderNavItem(
@@ -602,8 +608,8 @@ export const Sidebar: React.FC = () => {
                 key={item.id}
                 onClick={item.action}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 text-left cursor-pointer group ${item.isActive
-                    ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold shadow-2xs'
-                    : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                  ? 'bg-[#E8F0FE] text-[#0F172A] font-semibold shadow-2xs'
+                  : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
                   }`}
               >
                 <span

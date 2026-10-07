@@ -26,6 +26,9 @@ interface NavigationContextType {
   toggleUserMenu: () => void;
   activeSettingsTab: string;
   setActiveSettingsTab: (tab: string) => void;
+  /** Full-bleed workspace mode (no page padding / footer) — set by IDE-style module screens. */
+  isCanvasMode: boolean;
+  setCanvasMode: (on: boolean) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -39,6 +42,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState<string>('general');
+  const [isCanvasMode, setCanvasMode] = useState<boolean>(false);
 
   const navigateToProduct = (id: ProductId) => {
     setCurrentView(`product-${id}`);
@@ -139,7 +143,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsUserMenuOpen,
         toggleUserMenu,
         activeSettingsTab,
-        setActiveSettingsTab
+        setActiveSettingsTab,
+        isCanvasMode,
+        setCanvasMode
       }}
     >
       {children}
