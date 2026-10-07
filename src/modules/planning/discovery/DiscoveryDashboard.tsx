@@ -237,28 +237,32 @@ export const FeatureCard: React.FC<{ card: FeatureCardData; index?: number }> = 
 );
 
 export const DiscoveryDashboard: React.FC<{
-  phase: string;
-  title: string;
-  subtitle: string;
-  badge: string;
-  kpis: Kpi[];
+  phase?: string;
+  title?: string;
+  subtitle?: string;
+  badge?: string;
+  kpis?: Kpi[];
   cards: FeatureCardData[];
   csuiteStage: string;
   validated: boolean;
 }> = ({ phase, title, subtitle, badge, kpis, cards, csuiteStage, validated }) => (
   <div className="space-y-6">
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <div className="text-[12px] font-medium text-slate-400 mb-1">{phase}</div>
-        <h2 className="text-xl font-semibold text-[#0F172A]">{title}</h2>
-        <p className="text-[14.5px] text-slate-500 mt-1">{subtitle}</p>
+    {title && (
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          {phase && <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">{phase}</div>}
+          <h2 className="text-xl font-bold text-[#0F172A]">{title}</h2>
+          {subtitle && <p className="text-[14.5px] text-slate-500 mt-1">{subtitle}</p>}
+        </div>
+        {badge && <Badge tone="slate" className="shrink-0">{badge}</Badge>}
       </div>
-      <Chip className="shrink-0">{badge}</Chip>
-    </div>
+    )}
 
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {kpis.map(k => <KpiTile key={k.label} label={k.label} value={k.value} hint={k.hint} />)}
-    </div>
+    {kpis && kpis.length > 0 && (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpis.map(k => <StatTile key={k.label} label={k.label} value={k.value} hint={k.hint} icon={k.icon} tone={k.tone} />)}
+      </div>
+    )}
 
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
       {cards.map(c => <FeatureCard key={c.id} card={c} />)}

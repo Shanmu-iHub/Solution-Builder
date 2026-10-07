@@ -42,15 +42,15 @@ export const SolutionsListPage: React.FC<{ onOpen: (id: string) => void; mode: '
   };
 
   const isReq = mode === 'requirement';
-  const pageTitle = isReq ? 'Requirement Gathering' : 'Solution Planning';
-  const pageSub = isReq ? 'Build ideas, analyze problems, and define product requirements.' : `${projects.length} • ${projects.length === 1 ? 'solution' : 'solutions'} active`;
-  const btnLabel = isReq ? 'New Discovery' : 'New Solution';
+  const pageTitle = isReq ? 'Requirement Gathering' : 'Requirement Gathering';
+  const pageSub = isReq ? 'Define, validate, and plan solutions from idea to delivery.' : `${projects.length} • ${projects.length === 1 ? 'solution' : 'solutions'} active`;
+  const btnLabel = isReq ? 'New Solution' : 'New Solution';
   
   const reqStats = [
-    { label: 'Total briefs', value: projects.length, cls: 'text-[#0F172A]' },
-    { label: 'Ideas drafted', value: projects.filter(p => p.stage === 'requirement_context').length, cls: 'text-[#0F172A]' },
-    { label: 'In refinement', value: inValidation, cls: 'text-[#0F172A]' },
-    { label: 'Approved specs', value: projects.filter(p => p.stage === 'task_breakdown').length, cls: 'text-[#0F172A]' },
+    { label: 'Total Solutions', value: projects.length, cls: 'text-indigo-600' },
+    { label: 'Ideas drafted', value: projects.filter(p => p.stage === 'requirement_context').length, cls: 'text-sky-600' },
+    { label: 'In refinement', value: inValidation, cls: 'text-fuchsia-600' },
+    { label: 'Approved specs', value: projects.filter(p => p.stage === 'task_breakdown').length, cls: 'text-teal-600' },
   ];
   const activeStats = isReq ? reqStats : stats;
 
@@ -95,10 +95,10 @@ export const SolutionsListPage: React.FC<{ onOpen: (id: string) => void; mode: '
         <EmptyBlock title={isReq ? "No briefs found" : "No solutions found"} message={q ? (isReq ? 'No briefs match your search.' : 'No solutions match your search.') : (isReq ? 'Start gathering requirements for a new idea.' : 'You haven’t created any solutions yet. Click “New Solution” to get started!')} action={q ? <Button onClick={() => setQ('')}>Clear search</Button> : <Button variant="primary" onClick={() => openForm()}>{btnLabel}</Button>} />
       )}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title={editing ? (isReq ? 'Edit brief' : 'Edit solution') : (isReq ? 'Start a new discovery brief' : 'Start a new solution')} subtitle={isReq ? "Requirement Gathering — frame the problem and define product requirements." : "Solution Planning — update the core details before moving into planning."} width="max-w-lg" footer={<><Button onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" disabled={!form.name.trim()} onClick={save}>{editing ? 'Update' : (isReq ? 'Start discovery' : 'Create solution')}</Button></>}>
+      <Dialog open={open} onClose={() => setOpen(false)} title={editing ? (isReq ? 'Edit brief' : 'Edit solution') : (isReq ? 'Start a new solution' : 'Start a new solution')} subtitle={isReq ? "Frame the problem and define product requirements." : "Solution Planning — update the core details before moving into planning."} width="max-w-lg" footer={<><Button onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" disabled={!form.name.trim()} onClick={save}>{editing ? 'Update' : (isReq ? 'Start discovery' : 'Create solution')}</Button></>}>
         <div className="space-y-5">
-          <Field label={isReq ? "Initiative Name" : "Name"} required hint={`${form.name.length}/30`}><Input maxLength={30} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. AI-powered onboarding flow" autoFocus /></Field>
-          <Field label="Description"><Textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Briefly describe what this solution does… (optional)" /></Field>
+          <Field label={isReq ? "Name" : "Name"} required hint={`${form.name.length}/30`}><Input maxLength={30} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. AI-powered onboarding flow" autoFocus /></Field>
+          {/* <Field label="Description"><Textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Briefly describe what this solution does… (optional)" /></Field> */}
         </div>
       </Dialog>
       <ConfirmDialog open={!!confirm} danger title={isReq ? "Delete this brief?" : "Delete this solution?"} description={`“${confirm?.name}” and everything associated with it will be removed.`} confirmText="Delete" onClose={() => setConfirm(null)} onConfirm={() => { if (confirm) { deleteProject(confirm.id); toast({ title: 'Deleted', description: isReq ? 'Brief has been removed.' : 'Solution has been removed.' }); } }} />
