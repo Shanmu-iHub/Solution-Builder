@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowRight, Brain, Frown, Meh, Quote, RefreshCw, Smile, Sparkles, Target, Users } from 'lucide-react';
 import { Badge, Button, Card, EmptyBlock, SectionLabel, SegmentedControl, cx, sleep } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { makeJourneys, makePersonas } from '../content';
 import { Primary, Working } from '../shared';
+import { SkillsPanel, skillsFor, useSkillLoader } from '../SkillsLoader';
 import { Persona } from '../types';
 
 const Avatar: React.FC<{ name: string; big?: boolean }> = ({ name, big }) => (
@@ -11,18 +12,20 @@ const Avatar: React.FC<{ name: string; big?: boolean }> = ({ name, big }) => (
 );
 
 export const UxFoundation: React.FC<{ projectId: string; projectName: string; onComplete: () => void }> = ({ projectId, projectName, onComplete }) => {
-  const { state, patch } = usePlanning();
+  const { state, patch, projects } = usePlanning();
   const s = state(projectId);
   const [tab, setTab] = useState<'personas' | 'journeys'>('personas');
   const [busy, setBusy] = useState<'personas' | 'journeys' | null>(null);
   const [active, setActive] = useState<string | null>(s.personas[0]?.id ?? null);
   const [journeyId, setJourneyId] = useState<string | null>(s.journeys[0]?.id ?? null);
 
+  const skills = useMemo(() => skillsFor('ux', projectName, projects.find(p => p.id === projectId)?.description), [projectName, projects, projectId]);
+  const loader = useSkillLoader(skills, s.personas.length > 0);
   const persona: Persona | undefined = s.personas.find(p => p.id === active) ?? s.personas[0];
   const journey = s.journeys.find(j => j.id === journeyId) ?? s.journeys[0];
 
-  const genPersonas = async () => { setBusy('personas'); await sleep(1800); const p = makePersonas(projectName); patch(projectId, { personas: p, journeys: [] }); setActive(p[0].id); setBusy(null); };
-  const genJourneys = async () => { setBusy('journeys'); await sleep(1800); const j = makeJourneys(s.personas); patch(projectId, { journeys: j }); setJourneyId(j[0].id); setBusy(null); };
+  const genPersonas = async () => { setBusy('personas'); await loader.load(); await sleep(1400); const p = makePersonas(projectName); patch(projectId, { personas: p, journeys: [] }); setActive(p[0].id); setBusy(null); };
+  const genJourneys = async () => { setBusy('journeys'); await loader.load(); await sleep(1400); const j = makeJourneys(s.personas); patch(projectId, { journeys: j }); setJourneyId(j[0].id); setBusy(null); };
 
   const EmotionIcon = ({ n }: { n: number }) => (n >= 4 ? <Smile className="w-5 h-5 text-emerald-500" /> : n === 3 ? <Meh className="w-5 h-5 text-amber-500" /> : <Frown className="w-5 h-5 text-rose-500" />);
 
@@ -34,8 +37,10 @@ export const UxFoundation: React.FC<{ projectId: string; projectName: string; on
           <div className="flex items-center gap-3"><SegmentedControl value={tab} onChange={setTab} options={[{ id: 'personas', label: `User personas (${s.personas.length})` }, { id: 'journeys', label: `User journeys (${s.journeys.length})` }]} /></div>
         </div>
 
+        <SkillsPanel skills={skills} status={loader.status} loading={loader.loading} />
+
         {tab === 'personas' && (
-          busy === 'personas' ? <Working label="Generating personas…" sub="Clustering evidence from discovery into representative users" /> : s.personas.length === 0 ? (
+          busy === 'personas' ? <Working label={loader.loading ? 'Loading skills…' : 'Generating personas…'} sub={loader.loading ? 'Picking up the skills this project needs' : 'Clustering evidence from discovery into representative users'} /> : s.personas.length === 0 ? (
             <EmptyBlock icon={<Users className="w-6 h-6" />} title="No personas yet" message="Generate evidence-based personas from the discovery work — goals, concerns, key tasks and context." action={<Primary icon={<Sparkles className="w-4 h-4" />} onClick={genPersonas}>Generate personas</Primary>} />
           ) : persona && (
             <div className="grid lg:grid-cols-[300px_1fr] gap-6 items-start">
@@ -62,7 +67,7 @@ export const UxFoundation: React.FC<{ projectId: string; projectName: string; on
 
         {tab === 'journeys' && (
           s.personas.length === 0 ? <EmptyBlock icon={<Users className="w-6 h-6" />} title="Create personas first" message="Journeys are built per persona." action={<Button variant="primary" onClick={() => setTab('personas')}>Go to personas</Button>} /> :
-          busy === 'journeys' ? <Working label="Mapping journeys…" /> : s.journeys.length === 0 ? (
+          busy === 'journeys' ? <Working label={loader.loading ? 'Loading skills…' : 'Mapping journeys…'} /> : s.journeys.length === 0 ? (
             <EmptyBlock icon={<Sparkles className="w-6 h-6" />} title="No journeys yet" message="Map the key scenarios for each persona: actions, mindset, touchpoints and emotion across each phase." action={<Primary icon={<Sparkles className="w-4 h-4" />} onClick={genJourneys}>Generate journeys</Primary>} />
           ) : journey && (
             <div className="space-y-5">

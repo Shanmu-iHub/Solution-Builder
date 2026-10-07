@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Button, Input, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -59,6 +60,7 @@ export const ProductDefinition: React.FC<{ projectId: string; projectName: strin
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <StageResourceActivity active={drafting} activity="Shaping product scope and priorities" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
           <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 06 of 10</div>

@@ -6,15 +6,21 @@ import {
 /* ── Idea definition ────────────────────────────────────────────────────── */
 
 export const IDEA_QUESTIONS: IdeaQuestion[] = [
-  { id: 'iq1', slot: 'users', text: 'Who will use this solution most often?', why: 'Knowing the primary users shapes every later decision.', suggested: ['customers', 'agents', 'managers'], type: 'multi_select', allowOther: true, skippable: false, options: [{ value: 'customers', label: 'End customers' }, { value: 'agents', label: 'Support / operations staff' }, { value: 'managers', label: 'Team leads and managers' }, { value: 'admins', label: 'Administrators' }] },
-  { id: 'iq2', slot: 'outcome', text: 'What outcome matters most in the first 6 months?', why: 'This becomes the success measure for the solution.', suggested: 'speed', type: 'single_select', allowOther: true, skippable: false, options: [{ value: 'speed', label: 'Faster resolution / response times' }, { value: 'cost', label: 'Lower operating cost' }, { value: 'satisfaction', label: 'Higher customer satisfaction' }, { value: 'compliance', label: 'Better compliance and auditability' }] },
+  { id: 'iq1', slot: 'intended_users', text: 'Who will use this solution most often?', why: 'Knowing the primary users shapes every later decision.', suggested: ['customers', 'agents', 'managers'], type: 'multi_select', allowOther: true, skippable: false, options: [{ value: 'customers', label: 'End customers' }, { value: 'agents', label: 'Support / operations staff' }, { value: 'managers', label: 'Team leads and managers' }, { value: 'admins', label: 'Administrators' }] },
+  { id: 'iq2', slot: 'intended_outcome', text: 'What outcome matters most in the first 6 months?', why: 'This becomes the success measure for the solution.', suggested: 'speed', type: 'single_select', allowOther: true, skippable: false, options: [{ value: 'speed', label: 'Faster resolution / response times' }, { value: 'cost', label: 'Lower operating cost' }, { value: 'satisfaction', label: 'Higher customer satisfaction' }, { value: 'compliance', label: 'Better compliance and auditability' }] },
   { id: 'iq3', slot: 'context', text: 'Describe the environment this will run in.', why: 'Context such as existing systems and constraints avoids rework later.', suggested: 'We run a cloud-first stack with a CRM (Salesforce), an email platform and Okta single sign-on. The support team is 180 agents across three time zones. Data must stay in the EU, and any customer-facing change needs sign-off from Compliance.', type: 'long_text', allowOther: false, skippable: true, options: [] },
   { id: 'iq4', slot: 'use_cases', text: 'Name the single most important use case.', why: 'One concrete scenario keeps the first release focused.', suggested: 'A customer asks why they were charged twice and gets an accurate, cited answer within a minute.', type: 'short_text', allowOther: false, skippable: true, options: [] },
-  { id: 'iq5', slot: 'problem', text: 'How is this handled today?', why: 'Understanding the current process reveals the real pain.', suggested: 'tools', type: 'single_select', allowOther: true, skippable: false, options: [{ value: 'manual', label: 'Manually, with spreadsheets and email' }, { value: 'tools', label: 'With several disconnected tools' }, { value: 'legacy', label: 'In a legacy system' }, { value: 'none', label: 'It is not handled at all' }] },
+  { id: 'iq5', slot: 'handled_today', text: 'How is this handled today?', why: 'Understanding the current process reveals the real pain.', suggested: 'tools', type: 'single_select', allowOther: true, skippable: false, options: [{ value: 'manual', label: 'Manually, with spreadsheets and email' }, { value: 'tools', label: 'With several disconnected tools' }, { value: 'legacy', label: 'In a legacy system' }, { value: 'none', label: 'It is not handled at all' }] },
+  { id: 'iq6', slot: 'affected_stakeholders', text: 'Who else is affected by this idea?', why: 'Identifying stakeholders helps surface operational and approval needs.', suggested: 'Operations and finance teams', type: 'short_text', allowOther: false, skippable: true, options: [] },
+  { id: 'iq7', slot: 'handled_today', text: 'What process or tools are used today?', why: 'The current approach helps clarify what needs to change.', suggested: 'Email and disconnected tools', type: 'short_text', allowOther: false, skippable: true, options: [] },
+  { id: 'iq8', slot: 'main_drivers', text: 'What is driving the need for this idea now?', why: 'Drivers explain the urgency and priority.', suggested: 'Reduce delays and manual effort', type: 'short_text', allowOther: false, skippable: true, options: [] },
+  { id: 'iq9', slot: 'success_signal', text: 'How will you know this idea is successful?', why: 'A clear signal makes outcomes measurable.', suggested: 'Faster resolution and fewer manual steps', type: 'short_text', allowOther: false, skippable: true, options: [] },
+  { id: 'iq10', slot: 'constraints', text: 'What constraints should be considered?', why: 'Known limits help keep the idea feasible.', suggested: 'Budget, timeline, data, or compliance limits', type: 'short_text', allowOther: false, skippable: true, options: [] },
+  { id: 'iq11', slot: 'problem', text: 'What problem should this idea solve?', why: 'A clear problem keeps the solution focused.', suggested: 'Information and work are spread across disconnected tools and manual steps.', type: 'long_text', allowOther: false, skippable: false, options: [] },
 ];
 
 export const emptySlots = (): Slots => ({
-  idea: { state: 'missing', value: '' }, problem: { state: 'missing', value: '' }, users: { state: 'missing', value: '' }, outcome: { state: 'missing', value: '' }, context: { state: 'missing', value: '' }, use_cases: { state: 'missing', value: '' },
+  idea: { state: 'missing', value: '' }, problem: { state: 'missing', value: '' }, intended_users: { state: 'missing', value: '' }, intended_outcome: { state: 'missing', value: '' }, context: { state: 'missing', value: '' }, use_cases: { state: 'missing', value: '' }, affected_stakeholders: { state: 'missing', value: '' }, handled_today: { state: 'missing', value: '' }, main_drivers: { state: 'missing', value: '' }, success_signal: { state: 'missing', value: '' }, constraints: { state: 'missing', value: '' },
 });
 
 export const analyzeIdea = (idea: string): Slots => {
@@ -23,10 +29,15 @@ export const analyzeIdea = (idea: string): Slots => {
   return {
     idea: { state: 'known', value: short },
     problem: { state: 'inferred', value: 'People spend too long getting answers because information and work are spread across disconnected tools and manual steps.' },
-    users: { state: 'inferred', value: 'End customers, support staff', items: ['End customers', 'Support staff'] },
-    outcome: { state: 'inferred', value: 'Faster resolution with less manual effort', items: ['Faster resolution with less manual effort'] },
+    intended_users: { state: 'inferred', value: 'End customers, support staff', items: ['End customers', 'Support staff'] },
+    intended_outcome: { state: 'inferred', value: 'Faster resolution with less manual effort', items: ['Faster resolution with less manual effort'] },
     context: { state: 'missing', value: '' },
     use_cases: { state: 'missing', value: '' },
+    affected_stakeholders: { state: 'missing', value: '' },
+    handled_today: { state: 'missing', value: '' },
+    main_drivers: { state: 'missing', value: '' },
+    success_signal: { state: 'missing', value: '' },
+    constraints: { state: 'missing', value: '' },
   };
 };
 

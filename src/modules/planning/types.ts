@@ -1,4 +1,4 @@
-export type SlotKey = 'idea' | 'problem' | 'users' | 'outcome' | 'context' | 'use_cases';
+export type SlotKey = 'idea' | 'problem' | 'intended_users' | 'intended_outcome' | 'context' | 'use_cases' | 'affected_stakeholders' | 'handled_today' | 'main_drivers' | 'success_signal' | 'constraints';
 export type SlotState = 'known' | 'inferred' | 'missing' | 'skipped';
 export interface SlotValue { state: SlotState; value: string; items?: string[] }
 export type Slots = Record<SlotKey, SlotValue>;

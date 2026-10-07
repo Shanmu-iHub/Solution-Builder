@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check, CheckCircle2, ChevronDown, ChevronRight, Edit3, Lightbulb, ListChecks, Loader2, Sparkles, X } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, ChevronDown, ChevronRight, Edit3, Lightbulb, ListChecks, Sparkles, X } from 'lucide-react';
 import { Button, Input, Textarea, cx, sleep, useToast } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { IDEA_QUESTIONS } from '../content';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const DIRS = [
   { id: 'd_mobile', t: 'Mobile capture with AI receipt reading', d: 'Reps photograph receipts; AI reads amount, date and merchant and pre-fills the claim.', ai: true },
@@ -46,11 +47,20 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
     await sleep(2000);
     patch(projectId, { 
       slots: { 
-        idea: { state: 'known', value: ideaText }, problem: { state: 'inferred', value: 'Paper receipts get lost. Reimbursement takes weeks.' },
-        users: { state: 'inferred', value: 'Field sales reps' }, outcome: { state: 'inferred', value: 'Claims approved faster' },
-        context: { state: 'missing', value: '' }, use_cases: { state: 'missing', value: '' }
+        idea: { state: 'known', value: ideaText },
+        problem: { state: 'inferred', value: 'Paper receipts get lost. Reimbursement takes weeks.' },
+        intended_users: { state: 'inferred', value: 'Field sales reps' },
+        intended_outcome: { state: 'inferred', value: 'Claims approved faster' },
+        context: { state: 'missing', value: '' },
+        use_cases: { state: 'missing', value: '' },
+        affected_stakeholders: { state: 'missing', value: '' },
+        handled_today: { state: 'inferred', value: 'Claims are handled through email and approved manually.' },
+        main_drivers: { state: 'missing', value: '' },
+        success_signal: { state: 'missing', value: '' },
+        constraints: { state: 'missing', value: '' },
       },
-      answers: {}
+      answers: {},
+      analyzed: true,
     });
     setBusy(false); setDrafting(false);
     setOpenSecs({ slots: true, qs: true, dir: true });
@@ -87,21 +97,21 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
             )}
             {ideaText.length >= 12 && <div className="mb-8"></div>}
             
-            <div className="border border-dashed border-slate-300 rounded-xl p-6 bg-slate-50 flex items-center gap-4 mb-8">
-              <div className="w-10 h-10 bg-white border border-slate-200 rounded text-[11px] font-bold text-slate-400 flex items-center justify-center uppercase tracking-widest">PDF</div>
-              <div>
+            {/* <div className="border border-dashed border-slate-300 rounded-xl p-6 bg-slate-50 flex items-center gap-4 mb-8"> */}
+              {/* <div className="w-10 h-10 bg-white border border-slate-200 rounded text-[11px] font-bold text-slate-400 flex items-center justify-center uppercase tracking-widest">PDF</div> */}
+              {/* <div>
                 <div className="text-[14.5px] font-bold text-[#0F172A]">Drop a document <span className="font-normal text-slate-500">or</span> <button className="text-[#2563EB] hover:underline font-bold">use sample notes</button></div>
                 <div className="text-[12.5px] text-slate-500 mt-1">Optional · PDF, DOCX, TXT</div>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
-            <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-3">One step drafts all of this - you review and decide</div>
-            <div className="flex gap-2 mb-8">
+            {/* <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-3">One step drafts all of this - you review and decide</div> */}
+            {/* <div className="flex gap-2 mb-8">
               <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Six brief slots with origins</span>
               <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">≤4 questions with suggested answers</span>
               <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Three directions</span>
               <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Vision statement</span>
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-4">
               <Button variant="primary" icon={<Sparkles className="w-4 h-4" />} onClick={generate} disabled={ideaText.length < 12} className="px-6 py-2.5 text-[15px]">
@@ -121,21 +131,14 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-[#0F172A]">Understand my idea…</h2>
           <p className="text-slate-500">Simulated AI step — deterministic output, no invented figures.</p>
-          <Loader2 className="w-8 h-8 animate-spin text-[#2563EB] mx-auto mt-4" />
+          <StageResourceActivity active={drafting} activity="Structuring your idea brief" skillIds={['SKL-0002']} knowledgeIds={['KNW-0001']} policyIds={['POL-0001']} />
         </div>
       </div>
     );
   }
 
 
-  const unansQs = IDEA_QUESTIONS.filter(q => {
-    const ans = (s.answers || {})[q.id];
-    const isAnswered = ans && ans.value && (!Array.isArray(ans.value) || ans.value.length > 0);
-    if (!isAnswered && !q.skippable) return true;
-    return false;
-  }).length;
-  const needDir = !s.selectedDirection;
-  const canConfirm = unansQs === 0 && !needDir;
+  const canConfirm = s.slots.idea.value.trim().length >= 12;
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
@@ -153,7 +156,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
       <div className="flex-1 flex overflow-hidden">
         {/* Workspace */}
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
-          <Section num="01" title="What we understood" summary="6 lines · 2 AI-inferred to check" open={openSecs.slots} onToggle={() => toggle('slots')}>
+          <Section num="01" title="What we understood" summary="11 brief slots · 2 AI-inferred to check" open={openSecs.slots} onToggle={() => toggle('slots')}>
             <div className="flex justify-between items-center text-[12.5px] mb-6">
               <span className="text-slate-500">Click any line to edit. Hover an origin tag to see the quote.</span>
               <button className="text-[#2563EB] font-bold hover:underline">Accept all AI-inferred lines</button>
@@ -214,7 +217,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
             </div>
           </Section>
           
-          <Section num="02" title="A few questions" summary={IDEA_QUESTIONS.map(q => (s.answers || {})[q.id]?.value).filter(Boolean).join(' · ')} need={unansQs > 0 ? `${unansQs} to answer` : null} open={openSecs.qs} onToggle={() => toggle('qs')}>
+          <Section num="02" title="A few questions" summary={IDEA_QUESTIONS.map(q => (s.answers || {})[q.id]?.value).filter(Boolean).join(' · ')} open={openSecs.qs} onToggle={() => toggle('qs')}>
             <div className="space-y-6 pt-2">
               {IDEA_QUESTIONS.map(q => (
                 <div key={q.id}>
@@ -268,7 +271,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
             </div>
           </Section>
 
-          <Section num="03" title="Direction & vision" summary={DIRS.find(d => d.id === s.selectedDirection)?.t || ''} need={needDir ? "Pick one" : null} open={openSecs.dir} onToggle={() => toggle('dir')}>
+          {/* <Section num="03" title="Direction & vision" summary={DIRS.find(d => d.id === s.selectedDirection)?.t || ''} need={needDir ? "Pick one" : null} open={openSecs.dir} onToggle={() => toggle('dir')}>
             <div className="space-y-3 pt-2">
               {DIRS.map(d => (
                 <button 
@@ -292,7 +295,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
                 </div>
               )}
             </div>
-          </Section>
+          </Section> */}
         </div>
 
         {/* Side Panel */}
@@ -335,6 +338,30 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
               <ul className="text-[13.5px] text-[#0F172A] list-disc pl-4 space-y-1">
                 <li>Approval process — Not provided</li>
               </ul>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Use Cases</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Capture a receipt on a phone and submit an expense claim.</p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Affected Stakeholders</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Approvers and the finance team.</p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Handled Today</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Claims are submitted by email and approved manually.</p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Main Drivers</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Reduce lost receipts and reimbursement delays.</p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Success Signal</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Claims are approved faster and fewer receipts are lost.</p>
+            </div>
+            <div>
+              <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Constraints</span>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">Not provided.</p>
             </div>
             <div>
               <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Direction</span>
