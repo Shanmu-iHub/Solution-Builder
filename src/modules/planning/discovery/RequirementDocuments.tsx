@@ -64,7 +64,6 @@ export const RequirementDocuments: React.FC<{ projectId: string; projectName: st
       <StageResourceActivity active={drafting} activity="Generating requirement documents with traceability" knowledgeIds={['KNW-0001']} instructionIds={['INS-0001']} policyIds={['POL-0001']} />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 08 of 10</div>
           <h1 className="text-2xl font-bold text-[#0F172A]">Documents</h1>
           <p className="text-[15px] text-slate-500 mt-1">Review the generated document set.</p>
         </div>
