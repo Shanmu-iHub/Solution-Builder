@@ -16,6 +16,8 @@ export type ProductId =
   | 'audit'
   | 'gamifications'
   | 'solution-architect'
+  | 'requirement-gathering'
+  | 'solution-planning'
   | 'solution-factor'
   | 'ai-models';
 

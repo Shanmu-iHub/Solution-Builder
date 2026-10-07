@@ -1,6 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, Search, X, AlertTriangle, Info, MoreVertical } from 'lucide-react';
 
+export * from './CSuiteValidation';
+export * from './CSuiteConfig';
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Shared building blocks for the Skills / Knowledge / Solution Factory /
  * Solution Planning modules. Same visual language as the rest of the prototype

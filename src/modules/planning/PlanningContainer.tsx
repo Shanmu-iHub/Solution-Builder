@@ -7,12 +7,17 @@ import { DiscoveryPage, PlanningStage } from './types';
 import { IdeaDefinition } from './discovery/IdeaDefinition';
 import { OpportunityDiscovery } from './discovery/OpportunityDiscovery';
 import { ProblemDiscovery } from './discovery/ProblemDiscovery';
+import { SolutionDiscovery } from './discovery/SolutionDiscovery';
+import { ProductDefinition } from './discovery/ProductDefinition';
+import { Requirements } from './discovery/Requirements';
+import { RequirementDocuments } from './discovery/RequirementDocuments';
 import { SolutionDashboardPhase } from './phases/SolutionDashboardPhase';
 import { DocumentationPhase } from './phases/DocumentationPhase';
 import { ArchitectureValidation } from './phases/ArchitectureValidation';
 import { UxFoundation } from './phases/UxFoundation';
 import { Wireframes } from './phases/Wireframes';
 import { TaskBreakdown } from './phases/TaskBreakdown';
+import { BusinessModel } from './discovery/BusinessModel';
 
 const STAGES: { id: PlanningStage; label: string }[] = [
   { id: 'requirement_context', label: 'Requirement Discovery' },
@@ -49,27 +54,52 @@ const Stepper: React.FC<{ items: { key: string; label: string }[]; active: strin
   </nav>
 );
 
-export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void }> = ({ projectId, onBack }) => {
+export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void; mode: 'requirement' | 'planning' }> = ({ projectId, onBack, mode }) => {
   const { projects, state, patch, setStage } = usePlanning();
   const { setCanvasMode } = useNavigation();
   const project = projects.find(p => p.id === projectId);
   const s = state(projectId);
   const persisted = project?.stage ?? 'requirement_context';
-  const [active, setActive] = useState<PlanningStage>(persisted);
+  const [active, setActive] = useState<PlanningStage>(mode === 'requirement' ? 'requirement_context' : (persisted === 'requirement_context' ? 'solution_dashboard' : persisted));
   useEffect(() => { setCanvasMode(true); return () => setCanvasMode(false); }, [setCanvasMode]);
 
   if (!project) return null;
-  const mainIdx = MAIN.findIndex(m => m.stages.includes(active));
-  const main = MAIN[mainIdx];
-  const persistedMain = MAIN.findIndex(m => m.stages.includes(persisted));
+  const main = mode === 'requirement' ? MAIN[0] : MAIN[1];
   const advance = (next: PlanningStage) => { setActive(next); const order = STAGES.map(x => x.id); if (order.indexOf(next) > order.indexOf(persisted)) setStage(projectId, next); };
   const maxReached = Math.max(main.stages.indexOf(active), main.stages.indexOf(persisted));
 
-  const discoverySteps: { key: DiscoveryPage; label: string }[] = [{ key: 'idea', label: 'Idea Definition' }, { key: 'opportunity', label: 'Opportunity & Discovery' }, { key: 'problem', label: 'Problem Discovery' }];
+  const discoverySteps: { key: DiscoveryPage; label: string }[] = [
+    { key: 'idea', label: 'Definition' },
+    { key: 'opportunity', label: 'Opportunity & Discovery' },
+    { key: 'problem', label: 'Problem Discovery' },
+    { key: 'solution', label: 'Solution Discovery' },
+    { key: 'business_model', label: 'Business Model' },
+    { key: 'product_definition', label: 'Product Definition' },
+    { key: 'requirements', label: 'Requirements' },
+    { key: 'documentation', label: 'Documentation' }
+  ];
   const dIdx = discoverySteps.findIndex(d => d.key === s.discoveryPage);
-  const dReach = (i: number) => i === 0 || (i === 1 && s.briefConfirmed) || (i === 2 && s.oppCompleted) || i <= dIdx;
+  // Allow reaching the new stages if previous ones are completed, or just for testing allow all if we bypass
+  const dReach = (i: number) => true; // For demonstration, let user click any step
 
-  const goMain = (dir: -1 | 1) => { const n = MAIN[mainIdx + dir]; if (n && (dir < 0 || persistedMain >= mainIdx + 1 || persisted !== 'requirement_context')) setActive(n.stages[0]); };
+  const PlaceholderStage = ({ title, nextKey }: { title: string; nextKey?: DiscoveryPage }) => (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white h-full">
+      <div className="max-w-md space-y-4">
+        <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+        <p className="text-slate-500">This stage's content is coming soon.</p>
+        <div className="pt-4 flex justify-center gap-3">
+          {nextKey && (
+            <button
+              onClick={() => patch(projectId, { discoveryPage: nextKey })}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm"
+            >
+              Continue
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden">
@@ -79,12 +109,10 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
             <button onClick={onBack} className="flex items-center gap-1.5 text-[13.5px] font-semibold text-slate-500 hover:text-[#0F172A] cursor-pointer"><ArrowLeft className="w-4 h-4" />Solutions<span className="text-slate-300">/</span><span className="text-[#0F172A] max-w-[200px] truncate">{project.name}</span></button>
           </div>
           <div className="flex items-center gap-1.5 -ml-2 mt-1">
-            <button onClick={() => goMain(-1)} disabled={mainIdx === 0} className={cx('p-1.5 rounded-lg transition-colors', mainIdx > 0 ? 'hover:bg-slate-100 text-slate-600 cursor-pointer' : 'text-slate-300 cursor-not-allowed')}><ChevronLeft className="w-5 h-5" /></button>
-            <div className="text-[22px] font-bold tracking-tight text-[#0F172A]">{main.label}</div>
-            <button onClick={() => goMain(1)} disabled={mainIdx >= MAIN.length - 1 || persistedMain < 1} className={cx('p-1.5 rounded-lg transition-colors', mainIdx < MAIN.length - 1 && persistedMain >= 1 ? 'hover:bg-slate-100 text-slate-600 cursor-pointer' : 'text-slate-300 cursor-not-allowed')}><ChevronRight className="w-5 h-5" /></button>
+            <div className="text-[22px] font-bold tracking-tight text-[#0F172A] ml-2">{mode === 'requirement' ? 'Requirement Gathering' : 'Solution Planning'}</div>
           </div>
           <div className="mt-1.5">
-            {main.id === 'requirement_context' ? (
+            {mode === 'requirement' ? (
               <Stepper items={discoverySteps} active={s.discoveryPage} reachable={dReach} done={i => i < dIdx} onSelect={k => patch(projectId, { discoveryPage: k as DiscoveryPage })} />
             ) : (
               <Stepper items={main.stages.map(id => ({ key: id, label: STAGES.find(x => x.id === id)!.label }))} active={active} reachable={i => i <= maxReached} done={i => i < maxReached} onSelect={k => setActive(k as PlanningStage)} />
@@ -95,8 +123,13 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
         {active === 'requirement_context' && s.discoveryPage === 'idea' && <IdeaDefinition projectId={projectId} projectName={project.name} onContinue={() => patch(projectId, { discoveryPage: 'opportunity' })} />}
-        {active === 'requirement_context' && s.discoveryPage === 'opportunity' && <OpportunityDiscovery projectId={projectId} projectName={project.name} onBack={() => patch(projectId, { discoveryPage: 'idea' })} onContinue={() => patch(projectId, { discoveryPage: 'problem' })} />}
-        {active === 'requirement_context' && s.discoveryPage === 'problem' && <ProblemDiscovery projectId={projectId} projectName={project.name} onBack={() => patch(projectId, { discoveryPage: 'opportunity' })} onProceed={() => advance('solution_dashboard')} />}
+        {active === 'requirement_context' && s.discoveryPage === 'opportunity' && <OpportunityDiscovery projectId={projectId} projectName={project.name} onContinue={() => patch(projectId, { discoveryPage: 'problem' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'problem' && <ProblemDiscovery projectId={projectId} projectName={project.name} onContinue={() => patch(projectId, { discoveryPage: 'solution' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'solution' && <SolutionDiscovery projectId={projectId} projectName={project.name} onContinue={() => patch(projectId, { discoveryPage: 'business_model' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'business_model' && <BusinessModel projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'product_definition' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'product_definition' && <ProductDefinition projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'requirements' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'requirements' && <Requirements projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'documentation' })} />}
+        {active === 'requirement_context' && s.discoveryPage === 'documentation' && <RequirementDocuments projectId={projectId} projectName={project.name} onComplete={() => alert('Requirement Gathering completed!')} />}
         {active === 'solution_dashboard' && <SolutionDashboardPhase projectId={projectId} projectName={project.name} onComplete={() => advance('documentation')} />}
         {active === 'documentation' && <DocumentationPhase projectId={projectId} projectName={project.name} onComplete={() => advance('architecture_validation')} />}
         {active === 'architecture_validation' && <ArchitectureValidation projectId={projectId} onComplete={() => advance('ux_foundation')} />}

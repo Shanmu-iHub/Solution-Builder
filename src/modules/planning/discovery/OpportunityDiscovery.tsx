@@ -1,166 +1,216 @@
-import React, { useRef, useState } from 'react';
-import { BarChart3, Check, ExternalLink, FileText, Globe, Loader2, Sparkles, Target, TrendingUp, Users } from 'lucide-react';
-import { Badge, Button, Callout, Card, EmptyBlock, SectionLabel, Textarea, cx, sleep } from '../../ui';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, ExternalLink, Loader2, Sparkles } from 'lucide-react';
+import { Button, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
-import { makeAnalysis, makeCustomers, makeMarket, makeMarketBrief, makeOpportunity } from '../content';
-import { FooterBar, OriginTag, PhaseTitle, Primary, UnderlineNav, Working } from '../shared';
-import { PlanningState } from '../types';
 
-const TABS = [
-  { key: 'opportunity' as const, label: 'Opportunity', icon: <Target className="w-3.5 h-3.5" /> },
-  { key: 'market' as const, label: 'Market research', icon: <Globe className="w-3.5 h-3.5" /> },
-  { key: 'customers' as const, label: 'Customers', icon: <Users className="w-3.5 h-3.5" /> },
-  { key: 'analysis' as const, label: 'Analysis', icon: <BarChart3 className="w-3.5 h-3.5" /> },
-  { key: 'brief' as const, label: 'Market & industry brief', icon: <FileText className="w-3.5 h-3.5" /> },
+const Section: React.FC<{
+  num: string; title: string; summary: string; need?: string | null; open: boolean;
+  onToggle: () => void; children: React.ReactNode;
+}> = ({ num, title, summary, need, open, onToggle, children }) => (
+  <div className={cx('border border-slate-200 bg-white rounded-xl overflow-hidden transition-all duration-200', open ? 'shadow-sm' : 'hover:border-slate-300')}>
+    <button onClick={onToggle} className="w-full flex items-center gap-3 px-5 py-4 cursor-pointer text-left bg-white">
+      <span className="text-[13.5px] font-bold text-slate-400 font-mono">{num}</span>
+      <span className="text-[15px] font-bold text-[#0F172A]">{title}</span>
+      {need && <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-[11.5px] font-bold tracking-wide uppercase">{need}</span>}
+      <span className="flex-1 min-w-0 text-[13.5px] text-slate-500 truncate ml-2">{summary}</span>
+      <span className="text-slate-400">{open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</span>
+    </button>
+    {open && <div className="px-5 pb-5 pt-1 border-t border-slate-100">{children}</div>}
+  </div>
+);
+
+const FINDS = [
+  { t: 'SAP Concur offers mobile receipt capture and an expense approval workflow.', s: 'concur.com' },
+  { t: 'Expensify scans receipts from a phone photo and routes reports for approval.', s: 'expensify.com' },
+  { t: 'Zoho Expense supports receipt scanning, policy rules and multi-level approval.', s: 'zoho.com/expense' },
+  { t: 'Microsoft Power Automate can route approvals through Teams and email.', s: 'learn.microsoft.com' }
 ];
 
-const Generate: React.FC<{ title: string; message: string; cta: string; busy: boolean; onClick: () => void; busyLabel: string }> = ({ title, message, cta, busy, onClick, busyLabel }) =>
-  busy ? <Working label={busyLabel} sub="This usually takes a few seconds" /> : (
-    <EmptyBlock icon={<Sparkles className="w-6 h-6" />} title={title} message={message} action={<Primary icon={<Sparkles className="w-4 h-4" />} onClick={onClick}>{cta}</Primary>} />
-  );
+const SEGS = [
+  { id: 's_reps', t: 'Field sales reps', role: 'Submit claims', wants: 'Get reimbursed quickly', str: 'Keeping paper receipts on the road', today: 'Email receipts and wait' },
+  { id: 's_mgr', t: 'Line managers', role: 'Approve claims', wants: 'Approve without chasing email', str: 'Claims arrive scattered in the inbox', today: 'Approve manually by email' },
+  { id: 's_fin', t: 'Finance team', role: 'Check and pay', wants: 'Clean, policy-checked claims', str: 'Manual processing', today: 'Not provided' },
+];
+const SUG_SEG = { id: 's_ops', t: 'Sales operations', role: 'Sets expense rules for the sales team' };
 
-const CITE = (n: number[]) => <span className="text-[11.5px] font-bold text-[#2563EB] align-super ml-0.5">[{n.join(', ')}]</span>;
-
-export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: string; onBack: () => void; onContinue: () => void }> = ({ projectId, projectName, onBack, onContinue }) => {
+export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
   const { state, patch } = usePlanning();
   const s = state(projectId);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-  const [edits, setEdits] = useState<Record<string, string>>({});
-  const scroll = useRef<HTMLDivElement>(null);
-  const idx = TABS.findIndex(t => t.key === s.oppTab);
-  const last = idx === TABS.length - 1;
+  const [busy, setBusy] = useState(false);
+  const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ opp: true, mkt: true, cust: true });
+  const [drafting, setDrafting] = useState(false);
+  const [sugState, setSugState] = useState<'open' | 'added' | 'dismissed'>('open');
 
-  const open = (t: PlanningState['oppTab']) => { patch(projectId, { oppTab: t }); scroll.current?.scrollTo({ top: 0 }); };
-  const run = async (key: string, ms: number, apply: Partial<PlanningState>) => { setBusy(key); await sleep(ms); patch(projectId, apply); setBusy(null); };
+  const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
+  
+  const hasBrief = !!s.marketBrief;
 
-  const next = async () => {
-    setBusy('save');
-    if (s.opportunity) {
-      const cards = { ...s.opportunity.cards };
-      (Object.keys(cards) as (keyof typeof cards)[]).forEach(k => { if (edits[k] !== undefined) cards[k] = { text: edits[k], source: 'user_confirmed' }; });
-      patch(projectId, { opportunity: { ...s.opportunity, cards } });
-    }
-    await sleep(500);
-    setBusy(null);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
-    if (!last) return open(TABS[idx + 1].key);
-    setBusy('complete');
-    await sleep(600);
-    patch(projectId, { oppCompleted: true });
-    setBusy(null);
-    onContinue();
+  const generate = async () => {
+    setBusy(true); setDrafting(true);
+    await sleep(2000);
+    patch(projectId, { 
+      marketBrief: 'Make expense claims for field sales reps paperless and fast — from phone receipt capture through approval.'
+    });
+    setBusy(false); setDrafting(false);
+    setOpenSecs({ opp: true, mkt: true, cust: true });
   };
 
-  const opp = s.opportunity;
-  return (
-    <div ref={scroll} className="h-full w-full overflow-y-auto bg-slate-50/60">
-      <div className="max-w-6xl mx-auto px-8 py-6 flex flex-col gap-6">
-        <PhaseTitle eyebrow="Phase · Discovery" title="Opportunity & Discovery" subtitle="Establish the market and customer context for this initiative." />
-        <UnderlineNav steps={TABS} active={s.oppTab} onSelect={open} />
+  const confirm = () => {
+    patch(projectId, { discoveryPage: 'problem' });
+  };
 
-        {s.oppTab === 'opportunity' && (
-          !opp ? <Generate title="No opportunity assessment yet" message="Generate a first assessment from your confirmed Idea Brief. You can edit every card afterwards." cta="Generate opportunity" busy={busy === 'opp'} busyLabel="Assessing the opportunity…" onClick={() => run('opp', 1600, { opportunity: makeOpportunity(projectName) })} /> : (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between"><SectionLabel>Opportunity assessment</SectionLabel><Button size="sm" icon={<Sparkles className="w-3.5 h-3.5" />} onClick={() => run('opp', 1200, { opportunity: makeOpportunity(projectName) })}>Regenerate</Button></div>
-              <div className="grid md:grid-cols-2 gap-4">
-                {(['business', 'customer', 'market', 'technology'] as const).map(k => (
-                  <Card key={k} className="space-y-2">
-                    <div className="flex items-center justify-between"><span className="text-[12.5px] font-bold uppercase tracking-wider text-slate-600">{k} opportunity</span><OriginTag origin={edits[k] !== undefined ? 'user_confirmed' : opp.cards[k].source} /></div>
-                    <Textarea rows={4} value={edits[k] ?? opp.cards[k].text} onChange={e => setEdits(x => ({ ...x, [k]: e.target.value }))} className="!text-[14.5px] !leading-relaxed" />
-                  </Card>
+  useEffect(() => {
+    if (!s.marketBrief) {
+      patch(projectId, { 
+        marketBrief: 'Make expense claims for field sales reps paperless and fast — from phone receipt capture through approval.'
+      });
+    }
+  }, [s.marketBrief, projectId, patch]);
+
+  const primaryCust = (s.customers || []).find(c => c.primary) || null;
+  const canConfirm = !!primaryCust;
+
+  return (
+    <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
+        <div>
+          <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 02 of 10</div>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Opportunity Discovery</h1>
+          <p className="text-[15px] text-slate-500 mt-1">Market research and customer segments.</p>
+        </div>
+        <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[12.5px] font-bold">
+          Market Brief · Draft v0.1
+        </div>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
+          <Section num="01" title="Opportunity" summary={s.marketBrief || ''} open={openSecs.opp} onToggle={() => toggle('opp')}>
+            <div className="space-y-6 pt-2">
+              <p className="text-[17px] font-medium text-[#0F172A] leading-relaxed">{s.marketBrief}</p>
+              
+              <div>
+                <h4 className="text-[12.5px] font-bold text-slate-800 uppercase mb-3">Four lenses</h4>
+                <div className="space-y-2">
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col gap-1">
+                    <span className="text-[14px] text-[#0F172A]">Faster, tracked reimbursement with less manual handling by managers and finance.</span>
+                    <span className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Business</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col gap-1">
+                    <span className="text-[14px] text-[#0F172A]">Reps stop losing receipts and know where their claim is.</span>
+                    <span className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Customer</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col gap-1">
+                    <span className="text-[14px] text-[#0F172A]">Several established expense tools already offer mobile receipt capture.</span>
+                    <span className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Market</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col gap-1">
+                    <span className="text-[14px] text-[#0F172A]">Target finance system not known yet.</span>
+                    <span className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Technology</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Section>
+          
+          <Section num="02" title="Market research" summary={`${FINDS.length} findings · 2 gaps`} open={openSecs.mkt} onToggle={() => toggle('mkt')}>
+            <div className="space-y-6 pt-2">
+              <div className="space-y-3">
+                {FINDS.map((f, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-[11px] font-bold text-slate-500 shrink-0 mt-0.5">{i+1}</span>
+                    <div>
+                      <p className="text-[14px] text-[#0F172A]">{f.t}</p>
+                      <a href={`https://${f.s}`} target="_blank" className="inline-flex items-center gap-1 mt-1 text-[12px] text-blue-600 hover:underline">
+                        <ExternalLink className="w-3 h-3" /> {f.s}
+                      </a>
+                    </div>
+                  </div>
                 ))}
               </div>
-              <Card>
-                <SectionLabel icon={<TrendingUp className="w-3.5 h-3.5" />}>Potential value</SectionLabel>
-                <div className="grid md:grid-cols-3 gap-4">{opp.potentialValue.map(v => (
-                  <div key={v.label} className="border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between"><p className="text-[12.5px] font-bold uppercase tracking-wider text-slate-500">{v.label}</p><OriginTag origin={v.source} /></div><p className="text-2xl font-bold text-[#0F172A] mt-1">{v.value}</p><p className="text-[13.5px] text-slate-500 mt-1 leading-snug">{v.basis}</p></div>
-                ))}</div>
-              </Card>
-              <Card>
-                <SectionLabel>Assumptions</SectionLabel>
-                <ul className="space-y-2">{opp.assumptions.map((a, i) => <li key={i} className="flex items-start justify-between gap-3 text-[14.5px] text-slate-700"><span className="flex gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />{a.text}</span><OriginTag origin={a.source} /></li>)}</ul>
-              </Card>
-            </div>
-          )
-        )}
-
-        {s.oppTab === 'market' && (
-          !s.market ? <Generate title="Market research hasn’t run yet" message="Search the web for market size, trends and competitors, then summarise the cited findings." cta="Run market research" busy={busy === 'market'} busyLabel="Researching the market…" onClick={() => run('market', 2200, { market: makeMarket() })} /> : (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between"><SectionLabel>Research summary</SectionLabel><Button size="sm" icon={<Globe className="w-3.5 h-3.5" />} onClick={() => run('market', 1500, { market: makeMarket(), marketBrief: null })}>Re-run research</Button></div>
-              <Card className="space-y-3">{s.market.summary.map((m, i) => <p key={i} className="text-[14.5px] text-slate-700 leading-relaxed">{m.text}{CITE(m.sources)}</p>)}</Card>
-              <div><SectionLabel>Queries</SectionLabel><div className="flex flex-wrap gap-2">{s.market.queries.map(q => <Badge key={q} mono>{q}</Badge>)}</div></div>
-              <div><SectionLabel>Sources</SectionLabel>
-                <div className="grid md:grid-cols-2 gap-3">{s.market.results.map(r => (
-                  <Card key={r.rank} className="!p-4 space-y-1.5"><div className="flex items-start justify-between gap-2"><p className="text-[14.5px] font-bold text-[#0F172A] leading-snug"><span className="text-[#2563EB] mr-1">[{r.rank}]</span>{r.title}</p></div><p className="text-[13.5px] text-slate-500 leading-relaxed">{r.content}</p><a className="inline-flex items-center gap-1 text-[12.5px] text-[#2563EB] font-semibold hover:underline" href={r.url} onClick={e => e.preventDefault()}><ExternalLink className="w-3 h-3" />{r.url.replace('https://', '')}</a></Card>
-                ))}</div>
+              <div>
+                <h4 className="text-[12.5px] font-bold text-slate-800 uppercase mb-3">Searched for, not found</h4>
+                <div className="space-y-2 text-[14px] text-slate-600">
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">Market size for field-sales expense tools</div>
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">Rate of lost receipts in field sales</div>
+                </div>
               </div>
             </div>
-          )
-        )}
+          </Section>
 
-        {s.oppTab === 'customers' && (
-          !s.customers ? <Generate title="No customer view yet" message="Identify who has the problem, who will use the solution, segments and example personas." cta="Generate customers" busy={busy === 'cust'} busyLabel="Profiling customers…" onClick={() => run('cust', 1500, { customers: makeCustomers() })} /> : (
-            <div className="space-y-5">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card><SectionLabel>Problem holders</SectionLabel><div className="flex flex-wrap gap-2">{s.customers.problemHolders.map(x => <Badge key={x} tone="red">{x}</Badge>)}</div></Card>
-                <Card><SectionLabel>Solution users</SectionLabel><div className="flex flex-wrap gap-2">{s.customers.solutionUsers.map(x => <Badge key={x} tone="green">{x}</Badge>)}</div></Card>
+          <Section num="03" title="Customers" summary={`Primary: ${primaryCust?.name || 'Not chosen'}`} need={!primaryCust ? "Choose primary" : null} open={openSecs.cust} onToggle={() => toggle('cust')}>
+            <div className="space-y-4 pt-2">
+              <p className="text-[12.5px] text-slate-500 mb-2">Pick the primary customer — the product is designed for them first.</p>
+              
+              <div className="grid gap-3">
+                {SEGS.concat(sugState === 'added' ? [SUG_SEG] : []).map(s => {
+                  const isPrimary = primaryCust?.id === s.id;
+                  return (
+                    <button 
+                      key={s.id} 
+                      onClick={() => patch(projectId, st => ({ 
+                        customers: SEGS.concat(sugState === 'added' ? [SUG_SEG] : []).map(x => ({ id: x.id, name: x.t, type: x.role, primary: x.id === s.id }))
+                      }))}
+                      className={cx("w-full text-left p-4 rounded-xl border transition cursor-pointer relative", isPrimary ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300")}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={cx("text-[15px] font-bold", isPrimary ? "text-[#1D4ED8]" : "text-[#0F172A]")}>{s.t} {isPrimary && <span className="ml-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[11px] uppercase tracking-widest font-bold">Primary</span>}</span>
+                      </div>
+                      <div className="text-[13.5px] text-slate-600 space-y-1">
+                        <div className="flex"><span className="w-20 font-semibold text-slate-400 text-[12px] uppercase">Role</span> {s.role}</div>
+                        {s.wants && <div className="flex"><span className="w-20 font-semibold text-slate-400 text-[12px] uppercase">Wants</span> {s.wants}</div>}
+                        {s.str && <div className="flex"><span className="w-20 font-semibold text-slate-400 text-[12px] uppercase">Struggles</span> {s.str}</div>}
+                        {s.today && <div className="flex"><span className="w-20 font-semibold text-slate-400 text-[12px] uppercase">Today</span> {s.today}</div>}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <Card><SectionLabel>Segments</SectionLabel><div className="grid md:grid-cols-3 gap-3">{s.customers.segments.map(x => <div key={x.name} className="border border-slate-200 rounded-xl p-3.5"><p className="text-[15px] font-bold text-[#0F172A]">{x.name}</p><p className="text-[13.5px] text-slate-500 mt-1 leading-relaxed">{x.description}</p></div>)}</div></Card>
-              <Card><SectionLabel>Personas</SectionLabel><div className="grid md:grid-cols-3 gap-3">{s.customers.personas.map(p => (
-                <div key={p.name} className="border border-slate-200 rounded-xl p-4 space-y-2"><div className="flex items-center justify-between"><p className="text-[15px] font-bold text-[#0F172A]">{p.name}</p><Badge tone={p.type === 'problem_holder' ? 'red' : 'blue'}>{p.type === 'problem_holder' ? 'Problem holder' : 'Solution user'}</Badge></div><p className="text-[13.5px] text-slate-600"><b>Goals:</b> {p.goals}</p><p className="text-[13.5px] text-slate-600"><b>Pains:</b> {p.pains}</p></div>
-              ))}</div></Card>
-            </div>
-          )
-        )}
 
-        {s.oppTab === 'analysis' && (
-          !s.analysis ? <Generate title="No analysis yet" message={opp ? 'Summarise strengths, risks and open questions across the opportunity, market and customers.' : 'Generate the opportunity first, then come back for the analysis.'} cta="Generate analysis" busy={busy === 'ana'} busyLabel="Analysing…" onClick={() => opp ? run('ana', 1400, { analysis: makeAnalysis(projectName) }) : open('opportunity')} /> : (
-            <div className="space-y-5">
-              <Callout tone="info" title="Summary">{s.analysis.summary}</Callout>
-              <div className="grid md:grid-cols-3 gap-4">
-                <Card><SectionLabel>Strengths</SectionLabel><ul className="space-y-2">{s.analysis.strengths.map(x => <li key={x} className="flex gap-2 text-[14.5px] text-slate-700"><Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />{x}</li>)}</ul></Card>
-                <Card><SectionLabel>Risks</SectionLabel><ul className="space-y-2">{s.analysis.risks.map(x => <li key={x} className="flex gap-2 text-[14.5px] text-slate-700"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />{x}</li>)}</ul></Card>
-                <Card><SectionLabel>Open questions</SectionLabel><ul className="space-y-2">{s.analysis.openQuestions.map(x => <li key={x} className="flex gap-2 text-[14.5px] text-slate-700"><span className="text-[#2563EB] font-bold">?</span>{x}</li>)}</ul></Card>
-              </div>
+              {sugState === 'open' && (
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl mt-4">
+                  <div className="flex items-center gap-2 mb-1"><span className="text-[14.5px] font-bold text-[#0F172A]">{SUG_SEG.t}</span> <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-[11px] font-bold uppercase tracking-wider">AI Suggestion</span></div>
+                  <p className="text-[13.5px] text-slate-600 mb-3">{SUG_SEG.role}</p>
+                  <div className="flex gap-2">
+                    <Button variant="secondary" className="text-[13px] py-1" onClick={() => setSugState('added')}>Add</Button>
+                    <Button variant="ghost" className="text-[13px] py-1" onClick={() => setSugState('dismissed')}>Dismiss</Button>
+                  </div>
+                </div>
+              )}
             </div>
-          )
-        )}
+          </Section>
+        </div>
 
-        {s.oppTab === 'brief' && (
-          !s.marketBrief ? (
-            <div className="space-y-4">
-              {!s.market && <Callout tone="warning" title="Run market research first">The brief is grounded in cited sources. <button onClick={() => open('market')} className="underline font-bold">Open Market research</button></Callout>}
-              <Generate title="No market & industry brief yet" message="Build a structured brief with sizing, competitors and a feature comparison — every claim cites a source." cta="Generate brief" busy={busy === 'brief'} busyLabel="Writing the market & industry brief…" onClick={() => s.market ? run('brief', 2200, { marketBrief: makeMarketBrief() }) : open('market')} />
+        {/* Side Panel */}
+        <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shrink-0">
+          <div className="p-5 border-b border-slate-200 bg-slate-50/50">
+            <h3 className="text-[19px] font-bold text-[#0F172A]">Market Brief</h3>
+            <span className="inline-block mt-1 px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-[11.5px] font-bold uppercase tracking-widest">Draft v0.1</span>
+          </div>
+          <div className="flex-1 p-5 overflow-y-auto space-y-5">
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Opportunity</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{s.marketBrief}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Primary Customer</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{primaryCust?.name || 'Not decided'}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Segments</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{(s.customers || []).map(c => c.name).join(', ') || SEGS.map(s => s.t).join(', ')}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Market Findings</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{FINDS.length} products found</p></div>
+            
+            <div className="pt-2">
+              <CSuiteValidation stageId="opportunity" status={canConfirm ? 'Validated' : 'Pending'} />
             </div>
-          ) : (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between"><SectionLabel>Market &amp; industry brief</SectionLabel><Button size="sm" icon={<Sparkles className="w-3.5 h-3.5" />} onClick={() => run('brief', 1500, { marketBrief: makeMarketBrief() })}>Regenerate</Button></div>
-              {s.marketBrief.sections.map(sec => (
-                <Card key={sec.key}><SectionLabel>{sec.title}</SectionLabel><ul className="space-y-2">{sec.items.map((it, i) => <li key={i} className="text-[14.5px] text-slate-700 leading-relaxed flex gap-2 items-start"><Badge tone={it.type === 'reported' ? 'blue' : 'purple'}>{it.type === 'reported' ? 'Reported' : 'Synthesis'}</Badge><span>{it.text}{CITE(it.sources)}</span></li>)}</ul></Card>
-              ))}
-              <Card>
-                <SectionLabel>Market sizing</SectionLabel>
-                <div className="grid grid-cols-3 gap-4 mb-3">{([['TAM', s.marketBrief.sizing.tam], ['SAM', s.marketBrief.sizing.sam], ['SOM', s.marketBrief.sizing.som]] as const).map(([k, v]) => <div key={k} className="border border-slate-200 rounded-xl p-4 text-center"><p className="text-[12.5px] font-bold tracking-wider text-slate-400">{k}</p><p className="text-2xl font-bold text-[#0F172A]">{v}</p></div>)}</div>
-                <p className="text-[13.5px] text-slate-500"><b>Method:</b> {s.marketBrief.sizing.method}</p>
-              </Card>
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card><SectionLabel>Competitors</SectionLabel><ul className="space-y-3">{s.marketBrief.competitors.map(c => <li key={c.name}><p className="text-[15px] font-bold text-[#0F172A]">{c.name}</p><p className="text-[13.5px] text-slate-500">{c.description}</p></li>)}</ul></Card>
-                <Card padded={false} className="overflow-hidden"><div className="px-5 pt-4"><SectionLabel>Feature comparison</SectionLabel></div><table className="w-full text-[13.5px]"><thead className="bg-slate-50 text-left"><tr><th className="px-4 py-2 font-bold text-slate-600">Competitor</th><th className="px-4 py-2 font-bold text-slate-600">Capability</th><th className="px-4 py-2 font-bold text-slate-600">Detail</th></tr></thead><tbody>{s.marketBrief.comparison.map(r => <tr key={r.competitor} className="border-t border-slate-100"><td className="px-4 py-2.5 font-semibold">{r.competitor}</td><td className="px-4 py-2.5">{r.capability}</td><td className="px-4 py-2.5 text-slate-500">{r.detail}</td></tr>)}</tbody></table></Card>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card><SectionLabel>Assumptions</SectionLabel><ul className="list-disc pl-4 text-[14.5px] text-slate-700 space-y-1">{s.marketBrief.assumptions.map(x => <li key={x}>{x}</li>)}</ul></Card>
-                <Card><SectionLabel>Open questions</SectionLabel><ul className="list-disc pl-4 text-[14.5px] text-slate-700 space-y-1">{s.marketBrief.openQuestions.map(x => <li key={x}>{x}</li>)}</ul></Card>
-              </div>
-            </div>
-          )
-        )}
-
-        <FooterBar onBack={idx === 0 ? onBack : () => open(TABS[idx - 1].key)} backLabel="Back" note={saved ? <span className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-emerald-600"><Check className="w-3.5 h-3.5" />Saved</span> : busy === 'save' ? <span className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-emerald-600"><Loader2 className="w-3.5 h-3.5 animate-spin" />Saving…</span> : undefined}>
-          <Primary arrow loading={busy === 'complete'} disabled={busy !== null} onClick={next}>{!last ? 'Continue' : 'Continue to Problem Discovery'}</Primary>
-        </FooterBar>
+          </div>
+          <div className="p-5 border-t border-slate-200 bg-slate-50/50 space-y-3">
+            {canConfirm ? (
+              <>
+                <div className="flex items-center gap-2 text-emerald-600 text-[13.5px] font-bold mb-2"><CheckCircle2 className="w-4 h-4" /> Ready to confirm</div>
+                <Button variant="primary" className="w-full text-[15px] py-2.5" onClick={onContinue}>Confirm & Continue <ArrowRight className="w-4 h-4 ml-1" /></Button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 text-amber-600 text-[13.5px] font-bold mb-2">Pending decisions</div>
+                <Button className="w-full text-[15px] py-2.5" disabled>Confirm Market Brief</Button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

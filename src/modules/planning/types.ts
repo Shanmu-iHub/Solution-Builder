@@ -90,7 +90,7 @@ export interface FeatureNode { id: string; title: string; description: string; s
 export interface EpicNode { id: string; title: string; description: string; features: FeatureNode[] }
 
 export type PlanningStage = 'requirement_context' | 'solution_dashboard' | 'documentation' | 'architecture_validation' | 'ux_foundation' | 'wireframe_generation' | 'task_breakdown';
-export type DiscoveryPage = 'idea' | 'opportunity' | 'problem';
+export type DiscoveryPage = 'idea' | 'opportunity' | 'problem' | 'solution' | 'business_model' | 'product_definition' | 'requirements' | 'documentation';
 
 export interface SolutionProject {
   id: string;

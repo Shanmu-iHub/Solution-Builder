@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Cloud, Code, Database, Download, FileText, GitBranch, Maximize2, Minimize2, Monitor, Share2 } from 'lucide-react';
+import { CheckCircle2, Cloud, Code, Database, Download, FileText, GitBranch, Maximize2, Minimize2, Monitor, Share2 } from 'lucide-react';
 import { useNavigation } from '../../../context/NavigationContext';
-import { Button, Dialog, Toggle, cx, useToast } from '../../ui';
+import { Button, Dialog, Toggle, cx, useToast, CSuiteValidation } from '../../ui';
 import { useFactory } from '../FactoryStore';
 import { FactoryProject } from '../types';
 import { ChatPane } from './ChatPane';
@@ -32,12 +32,13 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
   const id = project.projectId;
   const state = f.ws(id);
   const isUi = project.kind === 'ui-canvas';
-  const tabs = isUi ? ALL_TABS.filter(t => t.id !== 'plan' && t.id !== 'database') : ALL_TABS;
+  const tabs = isUi ? ALL_TABS.filter(t => t.id !== 'database') : ALL_TABS;
 
-  const [tab, setTab] = useState<Tab>(state.planStatus === 'APPROVED' || isUi ? 'preview' : 'plan');
+  const [tab, setTab] = useState<Tab>(state.planStatus === 'APPROVED' ? 'preview' : 'plan');
   const [expanded, setExpanded] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [csuiteOpen, setCsuiteOpen] = useState(false);
 
   useEffect(() => { setCanvasMode(true); return () => setCanvasMode(false); }, [setCanvasMode]);
 
@@ -105,6 +106,20 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               })}
             </div>
             <span className={cx('hidden xl:flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11.5px] font-bold uppercase tracking-wider shrink-0', status.cls)}><span className={cx('w-1.5 h-1.5 rounded-full', status.dot)} />{status.label}</span>
+            
+            <div className="shrink-0">
+              <button onClick={() => setCsuiteOpen(true)} className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11.5px] font-bold uppercase tracking-wider text-emerald-700 hover:bg-emerald-100 shrink-0 cursor-pointer transition-colors ml-2">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                C-Suite Validation
+              </button>
+              {csuiteOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onClick={() => setCsuiteOpen(false)}>
+                  <div className="w-full max-w-[420px] shadow-2xl rounded-xl" onClick={e => e.stopPropagation()}>
+                    <CSuiteValidation stageId="solution-factory" status={state.previewReady ? 'Validated' : 'Pending'} className="border-0 ring-1 ring-slate-200" />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => setExpanded(e => !e)} title={expanded ? 'Show chat' : 'Expand workspace'} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer">{expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}</button>
@@ -114,13 +129,15 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 p-2 lg:p-5 overflow-hidden">
-          {tab === 'plan' && !isUi && <PlanPanel projectId={id} state={state} onSubmitClarifications={a => f.submitClarifications(id, a)} onProceed={() => f.proceedPlan(id)} />}
+        <div className="flex-1 min-h-0 p-2 lg:p-5 overflow-hidden flex">
+          <div className="flex-1 min-w-0 overflow-y-auto">
+          {tab === 'plan' && <PlanPanel projectId={id} state={state} onSubmitClarifications={a => f.submitClarifications(id, a)} onProceed={() => f.proceedPlan(id)} />}
           {tab === 'preview' && <PreviewPanel appName={project.projectName} state={state} onRefresh={() => f.restartPreview(id)} onPage={p => f.setPage(id, p)} />}
           {tab === 'code' && <CodePanel state={state} onPick={file => f.setActiveFile(id, file)} onSave={(file, content) => { f.saveFile(id, file, content); toast({ title: 'File saved', description: file }); }} />}
           {tab === 'git' && <GitPanel projectName={project.projectName} state={state} hasFiles={fileCount > 0} onConnect={() => f.connectGithub(id)} onDisconnect={() => f.disconnectGithub(id)} onPublish={o => f.publishRepo(id, o)} onDeleteRepo={() => f.deleteRepo(id)} onCommit={m => f.commit(id, m)} />}
           {tab === 'database' && !isUi && <DatabasePanel hasSchema={!!state.files['prisma/schema.prisma']} />}
           {tab === 'deployment' && <DeploymentPanel projectId={id} projectName={project.projectName} state={state} hasFiles={fileCount > 0} onDeploy={(p, n) => f.deploy(id, p, n)} onStop={d => f.stopDeployment(id, d)} onPublicLink={on => f.togglePublicLink(id, on)} onOpenGit={() => setTab('git')} />}
+          </div>
         </div>
       </div>
 

@@ -454,10 +454,17 @@ export const Sidebar: React.FC = () => {
             )}
 
             {renderNavItem(
-              'Solution Architect',
+              'Requirement Gathering',
+              <FileText className="w-[18px] h-[18px]" />,
+              currentView === 'product-requirement-gathering',
+              () => handleNav('product-requirement-gathering')
+            )}
+
+            {renderNavItem(
+              'Solution Planning',
               <Layers className="w-[18px] h-[18px]" />,
-              currentView === 'product-solution-architect',
-              () => handleNav('product-solution-architect')
+              currentView === 'product-solution-planning',
+              () => handleNav('product-solution-planning')
             )}
 
             {renderNavItem(

@@ -36,9 +36,9 @@ const seedWorkspaces = (): Record<string, WorkspaceState> => ({
   'fs-ecom': builtWorkspace('E-Commerce Dashboard'),
   'fs-loyalty': { ...builtWorkspace('Customer Loyalty Portal'), git: { connected: false, branch: 'main', commits: [] }, deployments: [], activeFile: 'app/page.tsx' },
   'fs-hr': builtWorkspace('HR Leave Management'),
-  'ui-portal': { ...builtWorkspace('Customer Self-Service Portal'), planStatus: 'NONE', questions: [], clarificationStatus: 'NONE', planMarkdown: '', pages: ['Overview', 'Invoices', 'Support'], activePage: 'Overview', deployments: [] },
-  'ui-landing': { ...builtWorkspace('SaaS Landing Page'), planStatus: 'NONE', questions: [], clarificationStatus: 'NONE', planMarkdown: '', pages: ['Home', 'Pricing', 'Contact'], activePage: 'Home' },
-  'ui-admin': { ...builtWorkspace('Analytics Admin Kit'), planStatus: 'NONE', questions: [], clarificationStatus: 'NONE', planMarkdown: '', deployments: [] },
+  'ui-portal': { ...builtWorkspace('Customer Self-Service Portal'), pages: ['Overview', 'Invoices', 'Support'], activePage: 'Overview', deployments: [] },
+  'ui-landing': { ...builtWorkspace('SaaS Landing Page'), pages: ['Home', 'Pricing', 'Contact'], activePage: 'Home' },
+  'ui-admin': { ...builtWorkspace('Analytics Admin Kit'), deployments: [] },
 });
 
 const pascal = (s: string) => s.replace(/[^a-zA-Z0-9 ]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 3).map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('') || 'Feature';
@@ -115,7 +115,8 @@ export const FactoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const input = 3200 + Math.floor(Math.random() * 2400);
     update(id, w => ({
       ...w, generating: false, previewReady: !stopped || w.previewReady, previewRevision: w.previewRevision + 1,
-      planMarkdown: w.planMarkdown.replace('- [ ] Implement data layer and API routes', '- [x] Implement data layer and API routes').replace('- [ ] Build dashboard and list screens', '- [x] Build dashboard and list screens'),
+      planStatus: 'APPROVED',
+      planMarkdown: (w.planMarkdown || buildPlanMarkdown(name, {})).replace('- [ ] Implement data layer and API routes', '- [x] Implement data layer and API routes').replace('- [ ] Build dashboard and list screens', '- [x] Build dashboard and list screens'),
       tokens: [...w.tokens, { id: uid('t'), step: first ? 'Code generation — full application' : 'Code generation — change request', model: 'claude-sonnet-5-5', input, output: Math.round(input * 1.7), at: new Date().toISOString() }],
       terminal: first && !stopped ? [...w.terminal, '$ npm run dev', '▲ Next.js 15.1.0', '- Local: http://localhost:3000', '✓ Ready in 1.9s'] : w.terminal,
     }));
@@ -159,6 +160,12 @@ export const FactoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
           return;
         }
+        
+        if (kind === 'ui-canvas' && w.planStatus !== 'APPROVED') {
+          const name = projectsRef.current.find(p => p.projectId === id)?.projectName || 'UI Canvas Project';
+          update(id, x => ({ ...x, planMarkdown: buildPlanMarkdown(name, {}), planStatus: 'APPROVED', clarificationStatus: 'ANSWERED' }));
+        }
+        
         await runBuild(id, text, kind);
       })();
     },

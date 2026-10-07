@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, BarChart3, CheckCircle2, FileCode2, HelpCircle, Loader2, Send, Sparkles, Square, User } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BarChart3, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, FileCode2, HelpCircle, Layers, Loader2, Send, Sparkles, Square, User } from 'lucide-react';
 import { Markdown } from '../../ui/Markdown';
 import { cx } from '../../ui';
 import { WorkspaceState } from '../types';
@@ -18,6 +18,62 @@ interface Props {
   /** prompts offered one after another in the input box */
   prompts?: string[];
 }
+
+const TraceItem: React.FC<{ a: any; i: number; isLast: boolean; onJumpToFile: (f: string) => void }> = ({ a, i, isLast, onJumpToFile }) => {
+  const [open, setOpen] = useState(false);
+  const isCode = !!a.file;
+  
+  return (
+    <div className="relative mb-5 last:mb-0">
+      {!isLast && <div className="absolute left-[11px] top-7 bottom-[-28px] w-[2px] bg-emerald-400/30" />}
+      
+      <div className={cx('absolute left-[3px] top-1.5 w-4 h-4 rounded-full flex items-center justify-center border-2', a.done ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 bg-white')}>
+        {a.done ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
+      </div>
+
+      <div className="ml-8 border border-slate-200 shadow-sm rounded-xl bg-white overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="flex items-center gap-2 text-[13.5px] font-bold text-slate-700 font-mono">
+            {isCode ? <FileCode2 className="w-4 h-4 text-blue-500" /> : <Layers className="w-4 h-4 text-purple-500" />}
+            {isCode ? 'code-generation' : (a.label.includes('Design') ? 'context-architect' : 'skill-gathering')}
+          </div>
+          <span className={cx("px-2 py-0.5 rounded-full border text-[10.5px] font-bold uppercase tracking-wider", a.done ? "border-emerald-200 bg-emerald-50 text-emerald-600" : "border-slate-200 bg-slate-100 text-slate-500")}>
+            {a.done ? (isCode ? 'CODE WRITTEN' : 'STEP COMPLETED') : 'IN PROGRESS'}
+          </span>
+        </div>
+        
+        <div className="p-4 bg-white">
+          <div className="text-[13px] font-semibold text-slate-700 mb-3">{a.label}</div>
+          {isCode ? (
+            <button disabled={!a.done} onClick={() => a.file && onJumpToFile(a.file)} className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 text-white hover:from-slate-700 hover:to-slate-600 transition shadow-sm group disabled:opacity-50">
+              <div className="flex items-center gap-2 text-[13px] font-bold text-blue-300">
+                <FileCode2 className="w-4 h-4" />
+                {a.file}
+              </div>
+              <span className="text-[12px] text-slate-400 font-medium flex items-center gap-1.5 group-hover:text-slate-200">View code <ExternalLink className="w-3 h-3" /></span>
+            </button>
+          ) : (
+            <div className="text-[12.5px] text-slate-500 font-mono">
+              <div onClick={() => setOpen(!open)} className="flex items-center gap-2 cursor-pointer hover:text-slate-700 select-none">
+                {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />} _ View technical trace · 1 event
+              </div>
+              {open && (
+                <div className="mt-3 bg-[#0F111A] rounded-lg p-3 text-emerald-400 text-[11px] overflow-x-auto shadow-inner border border-slate-800">
+                  <div className="flex justify-between items-center text-slate-500 mb-2 border-b border-slate-800 pb-2">
+                    <span>EXECUTION TRACE LOG</span>
+                    <button className="flex items-center gap-1 hover:text-slate-300 transition-colors"><Copy className="w-3 h-3" /> Copy</button>
+                  </div>
+                  <pre><code>{`{\n  "operation": "${isCode ? 'code_generation' : 'skill_discovery'}",\n  "status": "${a.done ? 'success' : 'pending'}",\n  "task": "${a.label}"\n}`}</code></pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export const ChatPane: React.FC<Props> = ({ projectName, state, placeholder = 'Describe what you want to build…', onBack, onSend, onStop, onJumpToFile, onOpenPlan, onOpenTokens, suggestions, prompts = [] }) => {
   const userCount = state.messages.filter(m => m.role === 'user').length;
@@ -68,13 +124,9 @@ export const ChatPane: React.FC<Props> = ({ projectName, state, placeholder = 'D
                 {m.streaming && <span className="inline-block w-1.5 h-3.5 bg-slate-400 ml-0.5 animate-pulse align-middle" />}
               </div>
               {m.activity && (
-                <div className="space-y-1">
+                <div className="mt-4 pt-2">
                   {m.activity.map((a, i) => (
-                    <button key={i} disabled={!a.file || !a.done} onClick={() => a.file && onJumpToFile(a.file)} title={a.file ? 'Jump to file' : undefined} className={cx('w-full flex items-center gap-2 text-left text-[12.5px] px-2.5 py-1 rounded-lg border font-mono', a.done ? 'border-slate-200 bg-white text-slate-600 hover:border-[#2563EB]/40' : 'border-dashed border-slate-200 text-slate-400')}>
-                      {a.done ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> : <Loader2 className="w-3 h-3 animate-spin shrink-0" />}
-                      {a.file && <FileCode2 className="w-3 h-3 text-slate-400 shrink-0" />}
-                      <span className="truncate">{a.label}</span>
-                    </button>
+                    <TraceItem key={i} a={a} i={i} isLast={i === m.activity!.length - 1} onJumpToFile={onJumpToFile} />
                   ))}
                 </div>
               )}

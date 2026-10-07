@@ -4,6 +4,7 @@ import { Badge, Button, Card, Dialog, ProgressBar, cx, sleep } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { DIMENSION_CRITERIA, DOC_DEFS, makeFindings } from '../content';
 import { Finding } from '../types';
+import { CSuiteValidation } from '../../ui/CSuiteValidation';
 
 const SEV: Record<Finding['severity'], string> = { critical: 'bg-rose-100 text-rose-700', high: 'bg-orange-100 text-orange-700', medium: 'bg-amber-100 text-amber-700', low: 'bg-slate-100 text-slate-600' };
 
@@ -58,8 +59,9 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8">
+          <div className="max-w-6xl mx-auto space-y-6">
           {!done && !busy && (
             <div className="p-12 border border-slate-200 rounded-2xl bg-white flex flex-col items-center text-center space-y-4"><Activity className="w-12 h-12 text-slate-300" /><div><h3 className="text-[19px] font-bold text-[#0F172A]">Validation required</h3><p className="text-[15px] text-slate-500 mt-1 max-w-md">Run the validation engine to verify traceability, completeness, and consistency across your 10 architecture documents.</p></div><Button variant="primary" icon={<Play className="w-4 h-4" />} onClick={validate}>Start validation</Button></div>
           )}
@@ -109,6 +111,10 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
               </Card>
             </>
           )}
+        </div>
+        </div>
+        <div className="w-[380px] bg-white border-l border-slate-200 overflow-y-auto shrink-0 flex flex-col p-6 space-y-6">
+          <CSuiteValidation stageId="architecture_validation" status={done ? 'Validated' : 'Pending'} />
         </div>
       </div>
 
