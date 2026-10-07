@@ -28,10 +28,9 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
     <div className="flex h-full w-full flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden">
       <div className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-3 bg-slate-50/70">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-slate-500"><Monitor className="w-3.5 h-3.5" /> Live app preview</span>
-          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-1 py-0.5">
-            {state.pages.map(p => <button key={p} onClick={() => onPage(p)} className={cx('px-2.5 py-1 text-[12.5px] font-semibold rounded-md cursor-pointer', state.activePage === p ? 'bg-[#2563EB] text-white' : 'text-slate-500 hover:bg-slate-100')}>{p}</button>)}
-          </div>
+          <span className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-slate-500">
+            <Monitor className="w-3.5 h-3.5" /> Live app preview
+          </span>
         </div>
         <div className="flex items-center gap-1">
           {(Object.keys(DEVICES) as (keyof typeof DEVICES)[]).map(d => {
@@ -47,7 +46,7 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
 
       <div className="relative flex-1 min-h-0 bg-slate-100 flex justify-center overflow-auto p-0 md:p-4">
         {!state.previewReady ? (
-          <div className="m-auto text-center max-w-xs">
+          <div className="m-auto text-center max-w-md px-6 py-12">
             {state.generating ? (
               <>
                 <Loader2 className="w-8 h-8 animate-spin text-[#2563EB] mx-auto mb-3" />
@@ -56,10 +55,13 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
               </>
             ) : (
               <>
-                <div className="w-12 h-12 rounded-2xl bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-3"><PowerOff className="w-6 h-6" /></div>
-                <p className="text-[15px] font-bold text-[#0F172A]">Sandbox offline</p>
-                <p className="text-[13.5px] text-slate-500 mt-1 mb-4">Nothing is running yet. Build something in the chat, or wake the sandbox.</p>
-                <Button variant="primary" size="sm" onClick={onRefresh}>Wake up sandbox</Button>
+                <div className="w-16 h-16 rounded-2xl bg-indigo-50/80 text-indigo-500 border border-indigo-100 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                  <Monitor className="w-8 h-8" />
+                </div>
+                <h3 className="text-[16px] font-bold text-[#0F172A] mb-2">Live App Preview</h3>
+                <p className="text-[13px] text-slate-500 leading-relaxed max-w-xs mx-auto">
+                  Describe what you want to build in the chat panel. The AI builder will generate your Next.js application and launch an interactive preview canvas here.
+                </p>
               </>
             )}
           </div>
