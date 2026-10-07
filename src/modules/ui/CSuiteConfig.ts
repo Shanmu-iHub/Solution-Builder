@@ -24,6 +24,20 @@ export const CSUITE_CONFIG: CSuiteStageConfig[] = [
     ]
   },
   {
+    stageId: 'market',
+    reviews: [
+      { role: 'CMO', reviewed: 'Market definition, sizing, segments, and competitive positioning.', validation: 'Market boundaries and target segments are clearly defined.', findings: 'Market size is an estimate and should be sourced before investment.', risk: 'Medium' },
+      { role: 'CSO', reviewed: 'Industry structure, competitive landscape, and strategic fit.', validation: 'The market gap supports a differentiated position.', findings: 'Competitive response is the main strategic risk.', risk: 'Medium' }
+    ]
+  },
+  {
+    stageId: 'user',
+    reviews: [
+      { role: 'CPO', reviewed: 'User identification, personas, journeys, and pain points.', validation: 'Personas and pain points are consistent with the validated problem.', findings: 'Segment size validation is still low.', risk: 'Low' },
+      { role: 'CMO', reviewed: 'Customer segments, buyers, and adoption factors.', validation: 'Buyer and user roles are clearly separated.', findings: 'No critical customer-fit gaps identified.', risk: 'Low' }
+    ]
+  },
+  {
     stageId: 'problem',
     reviews: [
       { role: 'CPO', reviewed: 'Problem definition, user pain points, and target user needs.', validation: 'The identified problem is clear, actionable, and aligns with product strategy.', findings: 'User needs are well-defined.', risk: 'Low' },

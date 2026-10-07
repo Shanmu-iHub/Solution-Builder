@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, BarChart3, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Button, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { PD_QUESTIONS } from '../content';
 import { StageResourceActivity } from './StageResourceActivity';
+import { AnalysisChips, StatementAnalysisDialog } from './ProblemStatementAnalysis';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -39,6 +40,7 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ facets: true, qs: true, roots: true, frame: true });
   const [drafting, setDrafting] = useState(false);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [generated, setGenerated] = useState(false);
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
@@ -61,15 +63,6 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
     patch(projectId, { problemCompleted: true, discoveryPage: 'solution' });
     onContinue();
   };
-
-  useEffect(() => {
-    if (Object.keys(s.pdAnswers || {}).length === 0) {
-      patch(projectId, { 
-        pdAnswers: {},
-        selectedStatement: null
-      });
-    }
-  }, [s.pdAnswers, projectId, patch]);
 
   const unansQs = PD_QUESTIONS.filter(q => !(s.pdAnswers || {})[q.id]).length;
   const needFrame = !s.selectedStatement;
@@ -156,15 +149,20 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
           <Section num="04" title="Framing" summary={FRAMINGS.find(f => f.id === s.selectedStatement)?.t || ''} need={needFrame ? "Pick one" : null} open={openSecs.frame} onToggle={() => toggle('frame')}>
             <div className="space-y-3 pt-2">
               <p className="text-[12.5px] text-slate-500 mb-2">Pick the most accurate problem statement to serve as the project's “why”.</p>
-              {FRAMINGS.map(f => (
-                <button 
-                  key={f.id} 
-                  onClick={() => patch(projectId, { selectedStatement: f.id })}
-                  className={cx("w-full text-left p-4 rounded-xl border transition cursor-pointer", s.selectedStatement === f.id ? "bg-blue-50 border-blue-200 text-[#1D4ED8]" : "bg-white border-slate-200 hover:border-slate-300 text-[#0F172A]")}
-                >
-                  <span className="text-[15px] font-medium leading-relaxed">{f.t}</span>
-                </button>
-              ))}
+              {FRAMINGS.map(f => {
+                const picked = s.selectedStatement === f.id;
+                return (
+                  <div key={f.id} className={cx("rounded-xl border transition", picked ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300")}>
+                    <button onClick={() => patch(projectId, { selectedStatement: f.id })} className={cx("w-full text-left p-4 pb-2 cursor-pointer", picked ? "text-[#1D4ED8]" : "text-[#0F172A]")}>
+                      <span className="text-[15px] font-medium leading-relaxed">{f.t}</span>
+                      <AnalysisChips id={f.id} />
+                    </button>
+                    <div className="px-4 pb-3">
+                      <Button size="xs" icon={<BarChart3 className="w-3.5 h-3.5" />} onClick={() => setAnalysisId(f.id)}>View analysis</Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Section>
         </div>
@@ -197,6 +195,12 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
           </div>
         </div>
       </div>
+      <StatementAnalysisDialog
+        option={FRAMINGS.find(f => f.id === analysisId) ?? null}
+        selected={!!analysisId && s.selectedStatement === analysisId}
+        onClose={() => setAnalysisId(null)}
+        onSelect={id => patch(projectId, { selectedStatement: id })}
+      />
     </div>
   );
 };

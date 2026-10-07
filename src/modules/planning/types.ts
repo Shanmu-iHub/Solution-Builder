@@ -103,6 +103,8 @@ export interface SolutionProject {
 
 export interface PlanningState {
   discoveryPage: DiscoveryPage;
+  /** primary opportunity chosen in Opportunity Discovery */
+  selectedOpportunity?: string | null;
   /* idea */
   ideaStep: 'understand' | 'clarify' | 'directions' | 'vision' | 'confirm';
   ideaReached: number;
