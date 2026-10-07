@@ -79,7 +79,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
           
-          <Section num="01" title="Business model canvas" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
+          <Section num="01" title="Business model canvas" summary="9 canvas building blocks" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
             <div className="pt-2 grid grid-cols-3 gap-3">
               {CANVAS.map((c, i) => (
                 <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-xl">

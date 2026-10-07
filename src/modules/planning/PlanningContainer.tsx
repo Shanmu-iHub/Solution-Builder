@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
 import { cx } from '../ui';
 import { usePlanning } from './PlanningStore';
@@ -54,19 +54,25 @@ const Stepper: React.FC<{ items: { key: string; label: string }[]; active: strin
   </nav>
 );
 
-export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void; mode: 'requirement' | 'planning' }> = ({ projectId, onBack, mode }) => {
+export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void; mode: 'requirement' | 'planning' }> = ({ projectId, onBack }) => {
   const { projects, state, patch, setStage } = usePlanning();
   const { setCanvasMode } = useNavigation();
   const project = projects.find(p => p.id === projectId);
   const s = state(projectId);
   const persisted = project?.stage ?? 'requirement_context';
-  const [active, setActive] = useState<PlanningStage>(mode === 'requirement' ? 'requirement_context' : (persisted === 'requirement_context' ? 'solution_dashboard' : persisted));
+  // Default to requirement gathering on clicking solutions as requested
+  const [active, setActive] = useState<PlanningStage>('requirement_context');
   useEffect(() => { setCanvasMode(true); return () => setCanvasMode(false); }, [setCanvasMode]);
 
   if (!project) return null;
-  const main = mode === 'requirement' ? MAIN[0] : MAIN[1];
-  const advance = (next: PlanningStage) => { setActive(next); const order = STAGES.map(x => x.id); if (order.indexOf(next) > order.indexOf(persisted)) setStage(projectId, next); };
-  const maxReached = Math.max(main.stages.indexOf(active), main.stages.indexOf(persisted));
+  const isRequirementMode = active === 'requirement_context';
+  const planningStages: PlanningStage[] = ['solution_dashboard', 'documentation', 'architecture_validation', 'ux_foundation', 'wireframe_generation', 'task_breakdown'];
+  const advance = (next: PlanningStage) => { 
+    setActive(next); 
+    const order = STAGES.map(x => x.id); 
+    if (order.indexOf(next) > order.indexOf(persisted)) setStage(projectId, next); 
+  };
+  const maxReached = Math.max(planningStages.indexOf(active), planningStages.indexOf(persisted));
 
   const discoverySteps: { key: DiscoveryPage; label: string }[] = [
     { key: 'idea', label: 'Definition' },
@@ -79,43 +85,60 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
     { key: 'documentation', label: 'Documentation' }
   ];
   const dIdx = discoverySteps.findIndex(d => d.key === s.discoveryPage);
-  // Allow reaching the new stages if previous ones are completed, or just for testing allow all if we bypass
-  const dReach = (i: number) => true; // For demonstration, let user click any step
-
-  const PlaceholderStage = ({ title, nextKey }: { title: string; nextKey?: DiscoveryPage }) => (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white h-full">
-      <div className="max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
-        <p className="text-slate-500">This stage's content is coming soon.</p>
-        <div className="pt-4 flex justify-center gap-3">
-          {nextKey && (
-            <button
-              onClick={() => patch(projectId, { discoveryPage: nextKey })}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm"
-            >
-              Continue
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  const dReach = (_i: number) => true;
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden">
       <div className={cx('bg-white px-6 pt-3 shrink-0 z-20 border-b border-slate-200 pb-3')}>
         <div className="flex flex-col gap-1 w-full">
           <div className="flex items-center justify-between">
-            <button onClick={onBack} className="flex items-center gap-1.5 text-[13.5px] font-semibold text-slate-500 hover:text-[#0F172A] cursor-pointer"><ArrowLeft className="w-4 h-4" />Solutions<span className="text-slate-300">/</span><span className="text-[#0F172A] max-w-[200px] truncate">{project.name}</span></button>
+            <button onClick={onBack} className="flex items-center gap-1.5 text-[13.5px] font-semibold text-slate-500 hover:text-[#0F172A] cursor-pointer">
+              <ArrowLeft className="w-4 h-4" />Solutions<span className="text-slate-300">/</span><span className="text-[#0F172A] max-w-[200px] truncate">{project.name}</span>
+            </button>
+            <div className="flex items-center gap-2">
+              {isRequirementMode ? (
+                <button
+                  type="button"
+                  onClick={() => advance('solution_dashboard')}
+                  className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
+                >
+                  Continue to Solution Planning <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setActive('requirement_context')}
+                  className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Back to Requirement Gathering
+                </button>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 -ml-2 mt-1">
-            <div className="text-[22px] font-bold tracking-tight text-[#0F172A] ml-2">{mode === 'requirement' ? 'Requirement Gathering' : 'Solution Planning'}</div>
+          <div className="flex items-center justify-between -ml-2 mt-1">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setActive('requirement_context')}
+                className={cx('text-[20px] font-bold tracking-tight ml-2 cursor-pointer transition-colors', isRequirementMode ? 'text-[#0F172A]' : 'text-slate-400 hover:text-slate-600')}
+              >
+                Requirement Gathering
+              </button>
+              <span className="text-slate-300">/</span>
+              <button
+                type="button"
+                onClick={() => advance('solution_dashboard')}
+                className={cx('text-[20px] font-bold tracking-tight cursor-pointer transition-colors', !isRequirementMode ? 'text-[#0F172A]' : 'text-slate-400 hover:text-slate-600')}
+              >
+                Solution Planning
+              </button>
+            </div>
           </div>
           <div className="mt-1.5">
-            {mode === 'requirement' ? (
+            {isRequirementMode ? (
               <Stepper items={discoverySteps} active={s.discoveryPage} reachable={dReach} done={i => i < dIdx} onSelect={k => patch(projectId, { discoveryPage: k as DiscoveryPage })} />
             ) : (
-              <Stepper items={main.stages.map(id => ({ key: id, label: STAGES.find(x => x.id === id)!.label }))} active={active} reachable={i => i <= maxReached} done={i => i < maxReached} onSelect={k => setActive(k as PlanningStage)} />
+              <Stepper items={planningStages.map(id => ({ key: id, label: STAGES.find(x => x.id === id)!.label }))} active={active} reachable={i => i <= maxReached} done={i => i < maxReached} onSelect={k => setActive(k as PlanningStage)} />
             )}
           </div>
         </div>
@@ -129,7 +152,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
         {active === 'requirement_context' && s.discoveryPage === 'business_model' && <BusinessModel projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'product_definition' })} />}
         {active === 'requirement_context' && s.discoveryPage === 'product_definition' && <ProductDefinition projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'requirements' })} />}
         {active === 'requirement_context' && s.discoveryPage === 'requirements' && <Requirements projectId={projectId} projectName={project.name} onComplete={() => patch(projectId, { discoveryPage: 'documentation' })} />}
-        {active === 'requirement_context' && s.discoveryPage === 'documentation' && <RequirementDocuments projectId={projectId} projectName={project.name} onComplete={() => alert('Requirement Gathering completed!')} />}
+        {active === 'requirement_context' && s.discoveryPage === 'documentation' && <RequirementDocuments projectId={projectId} projectName={project.name} onComplete={() => advance('solution_dashboard')} />}
         {active === 'solution_dashboard' && <SolutionDashboardPhase projectId={projectId} projectName={project.name} onComplete={() => advance('documentation')} />}
         {active === 'documentation' && <DocumentationPhase projectId={projectId} projectName={project.name} onComplete={() => advance('architecture_validation')} />}
         {active === 'architecture_validation' && <ArchitectureValidation projectId={projectId} onComplete={() => advance('ux_foundation')} />}

@@ -84,10 +84,9 @@ const AppContent: React.FC = () => {
       case 'products':
         return <ProductListing />;
       case 'product-requirement-gathering':
-        return <SolutionPlanningModule mode="requirement" />;
-      case 'product-solution-planning':
       case 'product-solution-architect':
-        return <SolutionPlanningModule mode="planning" />;
+      case 'product-solution-planning':
+        return <SolutionPlanningModule mode="requirement" />;
       case 'product-solution-factor':
         return <SolutionFactoryModule />;
       case 'product-testing':
