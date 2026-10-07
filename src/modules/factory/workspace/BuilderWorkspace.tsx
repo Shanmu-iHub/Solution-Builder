@@ -23,6 +23,7 @@ import { ArchitecturePanel } from './ArchitecturePanel';
 import { ChatPane, StoryStage } from './ChatPane';
 import { CodePanel } from './CodePanel';
 import { CSuiteValidationModal } from './CSuiteValidationModal';
+import { CreditPanel } from './CreditPanel';
 import { DatabasePanel } from './DatabasePanel';
 import { DeploymentPanel } from './DeploymentPanel';
 import { GitPanel } from './GitPanel';
@@ -122,25 +123,41 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
     timersRef.current.push(t1, t2, t3, t4, t5);
   };
 
-  // 3. User clicks "Configure Database"
-  const handleConnectDatabase = () => {
+  // 3. Database credentials given in DatabasePanel -> trigger connection & code generation
+  const handleDatabaseConnected = () => {
     clearStoryTimers();
     setStoryStage('pipeline2_running');
     setPipeline2Step(1);
     setTokensCount(58200);
 
-    const t1 = setTimeout(() => { setPipeline2Step(2); setTokensCount(68000); }, 1000);
-    const t2 = setTimeout(() => { setPipeline2Step(3); setTokensCount(79500); }, 2800);
-    const t3 = setTimeout(() => { setPipeline2Step(4); setTokensCount(88400); }, 3900);
-    const t4 = setTimeout(() => { setPipeline2Step(5); setTokensCount(94200); }, 5000);
+    const t1 = setTimeout(() => {
+      setPipeline2Step(2);
+      setTokensCount(68000);
+    }, 1000);
+
+    const t2 = setTimeout(() => {
+      setPipeline2Step(3);
+      setTokensCount(79500);
+      setTab('code'); // Switch to code tab while code generator is generating
+    }, 2400);
+
+    const t3 = setTimeout(() => {
+      setPipeline2Step(4);
+      setTokensCount(88400);
+    }, 4000);
+
+    const t4 = setTimeout(() => {
+      setPipeline2Step(5);
+      setTokensCount(94200);
+    }, 5200);
+
     const t5 = setTimeout(() => {
       setPipeline2Step(6);
       setTokensCount(101293);
       setStoryStage('completed');
       f.restartPreview(id);
-      setTab('preview');
       toast({ title: 'Application Ready!', description: 'Full-stack application preview is live.' });
-    }, 6200);
+    }, 6600);
 
     timersRef.current.push(t1, t2, t3, t4, t5);
   };
@@ -177,10 +194,6 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
 
   const handleTabClick = (t: Tab) => {
     setShowArchitecture(false);
-    if (t === 'credit') {
-      setTokensOpen(true);
-      return;
-    }
     setTab(t);
   };
 
@@ -239,7 +252,10 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
             placeholder={isUi ? 'Describe the page or change you want…' : 'Describe what you want to build…'}
             onStartGeneration={handleStartGeneration}
             onProceedToBuild={handleProceedToBuild}
-            onConnectDatabase={handleConnectDatabase}
+            onConnectDatabase={() => {
+              setShowArchitecture(false);
+              setTab('database');
+            }}
             onResetStory={handleResetStory}
             onBack={onBack}
             onSend={t => f.send(id, t)}
@@ -259,8 +275,8 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               setShowArchitecture(false);
               setTab('database');
             }}
-            suggestions={suggestions}
-            prompts={prompts}
+            suggestions={[]}
+            prompts={[]}
           />
         </div>
       )}
@@ -390,8 +406,12 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 </div>
               )}
               {tab === 'database' && !isUi && (
-                <div className="h-full overflow-hidden p-2 lg:p-4">
-                  <DatabasePanel hasSchema={!!state.files['prisma/schema.prisma']} />
+                <div className="h-full overflow-hidden">
+                  <DatabasePanel
+                    connected={storyStage === 'pipeline2_running' || storyStage === 'completed'}
+                    onConnect={handleDatabaseConnected}
+                    projectName={project.projectName}
+                  />
                 </div>
               )}
               {tab === 'workflow' && !isUi && (
@@ -400,7 +420,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 </div>
               )}
               {tab === 'deployment' && (
-                <div className="h-full overflow-hidden p-2 lg:p-4">
+                <div className="h-full overflow-hidden">
                   <DeploymentPanel
                     projectId={id}
                     projectName={project.projectName}
@@ -411,6 +431,11 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                     onPublicLink={on => f.togglePublicLink(id, on)}
                     onOpenGit={() => setTab('git')}
                   />
+                </div>
+              )}
+              {tab === 'credit' && (
+                <div className="h-full overflow-hidden">
+                  <CreditPanel />
                 </div>
               )}
             </>

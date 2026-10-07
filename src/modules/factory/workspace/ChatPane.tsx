@@ -383,13 +383,7 @@ export const ChatPane: React.FC<Props> = ({
             </button>
           )}
 
-          <button
-            onClick={onOpenTokens}
-            title="Project settings"
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-          >
-            <Settings className="w-3.5 h-3.5" />
-          </button>
+
         </div>
       </div>
 

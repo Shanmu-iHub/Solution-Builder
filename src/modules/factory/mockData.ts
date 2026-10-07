@@ -128,47 +128,59 @@ export const previewHtml = (name: string, page: string, dark: boolean) => {
   const fg = dark ? '#e2e8f0' : '#0f172a';
   const muted = dark ? '#94a3b8' : '#64748b';
   const line = dark ? '#1e293b' : '#e2e8f0';
-  const isExpensify = name.toLowerCase().includes('expensif');
-  const nav = isExpensify
-    ? ['Dashboard', 'Expenses', 'Approvals', 'Policies', 'Analytics', 'Settings'].map(n => `<a class="nav ${n === page ? 'active' : ''}">${n}</a>`).join('')
-    : ['Dashboard', 'Records', 'Settings'].map(n => `<a class="nav ${n === page ? 'active' : ''}">${n}</a>`).join('');
 
-  const stats = isExpensify
-    ? [['Pending Approvals', '8', '3 urgent SLA < 24h'], ['Monthly Spend', '$42,850', '+12.4% vs last mo'], ['Receipts Processed', '1,420', '98.5% OCR accuracy'], ['Policy Exceptions', '3', 'Requires CFO sign-off']]
-        .map(([l, v, d]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt">${d}</p></div>`).join('')
-    : [['Total records', '1,284', '+12% this month'], ['Open', '48', '+4 today'], ['In review', '17', '-2 today'], ['Closed', '312', '+9% this month']]
-        .map(([l, v, d]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt">${d}</p></div>`).join('');
+  const nav = ['Dashboard', 'Expenses', 'Approvals', 'Policies', 'Analytics', 'Settings']
+    .map(n => `<a class="nav ${n === (page || 'Dashboard') ? 'active' : ''}">${n}</a>`)
+    .join('');
 
-  const rows = isExpensify
-    ? [['Client Dinner (Le Bernardin)', 'approved', '$340.00', 'John D.'], ['Delta Airlines SFO → JFK', 'in_review', '$680.50', 'Sarah M.'], ['Uber Business Ride', 'approved', '$42.20', 'Alex K.'], ['AWS Cloud Hosting', 'approved', '$1,250.00', 'DevOps'], ['Hotel Booking (Marriott NYC)', 'in_review', '$520.00', 'Sarah M.'], ['Team Offsite Lunch', 'closed', '$210.00', 'Finance']]
-        .map(([t, s, amt, user]) => `<tr><td><b>${t}</b><br><small style="color:${muted}">${user}</small></td><td><span class="pill ${s}">${s.replace('_', ' ')}</span></td><td style="font-weight:700">${amt}</td><td class="m">2 hrs ago</td></tr>`).join('')
-    : [['Q3 vendor onboarding', 'open'], ['Refund policy update', 'in_review'], ['Warehouse audit — Pune', 'closed'], ['New tier benefits copy', 'open'], ['Partner API rate limits', 'in_review'], ['Holiday campaign assets', 'closed']]
-        .map(([t, s]) => `<tr><td>${t}</td><td><span class="pill ${s}">${s.replace('_', ' ')}</span></td><td class="m">2 hrs ago</td></tr>`).join('');
+  const stats = [
+    ['Pending Approvals', '8', '3 urgent SLA < 24h', 'color:#d97706'],
+    ['Monthly Spend', '$42,850', '+12.4% vs last mo', 'color:#10b981'],
+    ['Receipts Processed', '1,420', '98.5% OCR accuracy', 'color:#10b981'],
+    ['Policy Exceptions', '3', 'Requires CFO sign-off', 'color:#64748b'],
+  ]
+    .map(([l, v, d, c]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt" style="${c}">${d}</p></div>`)
+    .join('');
 
-  const bars = [40, 64, 52, 78, 60, 92, 70].map(h => `<div class="bar" style="height:${h}%"></div>`).join('');
+  const rows = [
+    ['Client Dinner (Le Bernardin)', 'approved', '$340.00', 'John D.'],
+    ['Delta Airlines SFO → JFK', 'in_review', '$680.50', 'Sarah M.'],
+    ['Uber Business Ride', 'approved', '$42.20', 'Alex K.'],
+    ['AWS Cloud Hosting', 'approved', '$1,250.00', 'DevOps'],
+  ]
+    .map(
+      ([t, s, amt, user]) =>
+        `<tr><td><b>${t}</b><br><small style="color:${muted}">${user}</small></td><td><span class="pill ${s}">${s === 'in_review' ? 'in review' : 'approved'}</span></td><td style="font-weight:700;text-align:right">${amt}</td><td class="m">2 hrs ago</td></tr>`
+    )
+    .join('');
+
+  const bars = [40, 64, 52, 78, 60, 92, 70]
+    .map(h => `<div class="bar" style="height:${h}%"></div>`)
+    .join('');
+
   const body =
     page === 'Settings'
       ? `<h1>Settings</h1><p class="sub">Profile and notification preferences</p><div class="card" style="max-width:520px"><p class="lbl">Display name</p><input value="Henry (SNS Square)"/><p class="lbl" style="margin-top:14px">Email</p><input value="henry@snssquare.com"/><p class="lbl" style="margin-top:14px">Notifications</p><label class="chk"><input type="checkbox" checked/> Real-time expense approval alerts</label><label class="chk"><input type="checkbox" checked/> OCR receipt scan verification digests</label><button>Save changes</button></div>`
       : page === 'Expenses' || page === 'Approvals'
         ? `<h1>${page}</h1><p class="sub">Real-time expense stream & multi-tier approval hierarchy</p><div class="card"><input placeholder="Search expenses by employee, category or amount…" style="max-width:400px;margin-bottom:12px"/><table>${rows}${rows}</table></div>`
-        : page === 'Records'
-          ? `<h1>Records</h1><p class="sub">Search, filter and manage everything in one list</p><div class="card"><input placeholder="Search records…" style="max-width:300px"/><table>${rows}${rows}</table></div>`
-          : `<h1>${isExpensify ? 'ExpensifyIQ Dashboard' : 'Dashboard'}</h1><p class="sub">${isExpensify ? 'Live overview of automated corporate expense management' : 'Live overview of your workspace'}</p><div class="grid">${stats}</div><div class="two"><div class="card"><p class="lbl">Weekly Spend Volume ($k)</p><div class="chart">${bars}</div></div><div class="card"><p class="lbl">Recent Expense Submissions</p><table>${rows}</table></div></div>`;
+        : `<h1>ExpensifyIQ Dashboard</h1><p class="sub">Live overview of automated corporate expense management</p><div class="grid">${stats}</div><div class="two"><div class="card"><p class="lbl">Weekly Spend Volume ($k)</p><div class="chart">${bars}</div></div><div class="card"><p class="lbl">Recent Expense Submissions</p><table>${rows}</table></div></div>`;
+
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:${bg};color:${fg};display:flex;min-height:100vh}
-aside{width:200px;background:${card};border-right:1px solid ${line};padding:18px 12px;flex-shrink:0}
-aside b{display:block;margin:0 8px 18px;font-size:15px}.nav{display:block;padding:9px 12px;border-radius:10px;font-size:13px;color:${muted};cursor:pointer;margin-bottom:2px}.nav.active{background:#2563eb;color:#fff}
-main{flex:1;padding:28px;min-width:0}h1{margin:0;font-size:22px}.sub{color:${muted};font-size:13px;margin:4px 0 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:16px}.two{display:grid;grid-template-columns:1fr 1.3fr;gap:14px}
-.card{background:${card};border:1px solid ${line};border-radius:16px;padding:18px}.lbl{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${muted}}
-.val{margin:8px 0 2px;font-size:28px;font-weight:800}.dlt{margin:0;font-size:12px;color:#10b981}
-.chart{height:150px;display:flex;align-items:flex-end;gap:10px;margin-top:14px}.bar{flex:1;background:linear-gradient(#60a5fa,#2563eb);border-radius:6px 6px 0 0}
-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}td{padding:10px 6px;border-top:1px solid ${line}}.m{color:${muted};text-align:right}
-.pill{padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600}.open{background:#dbeafe;color:#1d4ed8}.in_review{background:#fef3c7;color:#b45309}.closed{background:#d1fae5;color:#047857}
+aside{width:220px;background:${card};border-right:1px solid ${line};padding:24px 14px;flex-shrink:0}
+aside b{display:block;margin:0 10px 22px;font-size:16px;font-weight:700}.nav{display:block;padding:10px 14px;border-radius:12px;font-size:13.5px;color:${muted};cursor:pointer;margin-bottom:3px;font-weight:500;transition:.15s}.nav.active{background:#2563eb;color:#fff;font-weight:600}
+main{flex:1;padding:32px;min-width:0}h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em}.sub{color:${muted};font-size:13.5px;margin:6px 0 24px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}.two{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}
+.card{background:${card};border:1px solid ${line};border-radius:18px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.02)}.lbl{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${muted}}
+.val{margin:10px 0 4px;font-size:30px;font-weight:800;letter-spacing:-.02em}.dlt{margin:0;font-size:12px;font-weight:500}
+.chart{height:160px;display:flex;align-items:flex-end;gap:10px;margin-top:16px}.bar{flex:1;background:linear-gradient(#60a5fa,#2563eb);border-radius:6px 6px 0 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}td{padding:12px 6px;border-top:1px solid ${line}}.m{color:${muted};text-align:right}
+.pill{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}.in_review{background:#fef3c7;color:#b45309}.approved{background:#dcfce7;color:#15803d}
 input{width:100%;padding:9px 12px;border-radius:10px;border:1px solid ${line};background:${bg};color:${fg};font-size:13px;margin-top:6px}.chk{display:flex;gap:8px;font-size:13px;margin-top:8px;align-items:center}.chk input{width:auto;margin:0}
 button{margin-top:18px;background:#2563eb;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer}
-@media(max-width:700px){aside{display:none}.two{grid-template-columns:1fr}main{padding:16px}}
-</style></head><body><aside><b>${name}</b>${nav}</aside><main>${body}</main></body></html>`;
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media(max-width:700px){aside{display:none}main{padding:16px}}
+</style></head><body><aside><b>ExpensifyIQ — Build</b>${nav}</aside><main>${body}</main></body></html>`;
 };
 
 /* ── Database inspector ─────────────────────────────────────────────────── */

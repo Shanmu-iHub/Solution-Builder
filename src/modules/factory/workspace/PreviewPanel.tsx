@@ -28,10 +28,9 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
     <div className="flex h-full w-full flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden">
       <div className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-3 bg-slate-50/70">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-slate-500"><Monitor className="w-3.5 h-3.5" /> Live app preview</span>
-          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-1 py-0.5">
-            {state.pages.map(p => <button key={p} onClick={() => onPage(p)} className={cx('px-2.5 py-1 text-[12.5px] font-semibold rounded-md cursor-pointer', state.activePage === p ? 'bg-[#2563EB] text-white' : 'text-slate-500 hover:bg-slate-100')}>{p}</button>)}
-          </div>
+          <span className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-slate-500">
+            <Monitor className="w-3.5 h-3.5" /> Live app preview
+          </span>
         </div>
         <div className="flex items-center gap-1">
           {(Object.keys(DEVICES) as (keyof typeof DEVICES)[]).map(d => {
