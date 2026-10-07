@@ -21,7 +21,7 @@ import { useFactory } from '../FactoryStore';
 import { FactoryProject } from '../types';
 import { ArchitecturePanel } from './ArchitecturePanel';
 import { ChatPane, StoryStage } from './ChatPane';
-import { CodePanel } from './CodePanel';
+import { CodePanel, EXPENSIFY_CODE_FILES } from './CodePanel';
 import { CSuiteValidationModal } from './CSuiteValidationModal';
 import { CreditPanel } from './CreditPanel';
 import { DatabasePanel } from './DatabasePanel';
@@ -61,6 +61,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
 
   // Story Line State
   const [storyStage, setStoryStage] = useState<StoryStage>(isStoryApplicable ? 'unstarted' : 'completed');
+  const [planStep, setPlanStep] = useState<number>(isStoryApplicable ? 0 : 3);
   const [pipeline1Step, setPipeline1Step] = useState<number>(isStoryApplicable ? 0 : 5);
   const [pipeline2Step, setPipeline2Step] = useState<number>(isStoryApplicable ? 0 : 6);
   const [tokensCount, setTokensCount] = useState<number>(isStoryApplicable ? 0 : 101293);
@@ -92,14 +93,23 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
   const handleStartGeneration = () => {
     clearStoryTimers();
     setStoryStage('generating_plan');
-    setTokensCount(14200);
+    setPlanStep(1); // 1: Fetching context from knowledge graph
+    setTokensCount(4200);
 
     const t1 = setTimeout(() => {
+      setPlanStep(2); // 2: Context retrieved, drafting plan based on context
+      setTokensCount(8569);
+    }, 1200);
+
+    const t2 = setTimeout(() => {
+      setPlanStep(3); // 3: Plan drafted and ready
       setStoryStage('plan_ready');
+      setTokensCount(14200);
       setTab('plan');
       toast({ title: 'Implementation Plan Drafted', description: 'Review the technical plan in the PLAN tab.' });
-    }, 1200);
-    timersRef.current.push(t1);
+    }, 2600);
+
+    timersRef.current.push(t1, t2);
   };
 
   // 2. User clicks "Proceed to Build"
@@ -166,6 +176,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
   const handleResetStory = () => {
     clearStoryTimers();
     setStoryStage('unstarted');
+    setPlanStep(0);
     setPipeline1Step(0);
     setPipeline2Step(0);
     setTokensCount(0);
@@ -174,7 +185,11 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
     toast({ title: 'Story Reset', description: 'Generation walkthrough returned to initial state.' });
   };
 
-  const fileCount = Object.keys(state.files).length;
+  const isCodeAvailable = pipeline2Step >= 3 || storyStage === 'completed';
+  const effectiveFiles = isCodeAvailable
+    ? { ...EXPENSIFY_CODE_FILES, ...state.files }
+    : state.files;
+  const fileCount = Object.keys(effectiveFiles).length;
   const isPreviewLive = storyStage === 'completed';
 
   const status =
@@ -199,7 +214,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
 
   const exportProject = () => {
     if (!fileCount) return toast({ title: 'No code files to export yet', description: 'Build something first!', tone: 'error' });
-    const url = URL.createObjectURL(new Blob([JSON.stringify(state.files, null, 2)], { type: 'application/json' }));
+    const url = URL.createObjectURL(new Blob([JSON.stringify(effectiveFiles, null, 2)], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
     a.download = `${project.projectName.replace(/\s+/g, '-').toLowerCase()}-files.json`;
@@ -213,6 +228,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
   // Pass previewReady depending on story stage
   const effectiveState = {
     ...state,
+    files: effectiveFiles,
     previewReady: isPreviewLive,
   };
 
@@ -225,6 +241,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
             projectName={project.projectName}
             state={effectiveState}
             storyStage={storyStage}
+            planStep={planStep}
             pipeline1Step={pipeline1Step}
             pipeline2Step={pipeline2Step}
             tokensCount={tokensCount}
@@ -299,13 +316,15 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               {status.label}
             </span>
 
-            <button
-              onClick={() => setCSuiteOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[11px] font-bold uppercase tracking-wider shrink-0 transition cursor-pointer"
-            >
-              <CheckCircle2 size={13} className="text-emerald-600" />
-              <span>C-SUITE VALIDATION</span>
-            </button>
+            {isPreviewLive && (
+              <button
+                onClick={() => setCSuiteOpen(true)}
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[11px] font-bold uppercase tracking-wider shrink-0 transition cursor-pointer animate-fade-in"
+              >
+                <CheckCircle2 size={13} className="text-emerald-600" />
+                <span>C-SUITE VALIDATION</span>
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -343,6 +362,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                     projectId={id}
                     state={effectiveState}
                     canProceed={storyStage === 'plan_ready'}
+                    isPlanReady={storyStage !== 'unstarted' && storyStage !== 'generating_plan'}
                     onSubmitClarifications={a => f.submitClarifications(id, a)}
                     onProceed={handleProceedToBuild}
                   />
@@ -362,6 +382,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 <div className="h-full overflow-hidden p-2 lg:p-4">
                   <CodePanel
                     state={effectiveState}
+                    isCodeWriterActive={pipeline2Step >= 3 || storyStage === 'completed'}
                     onPick={file => f.setActiveFile(id, file)}
                     onSave={(file, content) => {
                       f.saveFile(id, file, content);
@@ -395,7 +416,15 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               )}
               {tab === 'workflow' && !isUi && (
                 <div className="h-full overflow-hidden">
-                  <WorkflowPanel projectName={project.projectName} />
+                  <WorkflowPanel
+                    projectName={project.projectName}
+                    isWorkflowReady={
+                      pipeline1Step >= 3 ||
+                      storyStage === 'awaiting_db' ||
+                      storyStage === 'pipeline2_running' ||
+                      storyStage === 'completed'
+                    }
+                  />
                 </div>
               )}
               {tab === 'deployment' && (
@@ -423,7 +452,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
       </div>
 
       {/* Drawers & Dialogs */}
-      <TokenConsumptionDrawer open={tokensOpen} onClose={() => setTokensOpen(false)} />
+      <TokenConsumptionDrawer open={tokensOpen} onClose={() => setTokensOpen(false)} tokensCount={tokensCount} />
       <CSuiteValidationModal
         open={cSuiteOpen}
         projectName={project.projectName}

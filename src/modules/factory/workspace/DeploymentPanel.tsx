@@ -338,11 +338,24 @@ export const DeploymentPanel: React.FC<Props> = ({
               </div>
 
               {!publicAccess ? (
-                <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-white border border-slate-200 rounded-lg p-2.5">
-                  <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                  <span>
-                    Public link is currently disabled. Toggle &apos;Public Link Access&apos; above to create a shareable link.
-                  </span>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 text-[12px] text-slate-500 bg-white border border-slate-200 rounded-lg p-2.5">
+                    <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <span>
+                      Public link is currently disabled. Toggle &apos;Public Link Access&apos; or click below to deploy a shareable route.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleTogglePublic(true);
+                      setIsLive(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-bold shadow-xs transition cursor-pointer"
+                  >
+                    <Rocket className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Deploy Quick Share Route</span>
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[12px] font-mono text-emerald-800">

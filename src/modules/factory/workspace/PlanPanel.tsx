@@ -27,7 +27,7 @@ export const PlanPanel: React.FC<Props> = ({
   const [copied, setCopied] = useState(false);
 
   const approved = state.planStatus === 'APPROVED';
-  const showForm = state.questions.length > 0 && !approved && (!state.planMarkdown || state.clarificationStatus === 'AWAITING_USER');
+  const showForm = isPlanReady && state.questions.length > 0 && !approved && (!state.planMarkdown || state.clarificationStatus === 'AWAITING_USER');
   const answeredCount = Object.keys(answers).length;
 
   const copy = async () => {
@@ -54,24 +54,33 @@ export const PlanPanel: React.FC<Props> = ({
           <div className="w-8 h-8 rounded-xl bg-[#0F172A] text-white flex items-center justify-center">{showForm ? <SlidersHorizontal className="w-4 h-4" /> : <FileText className="w-4 h-4" />}</div>
           <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-[#0F172A] flex items-center gap-2">
             {showForm ? 'Architecture Clarification' : 'Implementation Plan'}
-            <Badge tone={approved ? 'green' : showForm ? 'amber' : 'slate'}>
-              {approved ? <CheckCircle2 className="w-3 h-3" /> : showForm ? <HelpCircle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-              {showForm ? 'Awaiting decisions' : state.planStatus}
+            <Badge tone={!isPlanReady ? 'slate' : approved ? 'green' : showForm ? 'amber' : 'slate'}>
+              {!isPlanReady ? (
+                <>
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Awaiting Generation
+                </>
+              ) : (
+                <>
+                  {approved ? <CheckCircle2 className="w-3 h-3" /> : showForm ? <HelpCircle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                  {showForm ? 'Awaiting decisions' : state.planStatus}
+                </>
+              )}
             </Badge>
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          {state.planMarkdown && !showForm && (
+          {isPlanReady && state.planMarkdown && !showForm && (
             <>
               <Button size="sm" icon={copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />} onClick={copy}>{copied ? 'Copied' : 'Copy'}</Button>
               <Button size="sm" icon={<Download className="w-3.5 h-3.5" />} onClick={download}>Download</Button>
             </>
           )}
-          {showForm ? (
+          {isPlanReady && (showForm ? (
             <Button size="sm" variant="dark" loading={submitting} disabled={answeredCount === 0} icon={<Sparkles className="w-3.5 h-3.5" />} onClick={generate}>{submitting ? 'Generating plan…' : 'Generate plan'}</Button>
           ) : (canProceed || (!approved && state.planMarkdown)) ? (
             <Button size="sm" variant="primary" icon={<Play className="w-3.5 h-3.5" />} onClick={onProceed}>Proceed to build <ArrowRight className="w-3.5 h-3.5" /></Button>
-          ) : null}
+          ) : null)}
         </div>
       </div>
 
