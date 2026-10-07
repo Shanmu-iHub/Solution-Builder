@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowRight, CheckCircle2, Globe, Target, Users } from 'lucide-react';
 import { Button, cx } from '../../ui';
 import { usePlanning } from '../PlanningStore';
@@ -22,7 +22,7 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
   const canContinue = tab !== 'opportunity' || !!s.selectedOpportunity;
 
   const openTab = (key: TabKey) => { patch(projectId, { oppTab: key }); };
-  const next = () => (isLast ? onContinue() : openTab(TABS[idx + 1].key));
+  const next = () => (isLast ? confirm() : openTab(TABS[idx + 1].key));
   const confirm = () => {
     patch(projectId, { oppCompleted: true, discoveryPage: 'problem' });
     onContinue();
