@@ -12,7 +12,7 @@ export const MACRO_AREAS: MacroArea[] = [
     id: 'understand',
     label: 'UNDERSTAND',
     tagline: 'Frame the core idea, market opportunity, and customer problem',
-    phases: ['idea', 'opportunity', 'problem']
+    phases: ['idea', 'problem', 'opportunity']
   },
   {
     id: 'discover',
@@ -54,23 +54,23 @@ export const PHASE_CONFIGS: Record<DiscoveryPage, PhaseConfig> = {
     dependencies: [],
     missingInputs: []
   },
-  opportunity: {
-    id: 'opportunity',
-    num: '02',
-    title: 'Opportunity & Discovery',
-    shortTitle: 'Opportunity & market',
-    tagline: 'Market Evidence & Segments',
-    dependencies: ['idea'],
-    missingInputs: ['Confirmed idea brief', 'Target stakeholders']
-  },
   problem: {
     id: 'problem',
-    num: '03',
+    num: '02',
     title: 'Problem Discovery',
     shortTitle: 'Problem Discovery',
     tagline: 'Root Causes & Quantified Impact',
-    dependencies: ['opportunity'],
-    missingInputs: ['Primary customer segment', 'Validated market signals']
+    dependencies: ['idea'],
+    missingInputs: ['Confirmed idea brief']
+  },
+  opportunity: {
+    id: 'opportunity',
+    num: '03',
+    title: 'Opportunity & Discovery',
+    shortTitle: 'Opportunity & market',
+    tagline: 'Market Evidence & Segments',
+    dependencies: ['problem'],
+    missingInputs: ['Validated problem statement']
   },
   solution: {
     id: 'solution',
@@ -78,8 +78,8 @@ export const PHASE_CONFIGS: Record<DiscoveryPage, PhaseConfig> = {
     title: 'Solution Discovery',
     shortTitle: 'Solution Discovery',
     tagline: 'Architectural Packages & Capabilities',
-    dependencies: ['problem'],
-    missingInputs: ['Validated problem statement', 'Executive decision on scope']
+    dependencies: ['opportunity'],
+    missingInputs: ['Confirmed opportunity brief']
   },
   business_model: {
     id: 'business_model',
@@ -194,11 +194,11 @@ export const getPhaseInfo = (s: PlanningState, phaseId: DiscoveryPage, projectNa
       };
     }
     case 'problem': {
-      const isApproved = !!s.decision;
+      const isApproved = Boolean(s.problemCompleted || s.decision || s.selectedStatement);
       return {
         status: isApproved ? 'approved' : s.statements?.length ? 'needs_attention' : 'in_progress',
-        confidence: 86,
-        openQuestions: 3,
+        confidence: isApproved ? 90 : 86,
+        openQuestions: isApproved ? 0 : 3,
         evidenceSources: 8,
         lastUpdated: 'Yesterday',
         summaryText: s.statements?.[0]?.statement || 'Field sales reps lose paper receipts and wait weeks for reimbursements due to fragmented manual email reviews.'
@@ -287,8 +287,8 @@ export const calculateReadinessMetrics = (s: PlanningState) => {
 
 export const ORDERED_PHASES: DiscoveryPage[] = [
   'idea',
-  'opportunity',
   'problem',
+  'opportunity',
   'solution',
   'business_model',
   'product_definition',

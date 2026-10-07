@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { daysAgo, uid } from '../ui';
 import {
   DOC_DEFS, analyzeIdea, initialPlanningState, makeAnalysis, makeChains, makeCustomers, makeDirections, makeDocContent, makeFindings, makeJourneys, makeMarket, makeMarketBrief,
@@ -29,7 +29,7 @@ const discoveredState = (name: string, ideaText?: string): PlanningState => {
     slots: { ...analyzeIdea(`An AI-assisted service workspace for ${name}.`), intended_users: { state: 'known', value: 'End customers, support staff', items: ['End customers', 'Support staff'] }, intended_outcome: { state: 'known', value: 'Faster resolution', items: ['Faster resolution'] }, problem: { state: 'known', value: 'Fragmented knowledge and manual hand-offs slow every case.' }, context: { state: 'known', value: 'Existing CRM and email; cloud-first.' }, use_cases: { state: 'known', value: 'Resolve a billing question on first contact.', items: ['Resolve a billing question on first contact'] }, affected_stakeholders: { state: 'known', value: 'Support and finance teams' }, handled_today: { state: 'known', value: 'Disconnected tools and manual hand-offs' }, main_drivers: { state: 'known', value: 'Reduce handling time and improve customer experience' }, success_signal: { state: 'known', value: 'Faster resolution and fewer repeat contacts' }, constraints: { state: 'known', value: 'Existing CRM integration and data governance requirements' } },
     directions: dirs, selectedDirection: 'd1', vision: { text: makeVision(name, dirs[0].title), source: 'ai' }, briefConfirmed: true,
     oppTab: 'brief', opportunity: makeOpportunity(name), market: makeMarket(), customers: makeCustomers(), analysis: makeAnalysis(name), marketBrief: makeMarketBrief(), oppCompleted: true,
-    pdStep: 'confirm', pdReached: 4, pdContext: true, chains: makeChains().map((c, i) => (i === 0 ? { ...c, status: 'confirmed' as const } : c)), statements, selectedStatement: 'st1',
+    pdStep: 'confirm', pdReached: 4, pdContext: true, chains: makeChains().map((c, i) => (i === 0 ? { ...c, status: 'confirmed' as const } : c)), statements, selectedStatement: 'st1', problemCompleted: true,
     evidence: [{ id: 'ev1', description: 'Q2 support ticket export — 12,400 tickets', type: 'tickets', source: 'Helpdesk export', supports: ['frequency', 'severity'], origin: 'user_confirmed' }, { id: 'ev2', description: 'Customer survey (n=640)', type: 'survey', source: 'CX team', supports: ['customer_impact'], origin: 'user_confirmed' }],
     decision: { status: 'validated', note: 'Evidence from tickets and survey supports the statement.', decidedAt: daysAgo(4) },
     versions: [{ version: 'v1', status: 'confirmed', statement: statements[0].statement, validation: 'validated', at: daysAgo(4) }],
@@ -74,12 +74,35 @@ const IDEAS = {
 };
 
 /** Discovery finished up to (but not including) the given point — used to seed in-progress projects. */
-const inProgress = (name: string, idea: string, where: 'opportunity' | 'problem'): PlanningState => {
+const inProgress = (name: string, idea: string, where: 'problem' | 'opportunity'): PlanningState => {
   const base = discoveredState(name, idea);
-  if (where === 'opportunity') {
-    return { ...base, discoveryPage: 'opportunity', oppTab: 'customers', customers: null, analysis: null, marketBrief: null, oppCompleted: false, pdStep: 'understand', pdReached: 0, pdContext: false, pdAnswers: {}, chains: [], statements: [], selectedStatement: null, executive: null, evidence: [], decision: null, versions: [] };
+  if (where === 'problem') {
+    return { 
+      ...base, 
+      discoveryPage: 'problem', 
+      problemCompleted: false, 
+      selectedStatement: null, 
+      decision: null, 
+      oppCompleted: false, 
+      opportunity: null, 
+      market: null, 
+      customers: null, 
+      analysis: null, 
+      marketBrief: null 
+    };
   }
-  return { ...base, discoveryPage: 'problem', pdStep: 'validate', pdReached: 3, decision: null, versions: [], evidence: base.evidence.slice(0, 1) };
+  return { 
+    ...base, 
+    discoveryPage: 'opportunity', 
+    problemCompleted: true, 
+    oppCompleted: false, 
+    oppTab: 'opportunity', 
+    opportunity: null, 
+    market: null, 
+    customers: null, 
+    analysis: null, 
+    marketBrief: null 
+  };
 };
 
 const seedStates = (): Record<string, PlanningState> => {
@@ -90,8 +113,8 @@ const seedStates = (): Record<string, PlanningState> => {
   const insure = planningState('Policy Renewal Advisor', IDEAS.insure, 'validation');
   return {
     'sp-support': { ...initialPlanningState(), idea: IDEAS.support },
-    'sp-claims': inProgress('Claims Automation Portal', IDEAS.claims, 'opportunity'),
-    'sp-hr': inProgress('HR Onboarding Assistant', IDEAS.hr, 'problem'),
+    'sp-claims': inProgress('Claims Automation Portal', IDEAS.claims, 'problem'),
+    'sp-hr': inProgress('HR Onboarding Assistant', IDEAS.hr, 'opportunity'),
     'sp-fleet': { ...fleet, solutionApproved: false, docs: Object.fromEntries(Object.keys(fleet.docs).map(k => [k, { status: 'none' as const, content: '' }])) },
     'sp-loan': { ...loan, docs: loanDocs },
     'sp-insure': { ...insure, personas: [], journeys: [] },
@@ -99,10 +122,38 @@ const seedStates = (): Record<string, PlanningState> => {
   };
 };
 
+const STORAGE_KEYS = {
+  projects: 'sns-planning-projects',
+  states: 'sns-planning-states',
+} as const;
+
+function loadFromStorage<T>(key: string, fallback: () => T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw) as T;
+  } catch {
+    // corrupted storage — fall through to default
+  }
+  return fallback();
+}
+
 export const PlanningProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<SolutionProject[]>(seedProjects);
-  const [states, setStates] = useState<Record<string, PlanningState>>(seedStates);
+  const [projects, setProjects] = useState<SolutionProject[]>(() =>
+    loadFromStorage(STORAGE_KEYS.projects, () => seedProjects)
+  );
+  const [states, setStates] = useState<Record<string, PlanningState>>(() =>
+    loadFromStorage(STORAGE_KEYS.states, () => seedStates())
+  );
   const blank = React.useRef(initialPlanningState());
+
+  // Persist whenever data changes
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects)); } catch { /* quota exceeded */ }
+  }, [projects]);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.states, JSON.stringify(states)); } catch { /* quota exceeded */ }
+  }, [states]);
 
   const patch = useCallback<Store['patch']>((id, p) => {
     setStates(all => {

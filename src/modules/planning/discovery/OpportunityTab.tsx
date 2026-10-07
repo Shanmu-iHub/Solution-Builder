@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { FileText, GitCompare, MousePointerClick, Wand2 } from 'lucide-react';
+import { Compass, FileText, GitCompare, Lightbulb, MousePointerClick, Scale, Target, Trophy, Wand2, AlertTriangle } from 'lucide-react';
 import { Badge, Button, Input, cx } from '../../ui';
 import { usePlanning } from '../PlanningStore';
-import { Block, Chip, DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
+import { Block, DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
 
 const CRITERIA = ['Business value', 'Customer value', 'Potential scale', 'Feasibility', 'Strategic alignment', 'Differentiation', 'Impact magnitude'] as const;
 type Score = Record<(typeof CRITERIA)[number], number>;
@@ -71,22 +71,21 @@ const OpportunitySelection: React.FC<{
   const [note, setNote] = useState('');
   return (
     <div className="space-y-3">
-      <p className="text-[12.5px] text-slate-500">Pick the primary opportunity — the rest of discovery is built around it.</p>
+      <p className="text-[12.5px] text-slate-500">Pick the primary opportunity option — the rest of discovery is built around it.</p>
       {opps.map(o => {
         const isPrimary = primaryId === o.id;
         const isRejected = rejected.includes(o.id);
         return (
-          <div key={o.id} className={cx('rounded-xl border p-3.5 transition', isPrimary ? 'bg-slate-50 border-[#2563EB]' : 'bg-white border-slate-200', isRejected && 'opacity-60')}>
+          <div key={o.id} className={cx('rounded-xl border p-3.5 transition', isPrimary ? 'bg-blue-50/70 border-blue-300 ring-1 ring-blue-300' : 'bg-white border-slate-200', isRejected && 'opacity-60')}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className={cx('text-[14px] font-bold text-[#0F172A]', isRejected && 'line-through')}>{o.name}</p>
-                <p className="text-[12.5px] text-slate-500 mt-0.5">Score {total(o)} / 10 · {o.origin === 'AI' ? 'AI-generated' : 'User idea'}{refined[o.id] && <span className="text-blue-600"> · Refined: {refined[o.id]}</span>}</p>
+                <p className="text-[12.5px] text-slate-500 mt-0.5">Score {total(o)} / 10{refined[o.id] && <span className="text-blue-600"> · Refined: {refined[o.id]}</span>}</p>
               </div>
-              {isPrimary && <Chip>Primary</Chip>}
-              {isRejected && <Chip tone="red">Rejected</Chip>}
+              {isPrimary && <Badge tone="blue">Primary</Badge>}
+              {isRejected && <Badge tone="red">Rejected</Badge>}
             </div>
-            <p className="text-[13px] text-slate-700 leading-snug mt-2">{o.concept}</p>
-            <p className="text-[12.5px] text-slate-500 leading-snug mt-1"><span className="font-bold text-slate-400 uppercase text-[11px] tracking-wider mr-1.5">Hypothesis</span>{o.hypothesis}</p>
+            <p className="text-[12.5px] text-slate-600 mt-2 leading-relaxed">{o.concept}</p>
             <div className="flex flex-wrap gap-2 mt-2.5">
               {isRejected
                 ? <Button size="xs" onClick={() => onReject(o.id)}>Restore</Button>
@@ -105,7 +104,7 @@ const OpportunitySelection: React.FC<{
           </div>
         );
       })}
-      {!altShown && <Button onClick={onExplore}>Explore alternatives</Button>}
+      {!altShown && <Button icon={<Wand2 className="w-3.5 h-3.5" />} onClick={onExplore}>Explore alternatives</Button>}
     </div>
   );
 };
@@ -121,7 +120,8 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
   const live = all.filter(o => !rejected.includes(o.id));
   const ranked = [...live].sort((a, b) => total(b) - total(a));
   const primary = live.find(o => o.id === s.selectedOpportunity) ?? null;
-  
+  const focus = primary ?? ranked[0];
+
   const selectionCard = (
     <OpportunitySelection
       opps={all} primaryId={primary?.id ?? null} rejected={rejected} refined={refined} altShown={altShown}
@@ -136,20 +136,99 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
     />
   );
 
-  const comparisonBlocks: Block[] = [
-    { kind: 'table', title: 'Scoring and ranking (out of 10)', head: ['Rank', 'Opportunity', ...CRITERIA, 'Total'], rows: ranked.map((o, i) => [`#${i + 1}`, o.name, ...CRITERIA.map(c => o.scores[c]), total(o)]), strongCol: CRITERIA.length + 2 },
-    { kind: 'matrix', title: 'Feasibility vs business value', xLabel: 'Feasibility', yLabel: 'Business value', points: live.map(o => ({ label: o.name.split(' ').slice(0, 2).join(' '), x: o.scores.Feasibility, y: o.scores['Business value'] })) },
-  ];
-
   const cards: FeatureCardData[] = [
-    { id: 'selection', title: 'Opportunities & Selection', icon: <MousePointerClick className="w-4 h-4" />, wide: true, status: primary ? { label: 'Primary chosen', tone: 'green' } : { label: 'Choose primary', tone: 'amber' }, custom: selectionCard },
-    { id: 'comparison', title: 'Opportunity Comparison', icon: <GitCompare className="w-4 h-4" />, wide: true, status: { label: `${live.length} compared`, tone: 'blue' }, blocks: comparisonBlocks },
     {
-      id: 'brief', title: 'Opportunity Brief', icon: <FileText className="w-4 h-4" />, wide: true, status: primary ? { label: 'Draft v0.1', tone: 'green' } : { label: 'Awaiting selection', tone: 'slate' },
-      blocks: primary
-        ? [{
-            kind: 'facts', rows: [
-              { label: 'Problem addressed', value: 'Field sales reps lose receipts and wait weeks for reimbursement; managers and finance chase claims through email.' },
+      id: 'context',
+      title: 'Opportunity Context',
+      icon: <Target className="w-4 h-4" />,
+      status: { label: 'Complete', tone: 'green' },
+      blocks: [{
+        kind: 'facts',
+        rows: [
+          { label: 'Validated problem summary', value: 'Field sales reps lose receipts and wait weeks for reimbursement; managers and finance chase claims through email.' },
+          { label: 'Problem impact', value: 'Slow reimbursement, repeated manual checks, no visibility of claim status.' },
+          { label: 'Affected population', value: 'Field sales reps, line managers, finance team.' },
+          { label: 'Current alternatives', value: 'Email receipts and manual approval; established tools such as SAP Concur, Expensify and Zoho Expense.' },
+        ],
+      }],
+    },
+    {
+      id: 'exploration',
+      title: 'Opportunity Exploration',
+      icon: <Compass className="w-4 h-4" />,
+      status: { label: 'Strategic lenses', tone: 'blue' },
+      blocks: [{
+        kind: 'facts',
+        rows: [
+          { label: 'Market gaps', value: 'Few tools target field-sales travel patterns end to end.' },
+          { label: 'Revenue opportunities', value: 'Per-seat subscription for sales teams; premium audit tier.' },
+          { label: 'Cost reduction', value: 'Less manager and finance time spent on manual checks.' },
+          { label: 'Strategic positioning', value: 'Position as the sales-first expense tool, not a finance-first one.' },
+          { label: 'Business model innovation', value: 'Outcome-linked pricing based on claims processed.' },
+          { label: 'Technology innovation', value: 'Mobile OCR with policy-aware validation at capture time.' },
+        ],
+      }],
+    },
+    {
+      id: 'options',
+      title: 'Opportunity Options',
+      icon: <MousePointerClick className="w-4 h-4" />,
+      status: primary ? { label: 'Primary chosen', tone: 'green' } : { label: 'Choose primary', tone: 'amber' },
+      custom: selectionCard,
+    },
+    {
+      id: 'matrix',
+      title: 'Priority Matrix',
+      icon: <Scale className="w-4 h-4" />,
+      status: { label: 'Feasibility vs Value', tone: 'blue' },
+      blocks: [
+        {
+          kind: 'matrix',
+          title: 'Feasibility vs. Business Value Distribution',
+          xLabel: 'Feasibility',
+          yLabel: 'Business value',
+          points: live.map(o => ({
+            label: o.name.split(' ').slice(0, 2).join(' '),
+            x: o.scores.Feasibility,
+            y: o.scores['Business value'],
+            highlight: o.id === primary?.id,
+          })),
+        },
+      ],
+    },
+    {
+      id: 'evaluation',
+      title: 'Opportunity Evaluation',
+      icon: <GitCompare className="w-4 h-4" />,
+      wide: true,
+      status: { label: `${live.length} options evaluated`, tone: 'blue' },
+      blocks: [
+        {
+          kind: 'table',
+          title: 'Consolidated Criteria & Ranking Matrix',
+          head: ['Rank', 'Opportunity Option', 'Origin', ...CRITERIA, 'Total Score'],
+          rows: ranked.map((o, i) => [
+            `#${i + 1}`,
+            o.name,
+            o.origin,
+            ...CRITERIA.map(c => o.scores[c]),
+            `${total(o)} / 10`,
+          ]),
+          strongCol: CRITERIA.length + 3,
+        },
+      ],
+    },
+    ...(primary
+      ? [{
+          id: 'brief',
+          title: 'Opportunity Brief',
+          wide: true,
+          icon: <FileText className="w-4 h-4" />,
+          status: { label: 'Draft v0.1', tone: 'green' as const },
+          blocks: [{
+            kind: 'facts' as const,
+            title: `Validated Baseline: ${primary.name}`,
+            rows: [
               { label: 'Opportunity statement', value: `${primary.concept}${refined[primary.id] ? ` Refinement: ${refined[primary.id]}.` : ''}` },
               { label: 'Target area', value: primary.target },
               { label: 'Value potential', value: primary.value },
@@ -157,13 +236,23 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
               { label: 'Risks', value: primary.risks.join('; ') },
               { label: 'Success criteria', value: primary.success.join('; ') },
             ],
-          }]
-        : [{ kind: 'list', title: 'Not generated yet', items: ['Select a primary opportunity to generate the brief: problem, statement, target area, value potential, assumptions, risks and success criteria.'], tone: 'slate' }],
-    },
+          }],
+        }]
+      : []),
   ];
 
   return (
     <DiscoveryDashboard
+      phase="Phase 3"
+      title="Opportunity Discovery"
+      subtitle="Where the validated problem becomes a ranked, selectable opportunity."
+      badge={primary ? 'Opportunity Artifact · Draft v0.1' : 'Opportunity Artifact · Not started'}
+      kpis={[
+        { label: 'Opportunity Options', value: live.length, hint: `${rejected.length} rejected`, icon: <Lightbulb className="w-4 h-4" />, tone: 'purple' },
+        { label: 'Top score', value: ranked[0] ? `${total(ranked[0])} / 10` : '—', hint: ranked[0]?.name, icon: <Trophy className="w-4 h-4" />, tone: 'green' },
+        { label: 'Primary Option', value: primary ? 'Selected' : 'Pending', hint: primary?.name ?? 'Select one below', icon: <Target className="w-4 h-4" />, tone: primary ? 'green' : 'amber' },
+        { label: 'Open risks', value: (focus?.risks.length ?? 0) + (focus?.assumptions.length ?? 0), hint: 'Risks + assumptions to test', icon: <AlertTriangle className="w-4 h-4" />, tone: 'orange' },
+      ]}
       cards={cards}
       csuiteStage="opportunity"
       validated={!!primary}

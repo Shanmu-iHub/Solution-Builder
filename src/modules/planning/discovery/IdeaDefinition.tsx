@@ -167,11 +167,11 @@ export const IdeaDefinition: React.FC<{
     setStage('brief');
   };
 
-  // Confirm Idea Brief and proceed to Phase 02 (Opportunity)
+  // Confirm Idea Brief and proceed to Phase 02 (Problem Discovery)
   const handleConfirm = () => {
     patch(projectId, { 
       briefConfirmed: true, 
-      discoveryPage: 'opportunity',
+      discoveryPage: 'problem',
       selectedDirection: 'd_mobile'
     });
     onContinue();
@@ -745,7 +745,7 @@ export const IdeaDefinition: React.FC<{
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Validation summary before advancing to Opportunity Discovery.
+              Validation summary before advancing to Problem Discovery.
             </p>
           </div>
 
@@ -789,7 +789,7 @@ export const IdeaDefinition: React.FC<{
                   className="w-full text-xs font-bold py-2.5 bg-blue-600 hover:bg-blue-700 cursor-pointer shadow-xs" 
                   onClick={onContinue}
                 >
-                  Continue to Opportunity <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  Continue to Problem Discovery <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </div>
             ) : (
@@ -803,7 +803,7 @@ export const IdeaDefinition: React.FC<{
                   <span>Confirm Idea Brief</span>
                 </Button>
                 <p className="text-[11px] text-slate-400 text-center">
-                  Confirms Phase 01 and unlocks Phase 02 (Opportunity &amp; Market).
+                  Confirms Phase 01 and unlocks Phase 02 (Problem Discovery).
                 </p>
               </div>
             )}

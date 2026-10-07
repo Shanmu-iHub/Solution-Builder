@@ -1,6 +1,5 @@
 import React from 'react';
-import { Tone, cx } from '../../ui';
-import { CSuiteValidation } from '../shared/CSuiteSummary';
+import { Tone, cx, Badge, StatTile } from '../../ui';
 
 /* Shared dashboard layout for the data-heavy discovery phases (Opportunity, Market, User).
  * A page is a header, a KPI row and a grid of feature cards; each card is made of blocks,
@@ -243,9 +242,9 @@ export const DiscoveryDashboard: React.FC<{
   badge?: string;
   kpis?: Kpi[];
   cards: FeatureCardData[];
-  csuiteStage: string;
-  validated: boolean;
-}> = ({ phase, title, subtitle, badge, kpis, cards, csuiteStage, validated }) => (
+  csuiteStage?: string;
+  validated?: boolean;
+}> = ({ phase, title, subtitle, badge, kpis, cards }) => (
   <div className="space-y-6">
     {title && (
       <div className="flex items-start justify-between gap-4">
@@ -266,7 +265,6 @@ export const DiscoveryDashboard: React.FC<{
 
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
       {cards.map(c => <FeatureCard key={c.id} card={c} />)}
-      <CSuiteValidation stageId={csuiteStage} status={validated ? 'Validated' : 'Pending'} />
     </div>
   </div>
 );

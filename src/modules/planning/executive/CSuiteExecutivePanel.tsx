@@ -22,8 +22,8 @@ interface Props {
 
 const PHASES_LIST: DiscoveryPage[] = [
   'idea',
-  'opportunity',
   'problem',
+  'opportunity',
   'solution',
   'business_model',
   'product_definition',

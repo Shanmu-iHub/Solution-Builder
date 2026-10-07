@@ -126,7 +126,7 @@ const confirmedSlots = (slots: ReturnType<typeof useRGStore>['slots'], phase: St
 
 // ---------- Documents · built from confirmed stage outputs and the requirement baseline ----------
 const DOCS: { id: string; title: string; phases: StageId[]; reqs: 'none' | 'Functional' | 'all' }[] = [
-  { id: 'BRD', title: 'Business Requirements Document', phases: ['idea-understanding', 'opportunity', 'problem-discovery', 'business-model'], reqs: 'none' },
+  { id: 'BRD', title: 'Business Requirements Document', phases: ['idea-understanding', 'problem-discovery', 'opportunity', 'business-model'], reqs: 'none' },
   { id: 'PRD', title: 'Product Requirements Document', phases: ['idea-understanding', 'solution-discovery', 'product-definition'], reqs: 'Functional' },
   { id: 'SRS', title: 'Software Requirements Specification', phases: ['solution-discovery', 'requirements'], reqs: 'all' }
 ];

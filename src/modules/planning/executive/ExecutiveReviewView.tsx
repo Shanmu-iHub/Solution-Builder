@@ -34,6 +34,7 @@ export const ExecutiveReviewView: React.FC<Props> = ({
     // Mark corresponding confirmation
     const update: any = {};
     if (phaseId === 'idea') update.briefConfirmed = true;
+    if (phaseId === 'problem') update.problemCompleted = true;
     if (phaseId === 'opportunity') update.oppCompleted = true;
     if (phaseId === 'solution') update.solutionConfirmed = true;
     if (phaseId === 'business_model') update.businessModelConfirmed = true;
@@ -69,24 +70,24 @@ export const ExecutiveReviewView: React.FC<Props> = ({
       approved: !!s.briefConfirmed
     },
     {
-      phaseId: 'opportunity',
+      phaseId: 'problem',
       gateNumber: '02',
+      question: 'Is this a validated problem worth solving?',
+      statement: s.statements?.[0]?.statement || 'Field sales reps lose paper receipts and wait weeks for reimbursement due to manual email approvals.',
+      evidence: '8 verified sources (12,400 tickets & CX survey)',
+      risk: 'medium',
+      confidence: 86,
+      approved: !!(s.problemCompleted || s.decision || s.selectedStatement)
+    },
+    {
+      phaseId: 'opportunity',
+      gateNumber: '03',
       question: 'Market Sizing & Commercial Viability',
       statement: typeof s.marketBrief === 'string' ? s.marketBrief : 'Mobile-first expense capture targeting 25-40% reduction in average handling time.',
       evidence: '6 market benchmarks & competitive reports',
       risk: 'low',
       confidence: 88,
       approved: !!s.oppCompleted
-    },
-    {
-      phaseId: 'problem',
-      gateNumber: '03',
-      question: 'Is this a validated problem worth solving?',
-      statement: s.statements?.[0]?.statement || 'Field sales reps lose paper receipts and wait weeks for reimbursement due to manual email approvals.',
-      evidence: '8 verified sources (12,400 tickets & CX survey)',
-      risk: 'medium',
-      confidence: 86,
-      approved: !!s.decision
     },
     {
       phaseId: 'solution',

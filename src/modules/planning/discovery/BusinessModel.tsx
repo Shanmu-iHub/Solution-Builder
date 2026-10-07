@@ -52,12 +52,12 @@ export const BusinessModel: React.FC<{
             Validated 9 building blocks, strategic value proposition, and economic model.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-xs font-semibold flex items-center gap-1.5">
             <Compass className="w-3.5 h-3.5" />
             <span>Step 5 · Business Model (BMC)</span>
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* Main Workspace (Full-Width, Single-Screen Fit) */}
@@ -519,17 +519,17 @@ export const BusinessModel: React.FC<{
       {/* Bottom Sticky Action Bar */}
       <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
         <div className="flex items-center gap-2 text-xs font-semibold">
-          <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Business Model Validated:</span>
-          </span>
-          <span className="text-slate-900 font-bold">
+          {/* <span className="flex items-center gap-1.5 text-emerald-700 font-bold"> */}
+            {/* <CheckCircle2 className="w-4 h-4 text-emerald-600" /> */}
+            {/* <span>Business Model Validated:</span> */}
+          {/* </span> */}
+          {/* <span className="text-slate-900 font-bold">
             9 Canvas Blocks Mapped
-          </span>
-          <span className="text-slate-400">·</span>
+          </span> */}
+          {/* <span className="text-slate-400">·</span>
           <span className="text-slate-600">
             Payback in {paybackMonths} months
-          </span>
+          </span> */}
         </div>
 
         <Button

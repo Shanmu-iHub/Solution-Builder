@@ -10,23 +10,23 @@ export const STAGES_CONFIG: Record<StageId, StageConfig> = {
     subtitle: 'Start with what you have. Structure the idea and clarify only what is missing.',
     requiredExecutives: ['CPO', 'CBO', 'CMO', 'CSO', 'CFO']
   },
-  'opportunity': {
-    id: 'opportunity',
-    number: '02',
-    label: 'Opportunity & Discovery',
-    phaseLabel: 'PHASE · DISCOVERY',
-    title: 'Opportunity & Discovery',
-    subtitle: 'Explore market fit, validate the business opportunity, and identify target customers.',
-    requiredExecutives: ['CBO', 'CMO', 'CSO', 'CFO']
-  },
   'problem-discovery': {
     id: 'problem-discovery',
-    number: '03',
+    number: '02',
     label: 'Problem Discovery',
     phaseLabel: 'PHASE · PROBLEM',
     title: 'Problem Discovery',
     subtitle: 'Identify core pain points, root causes, and business bottlenecks without assumptions.',
     requiredExecutives: ['CPO', 'CBO']
+  },
+  'opportunity': {
+    id: 'opportunity',
+    number: '03',
+    label: 'Opportunity & Discovery',
+    phaseLabel: 'PHASE · DISCOVERY',
+    title: 'Opportunity & Discovery',
+    subtitle: 'Explore market fit, validate the business opportunity, and identify target customers.',
+    requiredExecutives: ['CBO', 'CMO', 'CSO', 'CFO']
   },
   'solution-discovery': {
     id: 'solution-discovery',
@@ -105,8 +105,8 @@ export class StageRouter {
   public static getNextStage(currentStage: StageId): StageId | null {
     const list: StageId[] = [
       'idea-understanding',
-      'opportunity',
       'problem-discovery',
+      'opportunity',
       'solution-discovery',
       'business-model',
       'product-definition',
@@ -125,8 +125,8 @@ export class StageRouter {
   public static getPreviousStage(currentStage: StageId): StageId | null {
     const list: StageId[] = [
       'idea-understanding',
-      'opportunity',
       'problem-discovery',
+      'opportunity',
       'solution-discovery',
       'business-model',
       'product-definition',

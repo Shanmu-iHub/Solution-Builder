@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   ArrowRight, BarChart3, Check, CheckCircle2, ChevronDown, ChevronRight, 
-  ChevronLeft, Sparkles, Loader2, AlertCircle, Layers, GitBranch, Cpu, Network
+  ChevronLeft, Sparkles, Loader2, AlertCircle, Layers, GitBranch, Cpu, Network,
+  Workflow, Clock, FileCheck, Users
 } from 'lucide-react';
 import { Button, cx, sleep } from '../../ui';
 import { usePlanning } from '../PlanningStore';
@@ -60,9 +61,24 @@ const ROOT_CAUSES_BY_ASPECT = [
 ];
 
 const FRAMINGS = [
-  { id: 'stmt_1', t: 'Field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually.' },
-  { id: 'stmt_2', t: 'Expense claims are delayed and error-prone because reps rely on paper receipts and managers approve manually over email.' },
-  { id: 'stmt_3', t: 'The lack of digital receipt capture and tracked approval workflows causes week-long delays in reimbursing field sales reps.' },
+  { 
+    id: 'stmt_1', 
+    perspective: 'Rep-First: Workflow & Speed',
+    perspectiveBadge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    t: 'Field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually.' 
+  },
+  { 
+    id: 'stmt_2', 
+    perspective: 'Finance-First: Error & Policy Audit',
+    perspectiveBadge: 'bg-purple-50 text-purple-700 border-purple-200',
+    t: 'Expense claims are delayed and error-prone because reps rely on paper receipts and managers approve manually over email.' 
+  },
+  { 
+    id: 'stmt_3', 
+    perspective: 'Operations-First: Digital Tracking',
+    perspectiveBadge: 'bg-blue-50 text-blue-700 border-blue-200',
+    t: 'The lack of digital receipt capture and tracked approval workflows causes week-long delays in reimbursing field sales reps.' 
+  },
 ];
 
 export const ProblemDiscovery: React.FC<{ 
@@ -116,7 +132,7 @@ export const ProblemDiscovery: React.FC<{
   };
 
   const confirm = () => {
-    patch(projectId, { problemCompleted: true, discoveryPage: 'solution' });
+    patch(projectId, { problemCompleted: true, discoveryPage: 'opportunity' });
     onContinue();
   };
 
@@ -185,48 +201,102 @@ export const ProblemDiscovery: React.FC<{
 
             <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 shadow-2xs">
               <div className="p-4 flex items-start gap-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider w-32 shrink-0">
-                  Current Process
-                </span>
-                <span className="text-xs text-slate-900 font-medium flex-1">
-                  Claims are emailed with physical receipt photos and approved manually over email threads.
-                </span>
+                <div className="flex items-center gap-1.5 w-36 shrink-0 mt-0.5">
+                  <Workflow className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Current Process
+                  </span>
+                </div>
+                <div className="space-y-1.5 flex-1">
+                  <p className="text-xs text-slate-900 font-medium">
+                    Claims are emailed with physical receipt photos and approved manually over email threads.
+                  </p>
+                  {answers['pq3'] && answers['pq3'].length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {answers['pq3'].map((step: string) => (
+                        <span key={step} className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                          {step}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="p-4 flex items-start gap-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider w-32 shrink-0">
-                  Core Pain Points
-                </span>
-                <span className="text-xs text-slate-900 font-medium flex-1">
-                  Paper receipts get lost on the road; reimbursement turnaround takes 2 to 4 weeks.
-                </span>
+                <div className="flex items-center gap-1.5 w-36 shrink-0 mt-0.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Core Pain Points
+                  </span>
+                </div>
+                <div className="space-y-1 flex-1">
+                  <p className="text-xs text-slate-900 font-medium">
+                    Paper receipts get lost on the road; reimbursement turnaround takes 2 to 4 weeks.
+                  </p>
+                  {answers['pq2']?.[0] && (
+                    <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 inline-block">
+                      Impact: {answers['pq2'][0]}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="p-4 flex items-start gap-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider w-32 shrink-0">
-                  Affected Users
-                </span>
-                <span className="text-xs text-slate-900 font-medium flex-1">
-                  Field sales representatives, Line managers (approvers), and Finance &amp; Accounting staff.
-                </span>
+                <div className="flex items-center gap-1.5 w-36 shrink-0 mt-0.5">
+                  <Users className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Affected Users
+                  </span>
+                </div>
+                <div className="space-y-1 flex-1">
+                  <p className="text-xs text-slate-900 font-medium">
+                    Field sales representatives, Line managers (approvers), and Finance &amp; Accounting staff.
+                  </p>
+                  {answers['pq4'] && answers['pq4'].length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {answers['pq4'].map((imp: string) => (
+                        <span key={imp} className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                          User impact: {imp}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="p-4 flex items-start gap-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider w-32 shrink-0">
-                  Frequency
-                </span>
+                <div className="flex items-center gap-1.5 w-36 shrink-0 mt-0.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Frequency
+                  </span>
+                </div>
                 <span className="text-xs text-slate-800 flex-1 font-semibold">
                   {answers['pq1']?.[0] ? `${answers['pq1'][0]} occurrence across active reps` : 'Ongoing recurring transactions'}
                 </span>
               </div>
 
               <div className="p-4 flex items-start gap-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider w-32 shrink-0">
-                  Severity &amp; Impact
-                </span>
-                <span className="text-xs text-slate-800 flex-1 font-semibold">
-                  {answers['pq2']?.[0] ? answers['pq2'][0] : 'Delays reimbursement and creates employee friction'}
-                </span>
+                <div className="flex items-center gap-1.5 w-36 shrink-0 mt-0.5">
+                  <FileCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Evidence Basis
+                  </span>
+                </div>
+                <div className="flex-1">
+                  {answers['pq5'] && answers['pq5'].length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {answers['pq5'].map((ev: string) => (
+                        <span key={ev} className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {ev}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-500 italic">No empirical evidence registered yet</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -515,9 +585,14 @@ export const ProblemDiscovery: React.FC<{
                       )}
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <span className="text-[14.5px] font-semibold leading-relaxed flex-1">
-                          {f.t}
-                        </span>
+                        <div className="flex-1 space-y-1">
+                          <span className={cx("text-[10.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border inline-block", f.perspectiveBadge)}>
+                            {f.perspective}
+                          </span>
+                          <span className="text-[14.5px] font-semibold leading-relaxed block">
+                            {f.t}
+                          </span>
+                        </div>
                         <span className={cx(
                           "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5",
                           picked ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 bg-white"

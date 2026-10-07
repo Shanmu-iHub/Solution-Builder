@@ -253,18 +253,18 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
                   <IdeaDefinition 
                     projectId={projectId} 
                     projectName={project.name} 
-                    onContinue={() => handleSelectPhase('opportunity')} 
-                  />
-                )}
-                {activeWorkspacePage === 'opportunity' && (
-                  <OpportunityDiscovery 
-                    projectId={projectId} 
-                    projectName={project.name} 
                     onContinue={() => handleSelectPhase('problem')} 
                   />
                 )}
                 {activeWorkspacePage === 'problem' && (
                   <ProblemDiscovery 
+                    projectId={projectId} 
+                    projectName={project.name} 
+                    onContinue={() => handleSelectPhase('opportunity')} 
+                  />
+                )}
+                {activeWorkspacePage === 'opportunity' && (
+                  <OpportunityDiscovery 
                     projectId={projectId} 
                     projectName={project.name} 
                     onContinue={() => handleSelectPhase('solution')} 
@@ -296,6 +296,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
                     projectId={projectId} 
                     projectName={project.name} 
                     onComplete={() => handleSelectPhase('documentation')} 
+                    onBack={() => handleSelectPhase('product_definition')}
                   />
                 )}
                 {activeWorkspacePage === 'documentation' && (
@@ -310,6 +311,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
                         description: 'C-Suite documentation sign-off ready. Solution Planning is now unlocked.'
                       });
                     }} 
+                    onBack={() => handleSelectPhase('requirements')}
                   />
                 )}
               </div>
