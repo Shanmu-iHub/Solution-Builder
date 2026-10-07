@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import { Button, Input, cx, sleep, CSuiteValidation } from '../../ui';
+import { Button, Input, cx, sleep } from '../../ui';
+import { CSuiteValidation } from '../shared/CSuiteSummary';
 import { usePlanning } from '../PlanningStore';
 import { StageResourceActivity } from './StageResourceActivity';
 
@@ -105,7 +106,7 @@ export const ProductDefinition: React.FC<{ projectId: string; projectName: strin
                 <div key={f.id} className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
                   <div className="flex flex-col gap-1 w-24 shrink-0 cursor-pointer hover:bg-slate-50 p-1 rounded">
                     <span className="text-[13px] font-bold text-slate-800">{f.pri}</span>
-                    <span className={cx("text-[10px] uppercase font-bold tracking-widest", f.set ? "text-emerald-600" : "text-purple-600")}>{f.set ? 'Set by you' : 'AI priority'}</span>
+                    <span className={cx("text-[10px] uppercase font-bold tracking-widest", f.set ? "text-emerald-600" : "text-slate-600")}>{f.set ? 'Set by you' : 'AI priority'}</span>
                   </div>
                   <div className="w-px h-8 bg-slate-100" />
                   <span className="text-[14.5px] text-[#0F172A] font-medium flex-1">{f.t}</span>

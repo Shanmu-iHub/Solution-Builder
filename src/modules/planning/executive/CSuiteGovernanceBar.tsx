@@ -80,7 +80,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
       )}>
         {/* Left: Governance Label & Phase Score */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+          <div className="w-7 h-7 rounded-lg bg-slate-600 text-white flex items-center justify-center shadow-xs">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
@@ -94,7 +94,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
             </div>
             <div className="text-[11px] text-slate-500 flex items-center gap-1">
               <span>Phase Score:</span>
-              <span className="font-bold font-mono text-indigo-600">{phaseAvg}/100</span>
+              <span className="font-bold font-mono text-slate-600">{phaseAvg}/100</span>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
                 title={`${rev.title}: Click to view what was analyzed`}
                 className={cx(
                   "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-all cursor-pointer group text-xs shrink-0",
-                  "bg-slate-50 hover:bg-white hover:border-indigo-300 hover:shadow-xs",
+                  "bg-slate-50 hover:bg-white hover:border-slate-300 hover:shadow-xs",
                   rev.status === 'Validated' ? "border-slate-200" : "border-amber-200 bg-amber-50/40"
                 )}
               >
@@ -121,7 +121,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
                 )}>
                   {rev.role}
                 </span>
-                <span className="font-mono font-bold text-slate-800 text-[11.5px] group-hover:text-indigo-600">
+                <span className="font-mono font-bold text-slate-800 text-[11.5px] group-hover:text-slate-600">
                   {rev.score}
                 </span>
                 {rev.status === 'Validated' ? (
@@ -139,7 +139,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenFullPanel}
-            className="text-[11.5px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 shrink-0 cursor-pointer ml-auto hover:underline"
+            className="text-[11.5px] font-bold text-slate-600 hover:text-slate-800 flex items-center gap-1 shrink-0 cursor-pointer ml-auto hover:underline"
           >
             <span>Open Boardroom</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -173,7 +173,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
                   <div className="text-xs text-slate-500 flex items-center gap-2">
                     <span>{activeMeta.category}</span>
                     <span>•</span>
-                    <span className="font-semibold text-indigo-600">Phase {phaseConfig.num}: {phaseConfig.shortTitle}</span>
+                    <span className="font-semibold text-slate-600">Phase {phaseConfig.num}: {phaseConfig.shortTitle}</span>
                   </div>
                 </div>
               </div>
@@ -209,7 +209,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
                   Executive Findings & Critique
                 </label>
-                <div className="text-sm text-slate-700 p-3.5 bg-indigo-50/40 rounded-xl border border-indigo-100 leading-relaxed">
+                <div className="text-sm text-slate-700 p-3.5 bg-slate-50/40 rounded-xl border border-slate-100 leading-relaxed">
                   {activeReview.findings}
                 </div>
               </div>
@@ -233,7 +233,7 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
+                    <SlidersHorizontal className="w-4 h-4 text-slate-600" />
                     <span className="text-xs font-bold text-slate-900">
                       Update {activeRole} Score
                     </span>
@@ -275,10 +275,10 @@ export const CSuiteGovernanceBar: React.FC<Props> = ({
                         key={pId} 
                         className={cx(
                           "flex flex-col items-center justify-center p-1 rounded-md text-center",
-                          isCur ? "bg-indigo-600 text-white font-bold" : "bg-white text-slate-700"
+                          isCur ? "bg-slate-600 text-white font-bold" : "bg-white text-slate-700"
                         )}
                       >
-                        <span className={cx("text-[9px]", isCur ? "text-indigo-200" : "text-slate-400")}>
+                        <span className={cx("text-[9px]", isCur ? "text-slate-200" : "text-slate-400")}>
                           P0{idx + 1}
                         </span>
                         <span className="text-xs font-mono font-bold">

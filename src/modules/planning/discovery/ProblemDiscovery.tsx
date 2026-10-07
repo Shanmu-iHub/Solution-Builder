@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowRight, BarChart3, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import { Button, cx, sleep, CSuiteValidation } from '../../ui';
+import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { Button, cx, sleep } from '../../ui';
+import { CSuiteValidation } from '../shared/CSuiteSummary';
 import { usePlanning } from '../PlanningStore';
 import { PD_QUESTIONS } from '../content';
 import { StageResourceActivity } from './StageResourceActivity';
@@ -158,7 +159,7 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
                       <AnalysisChips id={f.id} />
                     </button>
                     <div className="px-4 pb-3">
-                      <Button size="xs" icon={<BarChart3 className="w-3.5 h-3.5" />} onClick={() => setAnalysisId(f.id)}>View analysis</Button>
+                      <Button size="xs" onClick={() => setAnalysisId(f.id)}>View analysis</Button>
                     </div>
                   </div>
                 );

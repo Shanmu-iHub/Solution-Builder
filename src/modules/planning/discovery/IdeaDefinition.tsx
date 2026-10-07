@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  ArrowRight, Check, CheckCircle2, ChevronRight, ChevronLeft, 
-  Sparkles, FileText, AlertTriangle, ShieldCheck, Edit3, HelpCircle, 
-  Loader2, RefreshCw
-} from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Button, Input, Textarea, cx, sleep } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { StageResourceActivity } from './StageResourceActivity';
@@ -218,7 +214,7 @@ export const IdeaDefinition: React.FC<{
 
               <Button 
                 variant="primary" 
-                icon={understandingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} 
+                icon={understandingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined} 
                 onClick={handleUnderstandIdea} 
                 disabled={ideaText.trim().length < 12 || understandingLoading} 
                 className="px-5 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 shadow-xs cursor-pointer"
@@ -240,9 +236,7 @@ export const IdeaDefinition: React.FC<{
       return (
         <div className="h-full bg-slate-50/60 flex items-center justify-center p-8">
           <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 shadow-sm space-y-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto animate-pulse">
-              <Sparkles className="w-6 h-6" />
-            </div>
+            <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto" />
             <h2 className="text-base font-bold text-slate-900">Synthesizing Idea Brief…</h2>
             <div className="space-y-2 text-left text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
               <div className="flex items-center gap-2 text-emerald-600 font-medium">
@@ -254,7 +248,7 @@ export const IdeaDefinition: React.FC<{
               <div className="flex items-center gap-2 text-emerald-600 font-medium">
                 <Check className="w-3.5 h-3.5" /> Clarifications incorporated
               </div>
-              <div className="flex items-center gap-2 text-blue-600 font-semibold animate-pulse">
+              <div className="flex items-center gap-2 text-blue-600 font-semibold">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating structured document...
               </div>
             </div>
@@ -355,7 +349,7 @@ export const IdeaDefinition: React.FC<{
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
                   <span className="font-semibold text-slate-800">Finance and accounting team</span>
-                  <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
                     ✦ AI inferred · 78%
                   </span>
                 </div>
@@ -387,7 +381,7 @@ export const IdeaDefinition: React.FC<{
                 <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                   Desired Outcome
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-700 border border-slate-200">
                   ✦ AI inferred
                 </span>
               </div>
@@ -570,7 +564,6 @@ export const IdeaDefinition: React.FC<{
                 onClick={handleGenerateBrief}
                 disabled={generatingBriefLoading}
               >
-                <Sparkles className="w-4 h-4" />
                 <span>Generate Idea Brief</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
@@ -673,14 +666,14 @@ export const IdeaDefinition: React.FC<{
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/70">
-                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 font-bold rounded text-[10.5px]">Approver</span>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-800 font-bold rounded text-[10.5px]">Approver</span>
                   <div>
                     <div className="font-bold text-slate-900">Line Managers</div>
                     <div className="text-slate-600 mt-0.5">Need a unified queue to approve claims with zero email chasing.</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/70">
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-800 font-bold rounded text-[10.5px]">Auditor</span>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-800 font-bold rounded text-[10.5px]">Auditor</span>
                   <div>
                     <div className="font-bold text-slate-900">Finance &amp; Accounting Team</div>
                     <div className="text-slate-600 mt-0.5">Need policy-compliant exports into ERP without manual reconciliation.</div>
@@ -742,11 +735,11 @@ export const IdeaDefinition: React.FC<{
                   <span className="font-mono">8 confirmed</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium">
-                  <span className="flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Explicit assumptions</span>
+                  <span className="flex items-center gap-1.5">Explicit assumptions</span>
                   <span className="font-mono">2 assumptions</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium">
-                  <span className="flex items-center gap-1.5"><HelpCircle className="w-3.5 h-3.5 text-blue-500" /> Open questions</span>
+                  <span className="flex items-center gap-1.5">Open questions</span>
                   <span className="font-mono">0 remaining</span>
                 </div>
               </div>

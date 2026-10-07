@@ -56,6 +56,9 @@ const RELATED: Record<DomainKey, Related[]> = {
   ],
 };
 
+/** All related delivered projects for a domain (used by the Knowledge Base popup). */
+export const relatedProjects = (domain: DomainKey) => RELATED[domain];
+
 export interface KbSource { id: string; project: string; document: string; version: string; similarity: number; summary: string; facts: string[] }
 
 /** The related projects for a domain, each with the document of the requested kind and the facts taken from it. */

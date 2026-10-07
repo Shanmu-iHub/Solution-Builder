@@ -146,7 +146,7 @@ export const ExecutiveReviewView: React.FC<Props> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded bg-purple-50 text-purple-700 text-[11.5px] font-bold uppercase tracking-wider flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded bg-slate-50 text-slate-700 text-[11.5px] font-bold uppercase tracking-wider flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> Executive Governance
             </span>
             <span className="text-slate-300">•</span>
@@ -229,20 +229,20 @@ export const ExecutiveReviewView: React.FC<Props> = ({
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
             <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
               <span className="uppercase tracking-wider">Solution Readiness</span>
-              <span className="text-indigo-700">{metrics.solutionReadiness}%</span>
+              <span className="text-slate-700">{metrics.solutionReadiness}%</span>
             </div>
             <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-              <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${metrics.solutionReadiness}%` }} />
+              <div className="h-full bg-slate-600 rounded-full" style={{ width: `${metrics.solutionReadiness}%` }} />
             </div>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
             <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-2">
               <span className="uppercase tracking-wider">Architecture Spec</span>
-              <span className="text-purple-700">{metrics.architectureReadiness}%</span>
+              <span className="text-slate-700">{metrics.architectureReadiness}%</span>
             </div>
             <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
-              <div className="h-full bg-purple-600 rounded-full" style={{ width: `${metrics.architectureReadiness}%` }} />
+              <div className="h-full bg-slate-600 rounded-full" style={{ width: `${metrics.architectureReadiness}%` }} />
             </div>
           </div>
         </div>

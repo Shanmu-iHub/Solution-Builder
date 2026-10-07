@@ -101,10 +101,15 @@ export interface SolutionProject {
   updatedAt: string;
 }
 
+import type { Capability, CapabilityEdit } from './discovery/SolutionCapabilities';
+
 export interface PlanningState {
   discoveryPage: DiscoveryPage;
   /** primary opportunity chosen in Opportunity Discovery */
   selectedOpportunity?: string | null;
+  /** Solution Discovery: scope and feature changes per capability, and capabilities the user added per solution */
+  capabilityEdits?: Record<string, CapabilityEdit>;
+  customCapabilities?: Record<string, Capability[]>;
   /* idea */
   ideaStep: 'understand' | 'clarify' | 'directions' | 'vision' | 'confirm';
   ideaReached: number;

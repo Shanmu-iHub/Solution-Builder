@@ -8,15 +8,13 @@ interface Props {
   active: PlanningStage;
   /** index (in PLANNING_STAGE_IDS) of the furthest stage reached so far */
   maxReached: number;
-  /** average C-Suite score per stage, shown as a small badge */
-  scores: Record<PlanningStageId, number>;
   onSelect: (stage: PlanningStageId) => void;
   onBackToRequirements: () => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
 }
 
-export const PlanningNavRail: React.FC<Props> = ({ active, maxReached, scores, onSelect, onBackToRequirements, collapsed, onToggleCollapse }) => {
+export const PlanningNavRail: React.FC<Props> = ({ active, maxReached, onSelect, onBackToRequirements, collapsed, onToggleCollapse }) => {
   const { toast } = useToast();
   const completedCount = PLANNING_STAGE_IDS.filter(id => getStageStatus(id, active, maxReached) === 'completed').length;
 
@@ -108,7 +106,6 @@ export const PlanningNavRail: React.FC<Props> = ({ active, maxReached, scores, o
                       </span>
                     </div>
                     <div className="shrink-0 ml-1 flex items-center gap-1.5">
-                      {!locked && <span className="font-mono text-[10.5px] font-bold text-slate-400">{scores[id]}</span>}
                       {locked ? <Lock className="w-3.5 h-3.5 text-slate-400" />
                         : status === 'completed' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                         : status === 'active' ? <span className="w-2 h-2 rounded-full bg-blue-600 block" />

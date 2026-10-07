@@ -1,5 +1,4 @@
 import React from 'react';
-import { AlertTriangle, BadgeCheck, ClipboardList, FileText, FlaskConical, Footprints, MessageSquareQuote, Route, UserCircle2, Users, Workflow } from 'lucide-react';
 import { DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
 
 /* Illustrative data for the expense-claims demo project. */
@@ -9,7 +8,7 @@ const persona = (name: string, tag: string, r: Record<'Role' | 'Goals' | 'Respon
 
 const cards: FeatureCardData[] = [
   {
-    id: 'identification', title: 'User Identification', icon: <Users className="w-4 h-4" />, wide: true, status: { label: '6 groups', tone: 'blue' },
+    id: 'identification', title: 'User Identification', wide: true, status: { label: '6 groups', tone: 'blue' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Primary users', value: 'Field sales reps who submit claims.' },
@@ -22,7 +21,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'personas', title: 'Persona Discovery', icon: <UserCircle2 className="w-4 h-4" />, wide: true, status: { label: '3 personas', tone: 'green' },
+    id: 'personas', title: 'Persona Discovery', wide: true, status: { label: '3 personas', tone: 'green' },
     blocks: [{
       kind: 'cards', title: 'Persona profiles', items: [
         persona('Arjun, field sales rep', 'Primary', { Role: 'Visits 6–8 clients a day', Goals: 'Get reimbursed fast, spend time selling', Responsibilities: 'Submit claims with receipts', 'Pain points': 'Lost receipts, no claim status', Needs: 'Capture on the spot, see status', Behaviors: 'Files claims in batches at month-end', Constraints: 'Phone only, patchy network' }),
@@ -32,7 +31,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'journey', title: 'User Journey Mapping', icon: <Route className="w-4 h-4" />, wide: true, status: { label: 'Arjun · today', tone: 'amber' },
+    id: 'journey', title: 'User Journey Mapping', wide: true, status: { label: 'Arjun · today', tone: 'amber' },
     blocks: [
       {
         kind: 'journey', title: 'Journey stages, actions, pain points and emotion', stages: [
@@ -53,7 +52,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'workflow', title: 'Current Workflow Analysis', icon: <Workflow className="w-4 h-4" />, wide: true, status: { label: 'Mapped', tone: 'green' },
+    id: 'workflow', title: 'Current Workflow Analysis', wide: true, status: { label: 'Mapped', tone: 'green' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Process steps', value: 'Spend → keep receipt → fill spreadsheet → email manager → manager forwards to finance → finance checks → payment run.' },
@@ -66,10 +65,10 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'needs', title: 'Needs & Pain Point Analysis', icon: <AlertTriangle className="w-4 h-4" />, wide: true, status: { label: '4 pain points', tone: 'amber' },
+    id: 'needs', title: 'Needs & Pain Point Analysis', wide: true, status: { label: '4 pain points', tone: 'amber' },
     blocks: [
       { kind: 'chips', title: 'Functional needs', items: ['Capture receipt on phone', 'Track claim status', 'Policy check before submit'], tone: 'blue' },
-      { kind: 'chips', title: 'Emotional needs', items: ['Trust that claims are not lost', 'Feel respected, not chased'], tone: 'purple' },
+      { kind: 'chips', title: 'Emotional needs', items: ['Trust that claims are not lost', 'Feel respected, not chased'], tone: 'slate' },
       { kind: 'chips', title: 'Business needs', items: ['Faster close', 'Fewer manual checks', 'Audit trail'], tone: 'green' },
       {
         kind: 'table', title: 'Pain points', head: ['Pain point', 'Severity', 'Frequency', 'Root cause', 'Existing workaround'], strongCol: 1, rows: [
@@ -82,7 +81,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'research', title: 'User Research', icon: <ClipboardList className="w-4 h-4" />, status: { label: '2 of 5 done', tone: 'blue' },
+    id: 'research', title: 'User Research', status: { label: '2 of 5 done', tone: 'blue' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Interview framework', value: 'Done — 8 interviews: 4 reps, 2 managers, 2 finance.' },
@@ -94,16 +93,16 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'synthesis', title: 'Research Synthesis', icon: <FlaskConical className="w-4 h-4" />, status: { label: 'Draft', tone: 'slate' },
+    id: 'synthesis', title: 'Research Synthesis', status: { label: 'Draft', tone: 'slate' },
     blocks: [
       { kind: 'list', title: 'Common patterns', items: ['Reps file claims in batches, not daily', 'Everyone wants to know where a claim is'], tone: 'blue' },
       { kind: 'list', title: 'Contradictions', items: ['Managers want strict checks; reps want fewer steps'], tone: 'amber' },
       { kind: 'list', title: 'Key findings & evidence-backed insights', items: ['6 of 8 interviewees lost a receipt in the last quarter', 'Survey: 71% wait more than a week for reimbursement'], tone: 'green' },
-      { kind: 'list', title: 'User quotes', items: ['“I take a photo and hope I find it later.”', '“I never know if my manager even saw it.”'], tone: 'purple' },
+      { kind: 'list', title: 'User quotes', items: ['“I take a photo and hope I find it later.”', '“I never know if my manager even saw it.”'], tone: 'slate' },
     ],
   },
   {
-    id: 'validation', title: 'User Validation', icon: <BadgeCheck className="w-4 h-4" />, status: { label: 'Segment size low', tone: 'amber' },
+    id: 'validation', title: 'User Validation', status: { label: 'Segment size low', tone: 'amber' },
     blocks: [{
       kind: 'bars', title: 'Validation coverage', max: 100, rows: [
         { label: 'Need validation', value: 82, note: 'Confirmed in interviews and survey' },
@@ -114,7 +113,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'report', title: 'User Insight Report', icon: <FileText className="w-4 h-4" />, status: { label: 'Draft v0.1', tone: 'slate' },
+    id: 'report', title: 'User Insight Report', status: { label: 'Draft v0.1', tone: 'slate' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Personas', value: 'Arjun (rep), Meera (manager), Kabir (finance).' },
@@ -135,10 +134,10 @@ export const UserDiscovery: React.FC = () => (
     subtitle="Who uses and buys the product, how they work today and what hurts."
     badge="User Insight Report · Draft v0.1"
     kpis={[
-      { label: 'User groups', value: 6, hint: 'Users, buyers, influencers', icon: <Users className="w-4 h-4" />, tone: 'blue' },
-      { label: 'Personas', value: 3, hint: '1 primary, 2 secondary', icon: <UserCircle2 className="w-4 h-4" />, tone: 'purple' },
-      { label: 'Pain points', value: 4, hint: '3 high severity', icon: <Footprints className="w-4 h-4" />, tone: 'amber' },
-      { label: 'Research done', value: '2 / 5', hint: 'Interviews and survey', icon: <MessageSquareQuote className="w-4 h-4" />, tone: 'green' },
+      { label: 'User groups', value: 6, hint: 'Users, buyers, influencers', tone: 'blue' },
+      { label: 'Personas', value: 3, hint: '1 primary, 2 secondary', tone: 'slate' },
+      { label: 'Pain points', value: 4, hint: '3 high severity', tone: 'amber' },
+      { label: 'Research done', value: '2 / 5', hint: 'Interviews and survey', tone: 'green' },
     ]}
     cards={cards}
     csuiteStage="user"

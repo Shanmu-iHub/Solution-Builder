@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import { Button, cx, sleep, CSuiteValidation } from '../../ui';
+import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Plus, Sparkles } from 'lucide-react';
+import { Button, Input, Select, cx, sleep, uid } from '../../ui';
+import { CSuiteValidation } from '../shared/CSuiteSummary';
 import { usePlanning } from '../PlanningStore';
 import { StageResourceActivity } from './StageResourceActivity';
+import { CAPS_BY_PACKAGE, CapabilityCard, CapabilityDialog, CapabilityEdit, ROOT_CAUSES, applyEdit, newCustomCapability, rootCausesCovered } from './SolutionCapabilities';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -26,14 +28,6 @@ const PACKAGES = [
   { id: 'sol_power', t: 'PowerApps & Teams approval', d: 'Use Office 365 to scan receipts and route approvals in Teams.' }
 ];
 
-const CAPS = [
-  { id: 'cap_capture', t: 'Mobile camera capture', rc: 'No capture at the point of purchase' },
-  { id: 'cap_extract', t: 'AI data extraction', rc: 'No capture at the point of purchase' },
-  { id: 'cap_queue', t: 'Manager approval queue', rc: 'Approval has no tracked queue or reminders' },
-  { id: 'cap_status', t: 'Claim status tracking', rc: 'Approval has no tracked queue or reminders' },
-  { id: 'cap_export', t: 'SAP Concur export', rc: 'No link between approval and the finance system' }
-];
-
 export const SolutionDiscovery: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
   const { state, patch } = usePlanning();
   const s = state(projectId);
@@ -42,6 +36,22 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
   const [drafting, setDrafting] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [selPkg, setSelPkg] = useState<string | null>(null);
+  const [openCap, setOpenCap] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newRc, setNewRc] = useState(ROOT_CAUSES[0]);
+  const edits = s.capabilityEdits ?? {};
+  const baseCaps = selPkg ? [...(CAPS_BY_PACKAGE[selPkg] ?? []), ...((s.customCapabilities ?? {})[selPkg] ?? [])] : [];
+  const caps = baseCaps.map(c => applyEdit(c, edits[c.id]));
+  const saveEdit = (id: string, e: CapabilityEdit) => patch(projectId, st => ({ capabilityEdits: { ...(st.capabilityEdits ?? {}), [id]: e } }));
+  const addCapability = () => {
+    const t = newName.trim();
+    if (!t || !selPkg) return;
+    const cap = newCustomCapability(uid('cap'), t, newRc);
+    patch(projectId, st => ({ customCapabilities: { ...(st.customCapabilities ?? {}), [selPkg]: [...((st.customCapabilities ?? {})[selPkg] ?? []), cap] } }));
+    setNewName(''); setAdding(false); setOpenCap(cap.id);
+  };
+  const pkgName = PACKAGES.find(p => p.id === selPkg)?.t ?? '';
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
   
@@ -88,7 +98,7 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
               {PACKAGES.map(p => (
                 <button 
                   key={p.id} 
-                  onClick={() => setSelPkg(p.id)}
+                  onClick={() => { setSelPkg(p.id); setOpenCap(null); }}
                   className={cx("w-full text-left p-4 rounded-xl border transition cursor-pointer flex flex-col gap-1", selPkg === p.id ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300")}
                 >
                   <span className={cx("text-[15px] font-bold", selPkg === p.id ? "text-[#1D4ED8]" : "text-[#0F172A]")}>{p.t}</span>
@@ -99,15 +109,23 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
           </Section>
 
           {selPkg && (
-            <Section num="02" title="Capabilities" summary={`${CAPS.length} capabilities covering 3 root causes`} open={openSecs.caps} onToggle={() => toggle('caps')}>
-              <div className="space-y-4 pt-2">
-                <p className="text-[12.5px] text-slate-500 mb-2">Capabilities provided by the chosen solution.</p>
-                {CAPS.map(c => (
-                  <div key={c.id} className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col gap-1">
-                    <span className="text-[14px] font-semibold text-[#0F172A]">{c.t}</span>
-                    <span className="text-[12px] text-slate-500 flex items-center gap-1">Fixes: <span className="font-semibold text-slate-700">{c.rc}</span></span>
+            <Section num="02" title="Capabilities" summary={`${caps.length} capabilities covering ${rootCausesCovered(caps)} root causes`} open={openSecs.caps} onToggle={() => toggle('caps')}>
+              <div className="space-y-3 pt-2">
+                <p className="text-[12.5px] text-slate-500 mb-2">Capabilities of <span className="font-semibold text-slate-700">{pkgName}</span>. Open one to see its features, fit, effort and risks.</p>
+                {caps.map(c => <CapabilityCard key={c.id} cap={c} onOpen={() => setOpenCap(c.id)} />)}
+                {adding ? (
+                  <div className="rounded-xl border border-dashed border-slate-300 bg-white p-3.5 space-y-2.5">
+                    <p className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Add a capability</p>
+                    <div className="grid md:grid-cols-[1.2fr_1.2fr_auto_auto] gap-2 items-center">
+                      <Input autoFocus value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCapability()} placeholder="Capability name" />
+                      <Select value={newRc} onChange={e => setNewRc(e.target.value)}>{ROOT_CAUSES.map(r => <option key={r} value={r}>Fixes: {r}</option>)}</Select>
+                      <Button variant="primary" size="sm" icon={<Plus className="w-3.5 h-3.5" />} disabled={!newName.trim()} onClick={addCapability}>Add</Button>
+                      <Button variant="ghost" size="sm" onClick={() => { setAdding(false); setNewName(''); }}>Cancel</Button>
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  <Button icon={<Plus className="w-3.5 h-3.5" />} onClick={() => setAdding(true)}>Add capability</Button>
+                )}
               </div>
             </Section>
           )}
@@ -122,7 +140,7 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
           </div>
           <div className="flex-1 p-5 overflow-y-auto space-y-5">
             <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selected Package</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{selPkg ? PACKAGES.find(p => p.id === selPkg)?.t : 'Not decided'}</p></div>
-            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Capabilities</span><ul className="text-[14.5px] text-[#0F172A] leading-snug list-disc pl-4 space-y-1">{selPkg ? CAPS.map(c => <li key={c.id}>{c.t}</li>) : <li>Not decided</li>}</ul></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Capabilities</span><ul className="text-[14.5px] text-[#0F172A] leading-snug list-disc pl-4 space-y-1">{selPkg ? caps.map(c => <li key={c.id}>{c.t}</li>) : <li>Not decided</li>}</ul></div>
             <div className="pt-2">
               <CSuiteValidation stageId="solution" status={canConfirm ? 'Validated' : 'Pending'} />
             </div>
@@ -142,6 +160,7 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
           </div>
         </div>
       </div>
+      <CapabilityDialog cap={caps.find(c => c.id === openCap) ?? null} packageName={pkgName} onClose={() => setOpenCap(null)} onEdit={e => openCap && saveEdit(openCap, e)} />
     </div>
   );
 };

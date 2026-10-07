@@ -1,12 +1,11 @@
 import React from 'react';
-import { AlertTriangle, BarChart3, Building2, Cpu, FileText, Globe2, Layers, Radar, Swords, Target, TrendingUp, Users } from 'lucide-react';
 import { DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
 
 /* Illustrative figures for the expense-claims demo project. They are AI estimates, not sourced data. */
 
 const cards: FeatureCardData[] = [
   {
-    id: 'definition', title: 'Market Definition', icon: <Target className="w-4 h-4" />, status: { label: 'Defined', tone: 'green' },
+    id: 'definition', title: 'Market Definition', status: { label: 'Defined', tone: 'green' },
     blocks: [
       {
         kind: 'facts', rows: [
@@ -20,7 +19,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'research', title: 'Market Research', icon: <BarChart3 className="w-4 h-4" />, status: { label: 'AI estimate', tone: 'amber' },
+    id: 'research', title: 'Market Research', status: { label: 'AI estimate', tone: 'amber' },
     blocks: [
       {
         kind: 'sizing', title: 'Market size (TAM / SAM / SOM)', rows: [
@@ -42,7 +41,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'industry', title: 'Industry Analysis', icon: <Building2 className="w-4 h-4" />, status: { label: 'Complete', tone: 'green' },
+    id: 'industry', title: 'Industry Analysis', status: { label: 'Complete', tone: 'green' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Industry trends', value: 'Receipt capture is becoming a commodity; value is moving to policy automation.' },
@@ -54,7 +53,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'landscape', title: 'Competitive Landscape', icon: <Radar className="w-4 h-4" />, status: { label: '7 players', tone: 'blue' },
+    id: 'landscape', title: 'Competitive Landscape', status: { label: '7 players', tone: 'blue' },
     blocks: [
       { kind: 'chips', title: 'Direct competitors', items: ['SAP Concur', 'Expensify', 'Zoho Expense'], tone: 'red' },
       { kind: 'chips', title: 'Indirect competitors', items: ['Microsoft Power Automate flows', 'ERP expense modules'], tone: 'amber' },
@@ -69,7 +68,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'analysis', title: 'Competitive Analysis', icon: <Swords className="w-4 h-4" />, wide: true, status: { label: 'To verify', tone: 'amber' },
+    id: 'analysis', title: 'Competitive Analysis', wide: true, status: { label: 'To verify', tone: 'amber' },
     blocks: [
       {
         kind: 'table', title: 'Competitor comparison (indicative — verify before use)', head: ['Competitor', 'Features', 'Pricing', 'Target users', 'Strengths / weaknesses'], rows: [
@@ -87,7 +86,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'technology', title: 'Technology Assessment', icon: <Cpu className="w-4 h-4" />, status: { label: 'Feasible', tone: 'green' },
+    id: 'technology', title: 'Technology Assessment', status: { label: 'Feasible', tone: 'green' },
     blocks: [
       { kind: 'bars', title: 'Technology maturity', max: 10, rows: [{ label: 'Mobile receipt OCR', value: 9, note: 'Proven and widely available' }, { label: 'AI field extraction', value: 7, note: 'Maturing fast' }, { label: 'Policy rules engine', value: 8 }, { label: 'Card-feed integration', value: 5, note: 'Depends on issuer APIs' }] },
       {
@@ -101,7 +100,7 @@ const cards: FeatureCardData[] = [
     ],
   },
   {
-    id: 'gaps', title: 'Market Gap Analysis', icon: <Layers className="w-4 h-4" />, status: { label: '5 gaps', tone: 'blue' },
+    id: 'gaps', title: 'Market Gap Analysis', status: { label: '5 gaps', tone: 'blue' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Unmet needs', value: 'Claim status visibility for reps.' },
@@ -113,7 +112,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'risks', title: 'Market Risk Assessment', icon: <AlertTriangle className="w-4 h-4" />, status: { label: 'Medium', tone: 'amber' },
+    id: 'risks', title: 'Market Risk Assessment', status: { label: 'Medium', tone: 'amber' },
     blocks: [{
       kind: 'table', title: 'Risk register', head: ['Risk', 'Description', 'Level'], strongCol: 2, rows: [
         ['Economic', 'Sales hiring freezes shrink the field-rep base', 'Medium'],
@@ -125,7 +124,7 @@ const cards: FeatureCardData[] = [
     }],
   },
   {
-    id: 'report', title: 'Market Report', icon: <FileText className="w-4 h-4" />, status: { label: 'Draft v0.1', tone: 'slate' },
+    id: 'report', title: 'Market Report', status: { label: 'Draft v0.1', tone: 'slate' },
     blocks: [{
       kind: 'facts', rows: [
         { label: 'Market summary', value: 'A $1.8B serviceable market growing about 12% a year, with mobile-first claim filing now expected.' },
@@ -146,10 +145,10 @@ export const MarketDiscovery: React.FC = () => (
     subtitle="How big the market is, who else is in it and where the gaps are."
     badge="Market Report · Draft v0.1"
     kpis={[
-      { label: 'Serviceable market', value: '$1.8B', hint: 'SAM, AI estimate', icon: <Globe2 className="w-4 h-4" />, tone: 'blue' },
-      { label: 'Growth rate', value: '~12% / yr', hint: 'Not yet sourced', icon: <TrendingUp className="w-4 h-4" />, tone: 'green' },
-      { label: 'Competitors mapped', value: 7, hint: '3 direct, 2 indirect, 2 alternatives', icon: <Users className="w-4 h-4" />, tone: 'purple' },
-      { label: 'Overall risk', value: 'Medium', hint: '1 high, 3 medium', icon: <AlertTriangle className="w-4 h-4" />, tone: 'amber' },
+      { label: 'Serviceable market', value: '$1.8B', hint: 'SAM, AI estimate', tone: 'blue' },
+      { label: 'Growth rate', value: '~12% / yr', hint: 'Not yet sourced', tone: 'green' },
+      { label: 'Competitors mapped', value: 7, hint: '3 direct, 2 indirect, 2 alternatives', tone: 'slate' },
+      { label: 'Overall risk', value: 'Medium', hint: '1 high, 3 medium', tone: 'amber' },
     ]}
     cards={cards}
     csuiteStage="market"

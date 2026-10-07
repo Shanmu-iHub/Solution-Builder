@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Compass, FileText, GitCompare, Lightbulb, MousePointerClick, Scale, Target, Trophy, Wand2, AlertTriangle } from 'lucide-react';
-import { Badge, Button, Input, cx } from '../../ui';
+import { Target } from 'lucide-react';
+import { Button, Input, cx } from '../../ui';
 import { usePlanning } from '../PlanningStore';
-import { Block, DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
+import { Block, Chip, DiscoveryDashboard, FeatureCardData } from './DiscoveryDashboard';
 
 const CRITERIA = ['Business value', 'Customer value', 'Potential scale', 'Feasibility', 'Strategic alignment', 'Differentiation', 'Impact magnitude'] as const;
 type Score = Record<(typeof CRITERIA)[number], number>;
@@ -76,14 +76,14 @@ const OpportunitySelection: React.FC<{
         const isPrimary = primaryId === o.id;
         const isRejected = rejected.includes(o.id);
         return (
-          <div key={o.id} className={cx('rounded-xl border p-3.5 transition', isPrimary ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200', isRejected && 'opacity-60')}>
+          <div key={o.id} className={cx('rounded-xl border p-3.5 transition', isPrimary ? 'bg-slate-50 border-[#2563EB]' : 'bg-white border-slate-200', isRejected && 'opacity-60')}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className={cx('text-[14px] font-bold text-[#0F172A]', isRejected && 'line-through')}>{o.name}</p>
                 <p className="text-[12.5px] text-slate-500 mt-0.5">Score {total(o)} / 10{refined[o.id] && <span className="text-blue-600"> · Refined: {refined[o.id]}</span>}</p>
               </div>
-              {isPrimary && <Badge tone="blue">Primary</Badge>}
-              {isRejected && <Badge tone="red">Rejected</Badge>}
+              {isPrimary && <Chip>Primary</Chip>}
+              {isRejected && <Chip tone="red">Rejected</Chip>}
             </div>
             <div className="flex flex-wrap gap-2 mt-2.5">
               {isRejected
@@ -103,7 +103,7 @@ const OpportunitySelection: React.FC<{
           </div>
         );
       })}
-      {!altShown && <Button icon={<Wand2 className="w-3.5 h-3.5" />} onClick={onExplore}>Explore alternatives</Button>}
+      {!altShown && <Button onClick={onExplore}>Explore alternatives</Button>}
     </div>
   );
 };
@@ -143,7 +143,7 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
 
   const cards: FeatureCardData[] = [
     {
-      id: 'context', title: 'Opportunity Context', icon: <Target className="w-4 h-4" />, status: { label: 'Complete', tone: 'green' },
+      id: 'context', title: 'Opportunity Context', status: { label: 'Complete', tone: 'green' },
       blocks: [{
         kind: 'facts', rows: [
           { label: 'Validated problem summary', value: 'Field sales reps lose receipts and wait weeks for reimbursement; managers and finance chase claims through email.' },
@@ -154,7 +154,7 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
       }],
     },
     {
-      id: 'exploration', title: 'Opportunity Exploration', icon: <Compass className="w-4 h-4" />, status: { label: '9 lenses', tone: 'blue' },
+      id: 'exploration', title: 'Opportunity Exploration', status: { label: '9 lenses', tone: 'blue' },
       blocks: [{
         kind: 'facts', rows: [
           { label: 'Market gaps', value: 'Few tools target field-sales travel patterns end to end.' },
@@ -170,24 +170,24 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
       }],
     },
     {
-      id: 'generation', title: 'Opportunity Generation', icon: <Lightbulb className="w-4 h-4" />, status: { label: `${all.length} concepts`, tone: 'purple' },
+      id: 'generation', title: 'Opportunity Generation', status: { label: `${all.length} concepts`, tone: 'slate' },
       blocks: [
-        { kind: 'list', title: 'AI-generated hypotheses', items: all.filter(o => o.origin === 'AI').map(o => o.hypothesis), tone: 'purple' },
+        { kind: 'list', title: 'AI-generated hypotheses', items: all.filter(o => o.origin === 'AI').map(o => o.hypothesis), tone: 'slate' },
         { kind: 'list', title: 'User-sourced ideas', items: all.filter(o => o.origin === 'User').map(o => `${o.name} — ${o.hypothesis}`), tone: 'blue' },
         { kind: 'list', title: 'Alternative paths', items: ['Buy and configure an existing expense tool instead of building', 'Start with approval routing only, add capture later', 'Pilot with one sales region before wider rollout'], tone: 'amber' },
         { kind: 'facts', title: 'Concept descriptions', rows: all.map(o => ({ label: o.name, value: o.concept })) },
       ],
     },
     {
-      id: 'evaluation', title: 'Opportunity Evaluation', icon: <Scale className="w-4 h-4" />, status: { label: primary ? 'Primary' : 'Top ranked', tone: primary ? 'green' : 'amber' },
+      id: 'evaluation', title: 'Opportunity Evaluation', status: { label: primary ? 'Primary' : 'Top ranked', tone: primary ? 'green' : 'amber' },
       blocks: focus
         ? [{ kind: 'bars', title: `Scored: ${focus.name}`, rows: CRITERIA.map(c => ({ label: c, value: focus.scores[c] })) }]
         : [{ kind: 'list', title: 'Nothing to evaluate', items: ['All opportunities are rejected. Restore one to see its evaluation.'], tone: 'amber' }],
     },
-    { id: 'comparison', title: 'Opportunity Comparison', icon: <GitCompare className="w-4 h-4" />, wide: true, status: { label: `${live.length} compared`, tone: 'blue' }, blocks: comparisonBlocks },
-    { id: 'selection', title: 'Opportunity Selection', icon: <MousePointerClick className="w-4 h-4" />, status: primary ? { label: 'Primary chosen', tone: 'green' } : { label: 'Choose primary', tone: 'amber' }, custom: selectionCard },
+    { id: 'comparison', title: 'Opportunity Comparison', wide: true, status: { label: `${live.length} compared`, tone: 'blue' }, blocks: comparisonBlocks },
+    { id: 'selection', title: 'Opportunity Selection', status: primary ? { label: 'Primary chosen', tone: 'green' } : { label: 'Choose primary', tone: 'amber' }, custom: selectionCard },
     {
-      id: 'artifact', title: 'Opportunity Artifact', icon: <FileText className="w-4 h-4" />, status: primary ? { label: 'Draft v0.1', tone: 'green' } : { label: 'Awaiting selection', tone: 'slate' },
+      id: 'artifact', title: 'Opportunity Artifact', status: primary ? { label: 'Draft v0.1', tone: 'green' } : { label: 'Awaiting selection', tone: 'slate' },
       blocks: primary
         ? [{
             kind: 'facts', rows: [
@@ -210,10 +210,10 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
       subtitle="Where the validated problem becomes a ranked, selectable opportunity."
       badge={primary ? 'Opportunity Artifact · Draft v0.1' : 'Opportunity Artifact · Not started'}
       kpis={[
-        { label: 'Opportunities', value: live.length, hint: `${rejected.length} rejected`, icon: <Lightbulb className="w-4 h-4" />, tone: 'purple' },
-        { label: 'Top score', value: ranked[0] ? `${total(ranked[0])} / 10` : '—', hint: ranked[0]?.name, icon: <Trophy className="w-4 h-4" />, tone: 'green' },
-        { label: 'Primary', value: primary ? 'Chosen' : 'Pending', hint: primary?.name ?? 'Select one below', icon: <Target className="w-4 h-4" />, tone: primary ? 'green' : 'amber' },
-        { label: 'Open risks', value: (focus?.risks.length ?? 0) + (focus?.assumptions.length ?? 0), hint: 'Risks + assumptions to test', icon: <AlertTriangle className="w-4 h-4" />, tone: 'orange' },
+        { label: 'Opportunities', value: live.length, hint: `${rejected.length} rejected` },
+        { label: 'Top score', value: ranked[0] ? `${total(ranked[0])} / 10` : '—', hint: ranked[0]?.name },
+        { label: 'Primary', value: primary ? 'Chosen' : 'Pending', hint: primary?.name ?? 'Select one below' },
+        { label: 'Open risks', value: (focus?.risks.length ?? 0) + (focus?.assumptions.length ?? 0), hint: 'Risks + assumptions to test' },
       ]}
       cards={cards}
       csuiteStage="opportunity"

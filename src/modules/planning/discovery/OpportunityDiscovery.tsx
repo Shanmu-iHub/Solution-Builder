@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrowRight, CheckCircle2, Globe, Target, Users } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button, cx } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { OpportunityTab } from './OpportunityTab';
@@ -7,10 +7,10 @@ import { MarketDiscovery } from './MarketDiscovery';
 import { UserDiscovery } from './UserDiscovery';
 
 type TabKey = 'opportunity' | 'market' | 'customers';
-const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: 'opportunity', label: 'Opportunity', icon: <Target className="w-3.5 h-3.5" /> },
-  { key: 'market', label: 'Market & Industry', icon: <Globe className="w-3.5 h-3.5" /> },
-  { key: 'customers', label: 'Customer Discovery', icon: <Users className="w-3.5 h-3.5" /> },
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'opportunity', label: 'Opportunity' },
+  { key: 'market', label: 'Market & Industry' },
+  { key: 'customers', label: 'Customer Discovery' },
 ];
 
 export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
@@ -45,8 +45,8 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-6 space-y-6">
           <div>
-            <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Phase · Discovery</div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] mt-2">Opportunity &amp; Discovery</h1>
+            <div className="text-[12px] font-medium text-slate-500">Phase · Discovery</div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[#0F172A] mt-1">Opportunity &amp; Discovery</h1>
             <p className="text-[15px] text-slate-500 mt-2 max-w-2xl">Establish the market and customer context for this initiative.</p>
           </div>
 
@@ -61,7 +61,6 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
                   aria-current={active ? 'page' : undefined}
                   className={cx('flex items-center gap-1.5 pb-2.5 text-[14.5px] whitespace-nowrap border-b-2 -mb-px cursor-pointer transition-colors', active ? 'border-[#0F172A] text-[#0F172A] font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700')}
                 >
-                  <span className={active ? '' : 'opacity-70'}>{t.icon}</span>
                   {t.label}
                 </button>
               );
@@ -76,8 +75,8 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
 
       <div className="bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         {canContinue
-          ? <div className="flex items-center gap-2 text-emerald-600 text-[13.5px] font-bold"><CheckCircle2 className="w-4 h-4" /> Ready to continue</div>
-          : <div className="text-amber-600 text-[13.5px] font-bold">Select a primary opportunity to continue</div>}
+          ? <div className="text-[13.5px] text-slate-500">Ready to continue</div>
+          : <div className="text-[13.5px] text-slate-600">Select a primary opportunity to continue</div>}
         <Button variant="primary" disabled={!canContinue} onClick={next}>
           {isLast ? 'Confirm & Continue' : `Continue to ${TABS[idx + 1].label}`} <ArrowRight className="w-4 h-4" />
         </Button>
