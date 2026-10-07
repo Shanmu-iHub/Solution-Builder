@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Button, Input, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -62,6 +63,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <StageResourceActivity active={drafting} activity="Building the business model from confirmed outcomes" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
           <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 05 of 10</div>
@@ -76,7 +78,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
           
-          <Section num="01" title="Business model canvas" summary="Nine blocks" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
+          <Section num="01" title="Business model canvas" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
             <div className="pt-2 grid grid-cols-3 gap-3">
               {CANVAS.map((c, i) => (
                 <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
@@ -91,7 +93,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
             </div>
           </Section>
 
-          <Section num="02" title="Business case" summary="Reps get reimbursed without paper or chasing..." open={openSecs.case} onToggle={() => toggle('case')}>
+          <Section num="02" title="Business case" summary="Reps get reimbursed without paper" open={openSecs.case} onToggle={() => toggle('case')}>
             <div className="space-y-6 pt-2">
               <div>
                 <h4 className="text-[12.5px] font-bold text-slate-800 uppercase mb-2">Value Proposition</h4>
@@ -120,7 +122,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
             </div>
           </Section>
 
-          <Section num="03" title="Financial figures" summary="Optional · entered by you only" open={openSecs.fin} onToggle={() => toggle('fin')}>
+          {/* <Section num="03" title="Financial figures" summary="Optional · entered by you only" open={openSecs.fin} onToggle={() => toggle('fin')}>
             <div className="space-y-4 pt-2">
               <p className="text-[12.5px] text-slate-500 mb-4">Nothing here is estimated by AI. Leave blank if not known.</p>
               <div className="grid grid-cols-3 gap-4">
@@ -129,7 +131,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
                 <Input label="Yearly savings" placeholder="e.g. 30000" value={fin.save} onChange={e => setFin({...fin, save: e.target.value})} />
               </div>
             </div>
-          </Section>
+          </Section> */}
 
         </div>
 

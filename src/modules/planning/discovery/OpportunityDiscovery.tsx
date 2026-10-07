@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { Button, cx, sleep, CSuiteValidation } from '../../ui';
 import { usePlanning } from '../PlanningStore';
+import { StageResourceActivity } from './StageResourceActivity';
 
 const Section: React.FC<{
   num: string; title: string; summary: string; need?: string | null; open: boolean;
@@ -72,6 +73,7 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
+      <StageResourceActivity active={drafting} activity="Synthesizing opportunity and customer context" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
           <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 02 of 10</div>
