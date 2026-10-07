@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  X, CheckCircle2, ShieldCheck, 
-  ChevronRight, Check, SlidersHorizontal, ArrowRight,
-  TrendingUp, AlertCircle, Award, Sparkles
-} from 'lucide-react';
+import { X, ChevronRight, Check } from 'lucide-react';
 import { usePlanning } from '../PlanningStore';
 import { DiscoveryPage } from '../types';
 import { 
@@ -141,12 +137,9 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
         {/* Executive Header */}
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white shrink-0">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black uppercase tracking-wider text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded-full border border-indigo-700/50">
+                <span className="text-[12px] font-medium text-slate-300">
                   Governance Board
                 </span>
                 <span className="text-slate-500">•</span>
@@ -175,7 +168,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                 </div>
               </div>
               <div className="flex items-baseline gap-0.5">
-                <span className="text-2xl font-black text-amber-400">
+                <span className="text-2xl font-semibold text-white">
                   {overallAvgScore}
                 </span>
                 <span className="text-xs text-slate-400 font-semibold">/100</span>
@@ -210,7 +203,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                 className={cx(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border",
                   isActive
-                    ? "bg-white text-indigo-700 border-indigo-200 shadow-xs ring-1 ring-indigo-500/20"
+                    ? "bg-white text-slate-700 border-slate-200 shadow-xs ring-1 ring-slate-500/20"
                     : "bg-white/60 text-slate-600 border-slate-200/70 hover:bg-white hover:text-slate-900"
                 )}
               >
@@ -219,7 +212,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                   allValidated 
                     ? "bg-emerald-100 text-emerald-700" 
                     : isActive 
-                    ? "bg-indigo-100 text-indigo-700" 
+                    ? "bg-slate-100 text-slate-700" 
                     : "bg-slate-200 text-slate-600"
                 )}>
                   {allValidated ? <Check className="w-2.5 h-2.5" /> : idx + 1}
@@ -228,7 +221,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                 <span className={cx(
                   "text-[11px] font-mono font-bold px-1.5 py-0.2 rounded",
                   isActive 
-                    ? "bg-indigo-50 text-indigo-700" 
+                    ? "bg-slate-50 text-slate-700" 
                     : "bg-slate-100 text-slate-600"
                 )}>
                   {avg}
@@ -244,7 +237,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
               <span>Phase {phaseConfig.num}</span>
               <span>•</span>
-              <span className="text-indigo-600">{phaseConfig.tagline}</span>
+              <span className="text-slate-600">{phaseConfig.tagline}</span>
             </div>
             <h3 className="text-base font-bold text-slate-900 mt-0.5">
               {phaseConfig.title} — Executive Scoring Matrix
@@ -267,9 +260,8 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
 
             <button
               onClick={handleApprovePhaseGate}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:shadow"
+              className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-lg text-[13px] font-medium transition-colors cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4" />
               <span>Approve Phase Gate</span>
             </button>
           </div>
@@ -290,7 +282,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                   className={cx(
                     "bg-white rounded-xl border p-4 transition-all cursor-pointer flex flex-col justify-between group relative hover:shadow-md",
                     isSelected 
-                      ? "border-indigo-500 ring-2 ring-indigo-500/20 shadow-md bg-indigo-50/20" 
+                      ? "border-slate-500 ring-2 ring-slate-500/20 shadow-md bg-slate-50/20" 
                       : "border-slate-200/90 hover:border-slate-300"
                   )}
                 >
@@ -318,7 +310,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
 
                   {/* Executive Title (NO person name) */}
                   <div className="mb-3">
-                    <div className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                    <div className="text-sm font-bold text-slate-900 group-hover:text-slate-600 transition-colors">
                       {rev.title}
                     </div>
                     <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
@@ -335,7 +327,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                       <div className="flex items-baseline gap-0.5">
                         <span className={cx(
                           "text-xl font-black font-mono",
-                          rev.score >= 90 ? "text-emerald-600" : rev.score >= 80 ? "text-indigo-600" : "text-amber-600"
+                          rev.score >= 90 ? "text-emerald-600" : rev.score >= 80 ? "text-slate-600" : "text-amber-600"
                         )}>
                           {rev.score}
                         </span>
@@ -348,14 +340,14 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                       <div 
                         className={cx(
                           "h-full rounded-full transition-all duration-300",
-                          rev.score >= 90 ? "bg-emerald-500" : rev.score >= 80 ? "bg-indigo-500" : "bg-amber-500"
+                          rev.score >= 90 ? "bg-emerald-500" : rev.score >= 80 ? "bg-slate-500" : "bg-amber-500"
                         )}
                         style={{ width: `${rev.score}%` }}
                       />
                     </div>
 
                     {/* Card Footer prompt */}
-                    <div className="flex items-center justify-between mt-2.5 text-[11px] text-indigo-600 font-semibold group-hover:translate-x-0.5 transition-transform">
+                    <div className="flex items-center justify-between mt-2.5 text-[11px] text-slate-600 font-semibold group-hover:translate-x-0.5 transition-transform">
                       <span>View analysis</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </div>
@@ -369,7 +361,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
         {/* Footer Status Bar */}
         <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span>All 12 C-Suite evaluations recorded in enterprise audit log</span>
           </div>
 
@@ -408,7 +400,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                   <div className="text-xs text-slate-500 flex items-center gap-2">
                     <span>{activeRoleMeta.category}</span>
                     <span>•</span>
-                    <span className="font-semibold text-indigo-600">Phase {phaseConfig.num}: {phaseConfig.shortTitle}</span>
+                    <span className="font-semibold text-slate-600">Phase {phaseConfig.num}: {phaseConfig.shortTitle}</span>
                   </div>
                 </div>
               </div>
@@ -444,7 +436,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
                   Executive Findings & Strategic Critique
                 </label>
-                <div className="text-sm text-slate-700 p-3.5 bg-indigo-50/40 rounded-xl border border-indigo-100 leading-relaxed font-normal">
+                <div className="text-sm text-slate-700 p-3.5 bg-slate-50/40 rounded-xl border border-slate-100 leading-relaxed font-normal">
                   {activeMemberReview.findings}
                 </div>
               </div>
@@ -468,7 +460,6 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
                     <span className="text-xs font-bold text-slate-900">
                       Update {selectedRole} Evaluation Score
                     </span>
@@ -480,7 +471,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                       max={100}
                       value={activeMemberReview.score}
                       onChange={e => handleScoreChange(selectedRole, parseInt(e.target.value) || 0)}
-                      className="w-16 px-2 py-1 text-center font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:outline-hidden focus:border-indigo-500"
+                      className="w-16 px-2 py-1 text-center font-mono font-bold text-sm bg-white border border-slate-300 rounded-lg focus:outline-hidden focus:border-slate-500"
                     />
                     <span className="text-xs font-bold text-slate-400">/ 100</span>
                   </div>
@@ -516,10 +507,10 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                         key={pId} 
                         className={cx(
                           "flex flex-col items-center justify-center p-1.5 rounded-lg text-center transition-colors",
-                          isCur ? "bg-indigo-600 text-white font-bold" : "bg-white text-slate-700"
+                          isCur ? "bg-slate-600 text-white font-bold" : "bg-white text-slate-700"
                         )}
                       >
-                        <span className={cx("text-[9px] font-semibold", isCur ? "text-indigo-200" : "text-slate-400")}>
+                        <span className={cx("text-[9px] font-semibold", isCur ? "text-slate-200" : "text-slate-400")}>
                           P0{idx + 1}
                         </span>
                         <span className="text-xs font-bold font-mono">
@@ -549,7 +540,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                   className={cx(
                     "px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer",
                     activeMemberReview.status === 'Validated'
-                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                      ? "bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
                       : "bg-slate-200 hover:bg-slate-300 text-slate-700"
                   )}
                 >

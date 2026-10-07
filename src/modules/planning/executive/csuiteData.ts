@@ -1079,20 +1079,5 @@ export const INITIAL_CSUITE_DATA: Record<DiscoveryPage, CSuiteMemberReview[]> = 
   ]
 };
 
-export const getRoleTheme = (role: CSuiteRole) => {
-  switch (role) {
-    case 'CEO': return { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', badge: 'bg-purple-600', ring: 'ring-purple-500' };
-    case 'CTO': return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', badge: 'bg-blue-600', ring: 'ring-blue-500' };
-    case 'CFO': return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', badge: 'bg-emerald-600', ring: 'ring-emerald-500' };
-    case 'CPO': return { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', badge: 'bg-indigo-600', ring: 'ring-indigo-500' };
-    case 'COO': return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', badge: 'bg-amber-600', ring: 'ring-amber-500' };
-    case 'CMO': return { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', badge: 'bg-rose-600', ring: 'ring-rose-500' };
-    case 'CRO': return { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200', badge: 'bg-teal-600', ring: 'ring-teal-500' };
-    case 'CISO': return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', badge: 'bg-red-600', ring: 'ring-red-500' };
-    case 'CIO': return { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', badge: 'bg-sky-600', ring: 'ring-sky-500' };
-    case 'CDO': return { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-200', badge: 'bg-fuchsia-600', ring: 'ring-fuchsia-500' };
-    case 'CCO': return { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200', badge: 'bg-violet-600', ring: 'ring-violet-500' };
-    case 'CSO': return { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200', badge: 'bg-cyan-600', ring: 'ring-cyan-500' };
-    default: return { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200', badge: 'bg-slate-600', ring: 'ring-slate-500' };
-  }
-};
+/** One neutral style for every role: the role is identified by its title, not by a color. */
+export const getRoleTheme = (_role: CSuiteRole) => ({ bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200', badge: 'bg-slate-700', ring: 'ring-slate-400' });

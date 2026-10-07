@@ -219,15 +219,15 @@ export const makeProposal = (name: string): Proposal => ({
 
 export const DOC_DEFS: { type: DocType; title: string; description: string; abbr: string; color: string }[] = [
   { type: 'Solution Architecture Document', title: 'Solution Architecture Document', description: 'Business context, architecture style, key decisions and quality attributes.', abbr: 'SAD', color: 'text-blue-500' },
-  { type: 'Technical Design Document', title: 'Technical Design Document', description: 'Detailed technical choices, patterns and implementation guidance.', abbr: 'TDD', color: 'text-indigo-500' },
-  { type: 'API Endpoint List', title: 'API Endpoint List', description: 'REST resources, methods, request/response contracts and error model.', abbr: 'API_LIST', color: 'text-teal-500' },
+  { type: 'Technical Design Document', title: 'Technical Design Document', description: 'Detailed technical choices, patterns and implementation guidance.', abbr: 'TDD', color: 'text-slate-500' },
+  { type: 'API Endpoint List', title: 'API Endpoint List', description: 'REST resources, methods, request/response contracts and error model.', abbr: 'API_LIST', color: 'text-slate-500' },
   { type: 'Database Design Document', title: 'Database Design Document', description: 'Domain entities, relations, indexes and data lifecycle.', abbr: 'DDD', color: 'text-emerald-500' },
-  { type: 'High-Level Design Document', title: 'High-Level Design Document', description: 'Major components, responsibilities and interactions.', abbr: 'HLD', color: 'text-purple-500' },
-  { type: 'Integration Design Document', title: 'Integration Design Document', description: 'External systems, protocols, retries and failure handling.', abbr: 'IDD', color: 'text-orange-500' },
-  { type: 'Infrastructure Design Document', title: 'Infrastructure Design Document', description: 'Hosting topology, environments, scaling and observability.', abbr: 'INDD', color: 'text-sky-500' },
+  { type: 'High-Level Design Document', title: 'High-Level Design Document', description: 'Major components, responsibilities and interactions.', abbr: 'HLD', color: 'text-slate-500' },
+  { type: 'Integration Design Document', title: 'Integration Design Document', description: 'External systems, protocols, retries and failure handling.', abbr: 'IDD', color: 'text-slate-500' },
+  { type: 'Infrastructure Design Document', title: 'Infrastructure Design Document', description: 'Hosting topology, environments, scaling and observability.', abbr: 'INDD', color: 'text-slate-500' },
   { type: 'Security Design Document', title: 'Security Design Document', description: 'Authentication, authorisation, data protection and threat model.', abbr: 'SDD', color: 'text-rose-500' },
   { type: 'Low-Level Design Document', title: 'Low-Level Design Document', description: 'Module internals, class/sequence design and error handling.', abbr: 'LLD', color: 'text-amber-500' },
-  { type: 'AI Solution Design Document', title: 'AI Solution Design Document', description: 'Model usage, grounding, guardrails, evaluation and human oversight.', abbr: 'AISDD', color: 'text-fuchsia-500' },
+  { type: 'AI Solution Design Document', title: 'AI Solution Design Document', description: 'Model usage, grounding, guardrails, evaluation and human oversight.', abbr: 'AISDD', color: 'text-slate-500' },
 ];
 
 export { makeDocContent } from './docsContent';

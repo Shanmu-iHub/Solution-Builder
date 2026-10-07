@@ -39,8 +39,8 @@ export const SolutionDefinitionMap: React.FC<Props> = ({
         );
       case 'ready_for_review':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 text-[11px] font-bold tracking-wide uppercase">
-            <span className="w-2 h-2 rounded-full bg-indigo-500" /> Ready for review
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-700 border border-slate-200/80 text-[11px] font-bold tracking-wide uppercase">
+            <span className="w-2 h-2 rounded-full bg-slate-500" /> Ready for review
           </span>
         );
       case 'in_progress':
@@ -238,20 +238,20 @@ export const SolutionDefinitionMap: React.FC<Props> = ({
             <div>
               <div className="flex justify-between text-[12.5px] font-semibold text-slate-700 mb-1">
                 <span>Solution Readiness</span>
-                <span className="text-indigo-700 font-bold">{metrics.solutionReadiness}%</span>
+                <span className="text-slate-700 font-bold">{metrics.solutionReadiness}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full rounded-full bg-indigo-600 transition-all duration-500" style={{ width: `${metrics.solutionReadiness}%` }} />
+                <div className="h-full rounded-full bg-slate-600 transition-all duration-500" style={{ width: `${metrics.solutionReadiness}%` }} />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-[12.5px] font-semibold text-slate-700 mb-1">
                 <span>Architecture Spec Readiness</span>
-                <span className="text-purple-700 font-bold">{metrics.architectureReadiness}%</span>
+                <span className="text-slate-700 font-bold">{metrics.architectureReadiness}%</span>
               </div>
               <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full rounded-full bg-purple-600 transition-all duration-500" style={{ width: `${metrics.architectureReadiness}%` }} />
+                <div className="h-full rounded-full bg-slate-600 transition-all duration-500" style={{ width: `${metrics.architectureReadiness}%` }} />
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { AlertTriangle, CheckCircle2, Coins, Cpu, LayoutGrid, Timer, TrendingUp } from 'lucide-react';
-import { Badge, Button, Dialog, StatTile, Tone, cx } from '../../ui';
-import { FeatureCard, FeatureCardData } from './DiscoveryDashboard';
+import { CheckCircle2 } from 'lucide-react';
+import { Button, Dialog, Tone, cx } from '../../ui';
+import { Chip, FeatureCard, FeatureCardData, KpiTile } from './DiscoveryDashboard';
 
 /* Illustrative analysis for each framing option in Problem Discovery → Framing.
  * Money is USD thousands (AI estimates for the demo, not quotes). */
@@ -179,10 +179,10 @@ export const AnalysisChips: React.FC<{ id: string }> = ({ id }) => {
   if (!a) return null;
   return (
     <div className="flex flex-wrap gap-1.5 mt-2.5">
-      <Badge tone="blue">Feasibility {avg(a.feasibility)} / 10</Badge>
-      <Badge tone="slate">Build {k(oneTimeOf(a))}</Badge>
-      <Badge tone="teal">Time to value {a.timeToValue}</Badge>
-      <Badge tone="purple">Market: {a.sustainLabel}</Badge>
+      <Chip>Feasibility {avg(a.feasibility)} / 10</Chip>
+      <Chip>Build {k(oneTimeOf(a))}</Chip>
+      <Chip>Time to value {a.timeToValue}</Chip>
+      <Chip>Market: {a.sustainLabel}</Chip>
     </div>
   );
 };
@@ -202,7 +202,7 @@ const BMC_LAYOUT: { key: BmcKey; title: string; span: string }[] = [
 const Canvas: React.FC<{ bmc: Analysis['bmc'] }> = ({ bmc }) => (
   <div className="grid grid-cols-1 md:grid-cols-10 gap-2.5">
     {BMC_LAYOUT.map(b => (
-      <div key={b.key} className={cx('rounded-xl border p-3', b.key === 'value' ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-slate-200', b.span)}>
+      <div key={b.key} className={cx('rounded-xl border p-3', b.key === 'value' ? 'bg-slate-50 border-slate-300' : 'bg-white border-slate-200', b.span)}>
         <h5 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">{b.title}</h5>
         <ul className="space-y-1">
           {bmc[b.key].map(i => <li key={i} className="flex items-start gap-2 text-[13px] text-slate-700 leading-snug"><span className="w-1 h-1 rounded-full bg-slate-400 mt-[7px] shrink-0" />{i}</li>)}
@@ -218,13 +218,13 @@ export const StatementAnalysisDialog: React.FC<{
   const a = option ? ANALYSES[option.id] : null;
   const open = !!option && !!a;
   const cards: FeatureCardData[] = a ? [
-    { id: 'bmc', title: 'Business Model Canvas', icon: <LayoutGrid className="w-4 h-4" />, wide: true, status: { label: a.verdict.label, tone: a.verdict.tone }, custom: <Canvas bmc={a.bmc} /> },
+    { id: 'bmc', title: 'Business Model Canvas', wide: true, status: { label: a.verdict.label, tone: a.verdict.tone }, custom: <Canvas bmc={a.bmc} /> },
     {
-      id: 'tech', title: 'Technical Feasibility', icon: <Cpu className="w-4 h-4" />, status: { label: `${avg(a.feasibility)} / 10`, tone: avg(a.feasibility) >= 7.5 ? 'green' : 'blue' },
+      id: 'tech', title: 'Technical Feasibility', status: { label: `${avg(a.feasibility)} / 10`, tone: avg(a.feasibility) >= 7.5 ? 'green' : 'blue' },
       blocks: [{ kind: 'bars', title: 'Feasibility factors', rows: a.feasibility }, { kind: 'facts', rows: a.feasibilityFacts }],
     },
     {
-      id: 'cost', title: 'Cost', icon: <Coins className="w-4 h-4" />, status: { label: `3-yr ${k(tcoOf(a))}`, tone: 'slate' },
+      id: 'cost', title: 'Cost', status: { label: `3-yr ${k(tcoOf(a))}`, tone: 'slate' },
       blocks: [{
         kind: 'table', title: 'Estimate (USD)', head: ['Item', 'One-time', 'Monthly'], strongCol: 1, rows: [
           ...a.costs.map(c => [c.item, c.oneTime ? k(c.oneTime) : '—', c.monthly ? k(c.monthly) : '—']),
@@ -233,10 +233,10 @@ export const StatementAnalysisDialog: React.FC<{
       }, { kind: 'facts', rows: [{ label: '3-year cost', value: `${k(tcoOf(a))} (build plus 36 months of running cost)` }] }],
     },
     {
-      id: 'market', title: 'Market Sustainability', icon: <TrendingUp className="w-4 h-4" />, status: { label: a.sustainLabel, tone: avg(a.sustain) >= 6.5 ? 'green' : 'amber' },
+      id: 'market', title: 'Market Sustainability', status: { label: a.sustainLabel, tone: avg(a.sustain) >= 6.5 ? 'green' : 'amber' },
       blocks: [{ kind: 'bars', title: 'Will it hold up in the market?', rows: a.sustain }, { kind: 'facts', rows: a.sustainFacts }],
     },
-    { id: 'risks', title: 'Key Risks', icon: <AlertTriangle className="w-4 h-4" />, status: { label: `${a.risks.length} risks`, tone: 'amber' }, blocks: [{ kind: 'list', title: 'Watch out for', items: a.risks, tone: 'amber' }] },
+    { id: 'risks', title: 'Key Risks', status: { label: `${a.risks.length} risks`, tone: 'amber' }, blocks: [{ kind: 'list', title: 'Watch out for', items: a.risks, tone: 'amber' }] },
   ] : [];
 
   return (
@@ -259,10 +259,10 @@ export const StatementAnalysisDialog: React.FC<{
         <div className="space-y-5">
           <p className="text-[15px] font-medium text-[#0F172A] leading-relaxed border-l-4 border-blue-300 pl-4">{option.t}</p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatTile label="Feasibility" value={`${avg(a.feasibility)} / 10`} hint="Technical, average of 5 factors" icon={<Cpu className="w-4 h-4" />} tone="blue" />
-            <StatTile label="Build cost" value={k(oneTimeOf(a))} hint={`Then ${k(monthlyOf(a))} a month`} icon={<Coins className="w-4 h-4" />} tone="slate" />
-            <StatTile label="Time to value" value={a.timeToValue} hint="To a first usable release" icon={<Timer className="w-4 h-4" />} tone="teal" />
-            <StatTile label="Market outlook" value={a.sustainLabel} hint={`${avg(a.sustain)} / 10 sustainability`} icon={<TrendingUp className="w-4 h-4" />} tone={avg(a.sustain) >= 6.5 ? 'green' : 'amber'} />
+            <KpiTile label="Feasibility" value={`${avg(a.feasibility)} / 10`} hint="Technical, average of 5 factors" />
+            <KpiTile label="Build cost" value={k(oneTimeOf(a))} hint={`Then ${k(monthlyOf(a))} a month`} />
+            <KpiTile label="Time to value" value={a.timeToValue} hint="To a first usable release" />
+            <KpiTile label="Market outlook" value={a.sustainLabel} hint={`${avg(a.sustain)} / 10 sustainability`} />
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
             {cards.map((c, i) => <FeatureCard key={c.id} card={c} index={i} />)}

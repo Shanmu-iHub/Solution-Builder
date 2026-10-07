@@ -1,931 +1,166 @@
-import React, { useState } from 'react';
-import { 
-  ArrowRight, CheckCircle2, Check, LayoutDashboard, 
-  Sparkles, Cpu, Network, X, Smartphone, 
-  CheckCheck, Workflow, Building2, Boxes, Compass
-} from 'lucide-react';
-import { Button, cx } from '../../ui';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Plus, Sparkles } from 'lucide-react';
+import { Button, Input, Select, cx, sleep, uid } from '../../ui';
+import { CSuiteValidation } from '../shared/CSuiteSummary';
 import { usePlanning } from '../PlanningStore';
+import { StageResourceActivity } from './StageResourceActivity';
+import { CAPS_BY_PACKAGE, CapabilityCard, CapabilityDialog, CapabilityEdit, ROOT_CAUSES, applyEdit, newCustomCapability, rootCausesCovered } from './SolutionCapabilities';
 
-export interface SolutionPackage {
-  id: string;
-  name: string;
-  category: string;
-  badge: string;
-  recommended: boolean;
-  tagline: string;
-  description: string;
-  metrics: {
-    feasibility: string;
-    cost: string;
-    time: string;
-    fit: string;
-    risk: 'Low' | 'Medium' | 'High';
-  };
-  highlights: string[];
-  inScope: { title: string; desc: string }[];
-  outScope: { title: string; desc: string }[];
-  features: { name: string; role: string; desc: string; type: string }[];
-  techStack: { frontend: string; backend: string; ai: string; integration: string };
-  capabilities: {
-    id: string;
-    title: string;
-    category: string;
-    categoryColor: string;
-    rc: string;
-    desc: string;
-  }[];
-}
+const Section: React.FC<{
+  num: string; title: string; summary: string; need?: string | null; open: boolean;
+  onToggle: () => void; children: React.ReactNode;
+}> = ({ num, title, summary, need, open, onToggle, children }) => (
+  <div className={cx('border border-slate-200 bg-white rounded-xl overflow-hidden transition-all duration-200', open ? 'shadow-sm' : 'hover:border-slate-300')}>
+    <button onClick={onToggle} className="w-full flex items-center gap-3 px-5 py-4 cursor-pointer text-left bg-white">
+      <span className="text-[13.5px] font-bold text-slate-400 font-mono">{num}</span>
+      <span className="text-[15px] font-bold text-[#0F172A]">{title}</span>
+      {need && <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-[11.5px] font-bold tracking-wide uppercase">{need}</span>}
+      <span className="flex-1 min-w-0 text-[13.5px] text-slate-500 truncate ml-2">{summary}</span>
+      <span className="text-slate-400">{open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</span>
+    </button>
+    {open && <div className="px-5 pb-5 pt-1 border-t border-slate-100">{children}</div>}
+  </div>
+);
 
-const PACKAGES: SolutionPackage[] = [
-  {
-    id: 'sol_custom',
-    name: 'Custom Mobile App & Web Dashboard',
-    category: 'Bespoke Architecture',
-    badge: 'Recommended',
-    recommended: true,
-    tagline: 'Tailored React Native mobile scanner + web approval orchestration with automated ERP bridge.',
-    description: 'Engineered specifically for field sales workflows: offline receipt capture, instantaneous OCR parsing, and policy-driven approval routing directly into accounting.',
-    metrics: {
-      feasibility: '9 / 10',
-      cost: '$140K',
-      time: '8–10 weeks',
-      fit: '95%',
-      risk: 'Low'
-    },
-    highlights: [
-      'Native offline camera capture with auto-edge detection',
-      'AI OCR extraction with 99.2% key field accuracy',
-      'Web approval queue with 48h SLA escalation rules',
-      'Direct 2-way REST API connector for ERP ledger'
-    ],
-    inScope: [
-      { 
-        title: 'Cross-Platform Mobile Scanner', 
-        desc: 'Native iOS & Android mobile application for reps with on-device camera auto-capture and local offline queue.' 
-      },
-      { 
-        title: 'AI Receipt Parsing Service', 
-        desc: 'Multi-field OCR engine extracting vendor, date, line items, currency, VAT, and total spend in sub-second latency.' 
-      },
-      { 
-        title: 'Manager Approval Web Portal', 
-        desc: 'Centralized web dashboard with 1-click batch approvals, exception highlighting, and email quick-actions.' 
-      },
-      { 
-        title: 'SLA Tracking & Auto-Escalation', 
-        desc: 'Configurable approval escalation rules that auto-reassign claims stalled past 48 hours to alternate managers.' 
-      },
-      { 
-        title: 'Automated ERP Accounting Bridge', 
-        desc: 'Direct bi-directional API synchronization posting verified claims into general ledger without manual re-keying.' 
-      },
-      { 
-        title: 'Audit Trail & Receipt Archival', 
-        desc: 'Immutable compliance logging and tamper-proof cloud storage for thermal receipt scans.' 
-      }
-    ],
-    outScope: [
-      { 
-        title: 'Personal Credit Card Statement Feeds', 
-        desc: 'Parsing personal bank feeds (deferred to corporate card integration in Phase 2).' 
-      },
-      { 
-        title: 'Corporate Travel Booking Engine', 
-        desc: 'Flight and hotel reservation booking is handled externally through corporate travel partners.' 
-      },
-      { 
-        title: 'Payroll Direct Deposit Adjustments', 
-        desc: 'Payroll calculation and tax withholdings remain inside core HRIS software.' 
-      }
-    ],
-    features: [
-      { 
-        name: 'Point-of-Sale Camera Scanner', 
-        role: 'Field Sales Reps', 
-        desc: 'Instantly captures physical receipts with auto-crop, glare reduction, and instant preview.', 
-        type: 'Mobile App' 
-      },
-      { 
-        name: 'Real-Time Policy Compliance Validator', 
-        role: 'Sales Reps & Managers', 
-        desc: 'Validates meal and travel spend limits against corporate policy before submission.', 
-        type: 'AI Service' 
-      },
-      { 
-        name: 'Manager Exception Queue', 
-        role: 'Line Managers', 
-        desc: 'Triage inbox with one-click approve, reject, or request clarification options.', 
-        type: 'Web Portal' 
-      },
-      { 
-        name: 'Finance Ledger Sync Engine', 
-        role: 'Accounting & Finance', 
-        desc: 'Automated ledger batch posting with reconciliation logs and exception alerts.', 
-        type: 'Integration API' 
-      }
-    ],
-    techStack: {
-      frontend: 'React Native (iOS/Android) + React 18 Web Portal',
-      backend: 'Node.js / Express microservices + PostgreSQL',
-      ai: 'Cloud Vision OCR + LLM structured JSON parser',
-      integration: 'RESTful bi-directional connector with webhook listeners'
-    },
-    capabilities: [
-      { 
-        id: 'cap_cust_capture', 
-        title: 'Mobile Camera Capture & Offline Queue', 
-        category: 'Mobile / POS', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Allows field sales reps to photograph receipts on the road even without network connectivity.' 
-      },
-      { 
-        id: 'cap_cust_ocr', 
-        title: 'AI Automated Receipt Data Extraction', 
-        category: 'AI / Vision', 
-        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200', 
-        rc: 'Receipts exist only on physical paper until manual filing', 
-        desc: 'Instantly digitizes vendor, date, line items, and totals, eliminating manual spreadsheet entry.' 
-      },
-      { 
-        id: 'cap_cust_queue', 
-        title: 'Manager Approval Queue with SLA Rules', 
-        category: 'Workflow', 
-        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Replaces unstructured email chains with a centralized queue and automated 48-hour reminders.' 
-      },
-      { 
-        id: 'cap_cust_status', 
-        title: 'Live Claim Status & Push Tracking', 
-        category: 'Transparency', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Claims wait in managers’ email inboxes without reminders', 
-        desc: 'Provides reps live progress tracking from submission through approval and payout.' 
-      },
-      { 
-        id: 'cap_cust_erp', 
-        title: 'Automated Direct ERP Ledger Sync', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Directly posts approved expense lines into accounting software, removing finance re-keying.' 
-      }
-    ]
-  },
-  {
-    id: 'sol_concur',
-    name: 'SAP Concur Enterprise Deployment',
-    category: 'Enterprise SaaS',
-    badge: 'Turnkey Enterprise',
-    recommended: false,
-    tagline: 'Turnkey Concur enterprise rollout utilizing standard expense policy templates and native SAP connectors.',
-    description: 'Deploy standard SAP Concur cloud suite with pre-built enterprise ledger connectors and corporate compliance rules.',
-    metrics: {
-      feasibility: '7 / 10',
-      cost: '$210K',
-      time: '14–16 weeks',
-      fit: '78%',
-      risk: 'Medium'
-    },
-    highlights: [
-      'Standard SAP Concur mobile application',
-      'Pre-configured corporate policy rule templates',
-      'Certified SAP ERP ledger integration module',
-      'High annual enterprise licensing overhead'
-    ],
-    inScope: [
-      { 
-        title: 'Concur Mobile App Rollout', 
-        desc: 'Standard client rollout across iOS and Android corporate fleet devices.' 
-      },
-      { 
-        title: 'Standard Approval Hierarchy', 
-        desc: 'Multi-tier manager approval workflow mapped to corporate active directory.' 
-      },
-      { 
-        title: 'Corporate Policy Compliance Engine', 
-        desc: 'Automated flags for weekend spend, alcohol limits, and per-diem violations.' 
-      },
-      { 
-        title: 'Certified SAP ERP Connector', 
-        desc: 'Native adapter connecting Concur directly to SAP S/4HANA financial ledger.' 
-      }
-    ],
-    outScope: [
-      { 
-        title: 'Custom Mobile UX Modifications', 
-        desc: 'Standard Concur UI cannot be customized for simplified 1-tap rep capture.' 
-      },
-      { 
-        title: 'Legacy Non-SAP Accounting Integration', 
-        desc: 'Requires separate middleware if non-SAP ledgers are introduced.' 
-      },
-      { 
-        title: 'Custom Offline LLM Receipt Models', 
-        desc: 'Relies on Concur ExpenseIt proprietary OCR processing pipeline.' 
-      }
-    ],
-    features: [
-      { 
-        name: 'Concur ExpenseIt Mobile Intake', 
-        role: 'Sales Reps', 
-        desc: 'Standard mobile receipt upload with background optical character recognition.', 
-        type: 'SaaS Mobile' 
-      },
-      { 
-        name: 'Manager Approval Worklist', 
-        role: 'Managers', 
-        desc: 'Web portal for reviewing expense line items and policy exception notices.', 
-        type: 'SaaS Web' 
-      },
-      { 
-        name: 'Policy Audit Automation', 
-        role: 'Auditors', 
-        desc: 'System flags claims exceeding limits for secondary manual inspection.', 
-        type: 'SaaS Rules' 
-      },
-      { 
-        name: 'Native SAP ERP Financial Posting', 
-        role: 'Finance', 
-        desc: 'Automated scheduled sync posting to accounts payable ledger.', 
-        type: 'Native Connector' 
-      }
-    ],
-    techStack: {
-      frontend: 'SAP Concur Standard Mobile Client & Web Portal',
-      backend: 'SAP Concur Cloud SaaS Platform',
-      ai: 'ExpenseIt Optical Recognition',
-      integration: 'SAP Certified Native ERP Connector'
-    },
-    capabilities: [
-      { 
-        id: 'cap_concur_mob', 
-        title: 'Standard Concur Mobile Photo Intake', 
-        category: 'Mobile SaaS', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Provides mobile camera capture using standard SAP Concur mobile application.' 
-      },
-      { 
-        id: 'cap_concur_policy', 
-        title: 'Automated Policy Rules & Exception Flags', 
-        category: 'Governance', 
-        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Flags policy violations before claims reach manager sign-off.' 
-      },
-      { 
-        id: 'cap_concur_route', 
-        title: 'Standard Multi-Tier Manager Worklist', 
-        category: 'Workflow', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Claims wait in managers’ email inboxes without reminders', 
-        desc: 'Centralizes approvals into a dedicated Concur web worklist.' 
-      },
-      { 
-        id: 'cap_concur_erp', 
-        title: 'Native SAP S/4HANA Ledger Posting', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Posts approved claim records directly to SAP enterprise general ledger.' 
-      }
-    ]
-  },
-  {
-    id: 'sol_power',
-    name: 'PowerApps & Teams Approval Workflow',
-    category: 'Low-Code / M365',
-    badge: 'Rapid Prototype',
-    recommended: false,
-    tagline: 'Rapid low-code deployment leveraging corporate Office 365 licenses, Power Automate, and Teams cards.',
-    description: 'Fastest time-to-market using existing corporate Microsoft 365 licensing, PowerApps canvas forms, and Teams approval cards.',
-    metrics: {
-      feasibility: '8 / 10',
-      cost: '$75K',
-      time: '4–6 weeks',
-      fit: '72%',
-      risk: 'Medium'
-    },
-    highlights: [
-      'Uses existing Microsoft 365 corporate licenses',
-      'PowerApps mobile form for field sales receipt capture',
-      'Teams adaptive cards for manager approvals',
-      'SharePoint list storage with periodic CSV export to ERP'
-    ],
-    inScope: [
-      { 
-        title: 'PowerApps Canvas Mobile App', 
-        desc: 'Simple canvas interface for reps to take photos and enter expense details.' 
-      },
-      { 
-        title: 'AI Builder Receipt Model', 
-        desc: 'Microsoft AI Builder basic OCR extracting total spend and store names.' 
-      },
-      { 
-        title: 'Teams Adaptive Card Routing', 
-        desc: 'Sends interactive cards directly into manager Microsoft Teams chat with 1-click buttons.' 
-      },
-      { 
-        title: 'SharePoint Staging Table', 
-        desc: 'Stores claim records in cloud lists with basic status auditing.' 
-      }
-    ],
-    outScope: [
-      { 
-        title: 'Direct Live 2-Way ERP Sync', 
-        desc: 'Requires manual CSV export or scheduled batch files rather than real-time API.' 
-      },
-      { 
-        title: 'High-Volume Scalability (>10k claims/mo)', 
-        desc: 'Power Automate run limits make high-volume scale costly over time.' 
-      },
-      { 
-        title: 'Advanced Offline Mobile Caching', 
-        desc: 'Canvas app requires active internet connectivity during claim submission.' 
-      }
-    ],
-    features: [
-      { 
-        name: 'Canvas Mobile Form', 
-        role: 'Sales Reps', 
-        desc: 'Simple photo upload form within Microsoft PowerApps container.', 
-        type: 'Canvas App' 
-      },
-      { 
-        name: 'Teams Interactive Approval Cards', 
-        role: 'Managers', 
-        desc: 'Direct chat notifications in Microsoft Teams with approve/reject buttons.', 
-        type: 'Teams Card' 
-      },
-      { 
-        name: 'Power Automate Reminders', 
-        role: 'All Users', 
-        desc: 'Basic automated flow triggering email reminders every 3 business days.', 
-        type: 'Cloud Flow' 
-      },
-      { 
-        name: 'Finance CSV Export Utility', 
-        role: 'Finance', 
-        desc: 'Admin export view to generate monthly CSV files for finance upload.', 
-        type: 'SharePoint View' 
-      }
-    ],
-    techStack: {
-      frontend: 'Microsoft PowerApps Canvas App',
-      backend: 'Power Automate Cloud Flows + SharePoint Online',
-      ai: 'Microsoft AI Builder Receipt Processing',
-      integration: 'Power Automate CSV Export / Dataverse'
-    },
-    capabilities: [
-      { 
-        id: 'cap_power_form', 
-        title: 'PowerApps Mobile Photo Submission', 
-        category: 'Low-Code', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Enables mobile photo uploads inside corporate Microsoft 365 PowerApps app.' 
-      },
-      { 
-        id: 'cap_power_ocr', 
-        title: 'AI Builder Basic OCR Data Parsing', 
-        category: 'AI Builder', 
-        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200', 
-        rc: 'Receipts exist only on physical paper until manual filing', 
-        desc: 'Extracts store name and total transaction cost from photo attachments.' 
-      },
-      { 
-        id: 'cap_power_teams', 
-        title: 'Teams Adaptive Card Approval Routing', 
-        category: 'Collaboration', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Delivers approval prompts right into managers’ existing Microsoft Teams client.' 
-      },
-      { 
-        id: 'cap_power_export', 
-        title: 'SharePoint Ledger Staging & CSV Export', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Stages approved claims and produces structured CSV exports for finance.' 
-      }
-    ]
-  }
+const PACKAGES = [
+  { id: 'sol_custom', t: 'Custom mobile app & web dashboard', d: 'A tailored app for reps and a web approval queue for managers.' },
+  { id: 'sol_concur', t: 'SAP Concur deployment', d: 'Roll out the standard Concur mobile app and workflow.' },
+  { id: 'sol_power', t: 'PowerApps & Teams approval', d: 'Use Office 365 to scan receipts and route approvals in Teams.' }
 ];
 
-export const SolutionDiscovery: React.FC<{ 
-  projectId: string; 
-  projectName: string; 
-  onContinue: () => void 
-}> = ({ projectId, projectName, onContinue }) => {
+export const SolutionDiscovery: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
   const { state, patch } = usePlanning();
   const s = state(projectId);
+  const [busy, setBusy] = useState(false);
+  const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ pkgs: true, caps: true });
+  const [drafting, setDrafting] = useState(false);
+  const [generated, setGenerated] = useState(false);
+  const [selPkg, setSelPkg] = useState<string | null>(null);
+  const [openCap, setOpenCap] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newRc, setNewRc] = useState(ROOT_CAUSES[0]);
+  const edits = s.capabilityEdits ?? {};
+  const baseCaps = selPkg ? [...(CAPS_BY_PACKAGE[selPkg] ?? []), ...((s.customCapabilities ?? {})[selPkg] ?? [])] : [];
+  const caps = baseCaps.map(c => applyEdit(c, edits[c.id]));
+  const saveEdit = (id: string, e: CapabilityEdit) => patch(projectId, st => ({ capabilityEdits: { ...(st.capabilityEdits ?? {}), [id]: e } }));
+  const addCapability = () => {
+    const t = newName.trim();
+    if (!t || !selPkg) return;
+    const cap = newCustomCapability(uid('cap'), t, newRc);
+    patch(projectId, st => ({ customCapabilities: { ...(st.customCapabilities ?? {}), [selPkg]: [...((st.customCapabilities ?? {})[selPkg] ?? []), cap] } }));
+    setNewName(''); setAdding(false); setOpenCap(cap.id);
+  };
+  const pkgName = PACKAGES.find(p => p.id === selPkg)?.t ?? '';
 
-  // Selected solution package (default to custom or saved state)
-  const [selPkg, setSelPkg] = useState<string>(() => {
-    return s.selectedPackage || 'sol_custom';
-  });
+  const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
+  
+  const hasSolution = !!s.solutionConfirmed;
 
-  // Modal inspection dashboard state (Tab: Scope, Features, Capabilities)
-  const [inspectPkgId, setInspectPkgId] = useState<string | null>(null);
-  const [modalTab, setModalTab] = useState<'scope' | 'features' | 'capabilities'>('scope');
-
-  const selectedPackageData = PACKAGES.find(p => p.id === selPkg) || PACKAGES[0];
-  const inspectedPackage = inspectPkgId ? PACKAGES.find(p => p.id === inspectPkgId) : null;
-
-  const handleSelectPackage = (id: string) => {
-    setSelPkg(id);
-    patch(projectId, { selectedPackage: id });
+  const generate = async () => {
+    setBusy(true); setDrafting(true);
+    await sleep(2000);
+    setGenerated(true);
+    setBusy(false); setDrafting(false);
+    setOpenSecs({ pkgs: true, caps: true });
   };
 
   const confirm = () => {
-    patch(projectId, { 
-      solutionConfirmed: true, 
-      selectedPackage: selPkg,
-      discoveryPage: 'business_model' 
-    });
-    onContinue();
+    patch(projectId, { discoveryPage: 'business_model', solutionConfirmed: true });
   };
+
+  // No initial state setup required for SolutionDiscovery beyond open sections
+
+
+  const needPkg = !selPkg;
+  const canConfirm = !needPkg;
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
-      {/* Top Header */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-slate-200 bg-white shrink-0">
+      <StageResourceActivity active={drafting} activity="Comparing solution options against confirmed needs" />
+      <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-[#0F172A]">Solution Discovery</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Evaluate recommended architectural packages against confirmed requirements, root causes, and business goals.
-          </p>
+          <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 04 of 10</div>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Solution Discovery</h1>
+          <p className="text-[15px] text-slate-500 mt-1">Packages and capabilities.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-semibold flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5" />
-            <span>Step 4 · Architectural Selection</span>
-          </span>
+        <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[12.5px] font-bold">
+          Solution Brief · Draft v0.1
         </div>
       </div>
 
-      {/* Main Full-Width Workspace (No Congested Side Panel) */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                Recommended Solution
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select the architectural package that best addresses the core problem and delivers on executive objectives.
-              </p>
-            </div>
-            <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-lg shadow-2xs">
-              3 Architectures Evaluated
-            </span>
-          </div>
-
-          {/* Solution Cards Grid */}
-          <div className="space-y-4">
-            {PACKAGES.map((pkg) => {
-              const isSelected = selPkg === pkg.id;
-
-              return (
-                <div
-                  key={pkg.id}
-                  onClick={() => handleSelectPackage(pkg.id)}
-                  className={cx(
-                    "rounded-2xl border transition-all duration-200 bg-white p-6 sm:p-7 cursor-pointer relative overflow-hidden shadow-2xs hover:shadow-xs",
-                    isSelected 
-                      ? "border-blue-600 ring-2 ring-blue-600/20 bg-blue-50/10" 
-                      : "border-slate-200 hover:border-slate-300"
-                  )}
+      <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
+          
+          <Section num="01" title="Recommended Solutions" summary={PACKAGES.find(p => p.id === selPkg)?.t || ''} need={needPkg ? "Pick one" : null} open={openSecs.pkgs} onToggle={() => toggle('pkgs')}>
+            <div className="space-y-3 pt-2">
+              <p className="text-[12.5px] text-slate-500 mb-2">Pick the solution that best addresses the problem.</p>
+              {PACKAGES.map(p => (
+                <button 
+                  key={p.id} 
+                  onClick={() => { setSelPkg(p.id); setOpenCap(null); }}
+                  className={cx("w-full text-left p-4 rounded-xl border transition cursor-pointer flex flex-col gap-1", selPkg === p.id ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300")}
                 >
-                  {/* Top Row: Icon, Category, Title, Tagline, Selection Button */}
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div className="flex items-start gap-4 flex-1">
-                      {/* Architecture Icon */}
-                      <div className={cx(
-                        "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs mt-0.5",
-                        pkg.id === 'sol_custom' ? "bg-blue-50 text-blue-600 border border-blue-200/80" :
-                        pkg.id === 'sol_concur' ? "bg-purple-50 text-purple-600 border border-purple-200/80" :
-                        "bg-amber-50 text-amber-600 border border-amber-200/80"
-                      )}>
-                        {pkg.id === 'sol_custom' && <Smartphone className="w-5 h-5" />}
-                        {pkg.id === 'sol_concur' && <Building2 className="w-5 h-5" />}
-                        {pkg.id === 'sol_power' && <Workflow className="w-5 h-5" />}
-                      </div>
-
-                      <div className="space-y-1.5 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                            {pkg.category}
-                          </span>
-                          {pkg.recommended && (
-                            <span className="text-[10.5px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                              <Sparkles className="w-3 h-3" /> Recommended
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
-                          {pkg.name}
-                        </h3>
-
-                        <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed max-w-3xl">
-                          {pkg.tagline}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Selection State Button */}
-                    <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectPackage(pkg.id);
-                        }}
-                        className={cx(
-                          "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
-                          isSelected
-                            ? "bg-blue-600 text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                        )}
-                      >
-                        {isSelected ? (
-                          <>
-                            <Check className="w-3.5 h-3.5" />
-                            <span>Selected</span>
-                          </>
-                        ) : (
-                          <span>Select Solution</span>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Middle Row: Metrics Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-5 pt-5 border-t border-slate-100 text-xs">
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Feasibility
-                      </span>
-                      <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                        {pkg.metrics.feasibility}
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Est. Build Cost
-                      </span>
-                      <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                        {pkg.metrics.cost}
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Time to Value
-                      </span>
-                      <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                        {pkg.metrics.time}
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Arch. Fit Score
-                      </span>
-                      <span className="text-sm font-bold text-blue-600 mt-0.5 block">
-                        {pkg.metrics.fit}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bottom Row: Scope Highlights & View Details Action */}
-                  <div className="mt-5 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-100">
-                    <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                        Key Deliverables:
-                      </span>
-                      {pkg.highlights.map((hl, idx) => (
-                        <span 
-                          key={idx} 
-                          className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-[11px] font-medium"
-                        >
-                          {hl}
-                        </span>
-                      ))}
-                    </div>
-
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      icon={<LayoutDashboard className="w-3.5 h-3.5" />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setInspectPkgId(pkg.id);
-                        setModalTab('scope');
-                      }}
-                      className="text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs self-start sm:self-auto cursor-pointer"
-                    >
-                      View Details &amp; Scope
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Sticky Action Bar */}
-      <div className="bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shrink-0 shadow-xs">
-        <div className="flex items-center gap-2.5 text-xs font-semibold">
-          <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Selected Architecture:</span>
-          </span>
-          <span className="text-slate-900 font-bold">
-            {selectedPackageData.name}
-          </span>
-          {selectedPackageData.recommended && (
-            <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              Recommended
-            </span>
-          )}
-        </div>
-
-        <Button
-          variant="primary"
-          onClick={confirm}
-          className="px-6 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 shadow-xs cursor-pointer flex items-center gap-1.5"
-        >
-          <span>Confirm &amp; Continue</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Button>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* SOLUTION DASHBOARD MODAL (View Details: In-Scope, Out-of-Scope, Features) */}
-      {/* ========================================================================= */}
-      {inspectedPackage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-200 bg-slate-50/80 flex items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={cx(
-                    "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border",
-                    inspectedPackage.recommended 
-                      ? "bg-blue-50 text-blue-700 border-blue-200" 
-                      : "bg-slate-100 text-slate-600 border-slate-200"
-                  )}>
-                    {inspectedPackage.category}
-                  </span>
-                  {inspectedPackage.recommended && (
-                    <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Recommended Architecture
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900">
-                  {inspectedPackage.name}
-                </h3>
-                <p className="text-xs text-slate-600 mt-1">
-                  {inspectedPackage.description}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                {selPkg === inspectedPackage.id ? (
-                  <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5" /> Selected
-                  </span>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => {
-                      handleSelectPackage(inspectedPackage.id);
-                    }}
-                    className="text-xs font-bold bg-blue-600 hover:bg-blue-700"
-                  >
-                    Select this Solution
-                  </Button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setInspectPkgId(null)}
-                  className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
+                  <span className={cx("text-[15px] font-bold", selPkg === p.id ? "text-[#1D4ED8]" : "text-[#0F172A]")}>{p.t}</span>
+                  <span className="text-[13.5px] text-slate-600">{p.d}</span>
                 </button>
-              </div>
+              ))}
             </div>
+          </Section>
 
-            {/* Modal Sub-Header Tabs (No Repetitive Capabilities) */}
-            <div className="flex items-center gap-2 px-6 pt-3 border-b border-slate-200 bg-white">
-              <button
-                type="button"
-                onClick={() => setModalTab('scope')}
-                className={cx(
-                  "px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5",
-                  modalTab === 'scope'
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                )}
-              >
-                <CheckCheck className="w-3.5 h-3.5" />
-                <span>Scope (In-Scope &amp; Out-Scope)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setModalTab('features')}
-                className={cx(
-                  "px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5",
-                  modalTab === 'features'
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                )}
-              >
-                <Boxes className="w-3.5 h-3.5" />
-                <span>Core Features ({inspectedPackage.features.length})</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setModalTab('capabilities')}
-                className={cx(
-                  "px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5",
-                  modalTab === 'capabilities'
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                )}
-              >
-                <Boxes className="w-3.5 h-3.5" />
-                <span>Capabilities ({inspectedPackage.capabilities.length})</span>
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
-              {/* TAB 1: SCOPE ARCHITECTURE (IN-SCOPE vs OUT-OF-SCOPE) */}
-              {modalTab === 'scope' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* IN-SCOPE */}
-                  <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                          <Check className="w-3 h-3" />
-                        </span>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                          In-Scope Deliverables
-                        </h4>
-                      </div>
-                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        {inspectedPackage.inScope.length} Included
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {inspectedPackage.inScope.map((item, idx) => (
-                        <div key={idx} className="p-3 rounded-lg bg-slate-50/70 border border-slate-100 space-y-1">
-                          <span className="text-xs font-bold text-slate-900 block">
-                            {item.title}
-                          </span>
-                          <p className="text-[11.5px] text-slate-600 leading-relaxed">
-                            {item.desc}
-                          </p>
-                        </div>
-                      ))}
+          {selPkg && (
+            <Section num="02" title="Capabilities" summary={`${caps.length} capabilities covering ${rootCausesCovered(caps)} root causes`} open={openSecs.caps} onToggle={() => toggle('caps')}>
+              <div className="space-y-3 pt-2">
+                <p className="text-[12.5px] text-slate-500 mb-2">Capabilities of <span className="font-semibold text-slate-700">{pkgName}</span>. Open one to see its features, fit, effort and risks.</p>
+                {caps.map(c => <CapabilityCard key={c.id} cap={c} onOpen={() => setOpenCap(c.id)} />)}
+                {adding ? (
+                  <div className="rounded-xl border border-dashed border-slate-300 bg-white p-3.5 space-y-2.5">
+                    <p className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Add a capability</p>
+                    <div className="grid md:grid-cols-[1.2fr_1.2fr_auto_auto] gap-2 items-center">
+                      <Input autoFocus value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCapability()} placeholder="Capability name" />
+                      <Select value={newRc} onChange={e => setNewRc(e.target.value)}>{ROOT_CAUSES.map(r => <option key={r} value={r}>Fixes: {r}</option>)}</Select>
+                      <Button variant="primary" size="sm" icon={<Plus className="w-3.5 h-3.5" />} disabled={!newName.trim()} onClick={addCapability}>Add</Button>
+                      <Button variant="ghost" size="sm" onClick={() => { setAdding(false); setNewName(''); }}>Cancel</Button>
                     </div>
                   </div>
-
-                  {/* OUT-OF-SCOPE */}
-                  <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs">
-                          ✕
-                        </span>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                          Out-of-Scope Boundaries
-                        </h4>
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        {inspectedPackage.outScope.length} Excluded
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {inspectedPackage.outScope.map((item, idx) => (
-                        <div key={idx} className="p-3 rounded-lg bg-slate-50/70 border border-slate-100 space-y-1">
-                          <span className="text-xs font-bold text-slate-700 block">
-                            {item.title}
-                          </span>
-                          <p className="text-[11.5px] text-slate-500 leading-relaxed">
-                            {item.desc}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: CORE FEATURES */}
-              {modalTab === 'features' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {inspectedPackage.features.map((feat, idx) => (
-                    <div key={idx} className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10.5px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                          {feat.type}
-                        </span>
-                        <span className="text-[11px] font-medium text-slate-400">
-                          Target: {feat.role}
-                        </span>
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {feat.name}
-                      </h4>
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        {feat.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* TAB 3: CAPABILITIES */}
-              {modalTab === 'capabilities' && (
-                <div className="space-y-3">
-                  {inspectedPackage.capabilities.map((cap) => (
-                    <div key={cap.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs flex items-start gap-4">
-                      <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                        <Check className="w-4 h-4" />
-                      </span>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-slate-900">
-                            {cap.title}
-                          </h4>
-                          <span className={cx("text-[10px] font-bold uppercase px-2 py-0.5 rounded border", cap.categoryColor)}>
-                            {cap.category}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          {cap.desc}
-                        </p>
-                        <div className="pt-1">
-                          <span className="text-[10.5px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 inline-block">
-                            Fixes Root Cause: {cap.rc}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 bg-white flex items-center justify-between">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setInspectPkgId(null)}
-                className="text-xs font-bold"
-              >
-                Close
-              </Button>
-
-              <div className="flex items-center gap-2">
-                {selPkg !== inspectedPackage.id && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      handleSelectPackage(inspectedPackage.id);
-                      setInspectPkgId(null);
-                    }}
-                    className="text-xs font-bold bg-blue-600 hover:bg-blue-700"
-                  >
-                    Select this Package &amp; Close
-                  </Button>
+                ) : (
+                  <Button icon={<Plus className="w-3.5 h-3.5" />} onClick={() => setAdding(true)}>Add capability</Button>
                 )}
               </div>
+            </Section>
+          )}
+
+        </div>
+
+        {/* Side Panel */}
+        <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shrink-0">
+          <div className="p-5 border-b border-slate-200 bg-slate-50/50">
+            <h3 className="text-[19px] font-bold text-[#0F172A]">Solution Brief</h3>
+            <span className="inline-block mt-1 px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-[11.5px] font-bold uppercase tracking-widest">Draft v0.1</span>
+          </div>
+          <div className="flex-1 p-5 overflow-y-auto space-y-5">
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selected Package</span><p className="text-[14.5px] text-[#0F172A] leading-snug">{selPkg ? PACKAGES.find(p => p.id === selPkg)?.t : 'Not decided'}</p></div>
+            <div><span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Capabilities</span><ul className="text-[14.5px] text-[#0F172A] leading-snug list-disc pl-4 space-y-1">{selPkg ? caps.map(c => <li key={c.id}>{c.t}</li>) : <li>Not decided</li>}</ul></div>
+            <div className="pt-2">
+              <CSuiteValidation stageId="solution" status={canConfirm ? 'Validated' : 'Pending'} />
             </div>
           </div>
+          <div className="p-5 border-t border-slate-200 bg-slate-50/50 space-y-3">
+            {canConfirm ? (
+              <>
+                <div className="flex items-center gap-2 text-emerald-600 text-[13.5px] font-bold mb-2"><CheckCircle2 className="w-4 h-4" /> Ready to confirm</div>
+                <Button variant="primary" className="w-full text-[15px] py-2.5" onClick={confirm}>Confirm & Continue <ArrowRight className="w-4 h-4 ml-1" /></Button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 text-amber-600 text-[13.5px] font-bold mb-2">Pending decisions</div>
+                <Button className="w-full text-[15px] py-2.5" disabled>Confirm Solution</Button>
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+      <CapabilityDialog cap={caps.find(c => c.id === openCap) ?? null} packageName={pkgName} onClose={() => setOpenCap(null)} onEdit={e => openCap && saveEdit(openCap, e)} />
     </div>
   );
 };

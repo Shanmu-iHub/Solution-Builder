@@ -40,7 +40,7 @@ export const StageResourceActivity: React.FC<StageResourceActivityProps> = ({
           <div>
             <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400"><Sparkles className="h-3.5 w-3.5" /> Skills</div>
             <div className="flex flex-wrap gap-1.5">
-              {skills.map(asset => <span key={asset.id} className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700">{asset.displayName}</span>)}
+              {skills.map(asset => <span key={asset.id} className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">{asset.displayName}</span>)}
             </div>
           </div>
         )}

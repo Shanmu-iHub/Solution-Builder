@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, ShieldCheck, Lock, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Lock, AlertTriangle, Loader2 } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
 import { cx, useToast } from '../ui';
 import { usePlanning } from './PlanningStore';
@@ -25,11 +25,18 @@ import { DependencyBanner } from './shared/DependencyBanner';
 import { CSuiteExecutivePanel } from './executive/CSuiteExecutivePanel';
 import { PHASE_CONFIGS, ORDERED_PHASES, isPhaseInputCompleted, isPhaseUnlocked } from './map/mapData';
 import { PlanningNavRail } from './navigation/PlanningNavRail';
-import { PlanningStageHeader } from './shared/PlanningStageHeader';
 import { PlanningExecutivePanel } from './executive/PlanningExecutivePanel';
-import { INITIAL_PLANNING_EXEC, avgScore } from './executive/planningExecutives';
-import { PLANNING_STAGE_BY_ID, PLANNING_STAGE_IDS, PlanningStageId, getStageStatus } from './map/planningMap';
+import { INITIAL_PLANNING_EXEC } from './executive/planningExecutives';
+import { PlanningStageId, getStageStatus } from './map/planningMap';
+import { ResourceRunContext } from './shared/ResourceRun';
+import { KnowledgePopup, KnowledgeRunDialog, SkillsPopup, SkillsRunDialog } from './shared/PlanningResourcePopups';
+import { stageSkills } from './shared/stageResources';
+import { relatedProjects } from './kbReferences';
+import { detectDomain } from './archModel';
 import { CSuiteMemberReview } from './executive/csuiteData';
+
+const HEADER_BTN = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer';
+const HEADER_BTN_PRIMARY = 'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors cursor-pointer';
 
 const STAGES: { id: PlanningStage; label: string }[] = [
   { id: 'requirement_context', label: 'Requirement Gathering' },
@@ -60,6 +67,17 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
   // Solution Planning: nav rail, executive panel and per-stage C-Suite reviews
   const [planRailCollapsed, setPlanRailCollapsed] = useState(false);
   const [planExecOpen, setPlanExecOpen] = useState(false);
+  // Skills / Knowledge Base popups and what the current stage is busy loading
+  const [skillsOpen, setSkillsOpen] = useState(false);
+  const [kbOpen, setKbOpen] = useState(false);
+  // While a stage generates it asks for the Skills / Knowledge Base popup to run, and waits until it closes itself.
+  const [run, setRun] = useState<'skills' | 'kb' | null>(null);
+  const runResolve = useRef<(() => void) | null>(null);
+  const runApi = useMemo(() => {
+    const present = (kind: 'skills' | 'kb') => new Promise<void>(resolve => { runResolve.current = resolve; setRun(kind); });
+    return { presentSkills: () => present('skills'), presentKnowledge: () => present('kb') };
+  }, []);
+  const finishRun = () => { runResolve.current?.(); runResolve.current = null; setRun(null); };
   const [planExec, setPlanExec] = useState<Record<PlanningStageId, CSuiteMemberReview[]>>(INITIAL_PLANNING_EXEC);
 
   useEffect(() => { setCanvasMode(true); return () => setCanvasMode(false); }, [setCanvasMode]);
@@ -76,6 +94,8 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
     if (order.indexOf(next) > order.indexOf(persisted)) setStage(projectId, next); 
   };
   const maxReached = Math.max(planningStages.indexOf(active), planningStages.indexOf(persisted));
+  const projectDescription = `${project.description ?? ''} ${s.idea}`.trim();
+  const planDomain = detectDomain(project.name, projectDescription);
 
   const handleSelectPhase = (phase: DiscoveryPage) => {
     if (!isPhaseUnlocked(s, phase)) {
@@ -120,21 +140,21 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
               className="flex items-center gap-1.5 text-[13.5px] font-semibold text-slate-500 hover:text-[#0F172A] cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Solutions</span>
+              <span className="hidden 2xl:inline">Solutions</span>
             </button>
-            <span className="text-slate-300">/</span>
-            <span className="text-[#0F172A] font-bold text-[14px] truncate max-w-[240px]">
+            <span className="text-slate-300 hidden 2xl:inline">/</span>
+            <span className="text-[#0F172A] font-bold text-[14px] truncate max-w-[170px] 2xl:max-w-[240px]">
               {project.name}
             </span>
           </div>
 
           {/* Center: Stage Switcher (Solution Planning locked until Requirement Gathering completed) */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => setActive('requirement_context')}
               className={cx(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
-                isRequirementMode ? "bg-slate-900 text-white shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                "px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors cursor-pointer whitespace-nowrap",
+                isRequirementMode ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
               )}
             >
               1. Requirement Gathering
@@ -153,9 +173,9 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
                 advance('solution_dashboard');
               }}
               className={cx(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+                "px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap",
                 !isRequirementMode 
-                  ? "bg-slate-900 text-white shadow-xs cursor-pointer" 
+                  ? "bg-slate-900 text-white cursor-pointer" 
                   : !isReqGatheringCompleted
                   ? "text-slate-400 bg-slate-100/70 border border-slate-200/60 cursor-not-allowed"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
@@ -166,53 +186,39 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
             </button>
           </div>
 
-          {/* Right: Executive Panel Button & Progression Button */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Right: review panels and progression */}
+          <div className="flex items-center gap-2 shrink-0">
             {isRequirementMode ? (
               <>
-                {/* Executive C-Suite Validation Panel Button */}
-                <button
-                  onClick={() => setExecutivePanelOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200/90 hover:bg-purple-100 transition-colors cursor-pointer shadow-2xs"
-                >
-                  <ShieldCheck className="w-4 h-4 text-purple-600" />
-                  <span>Executive Panel</span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px] font-extrabold uppercase">
-                    C-Suite
-                  </span>
-                </button>
-
-                {/* Progression Button */}
+                <button onClick={() => setExecutivePanelOpen(true)} className={HEADER_BTN}>Executive Panel</button>
                 {isReqGatheringCompleted ? (
-                  <button
-                    type="button"
-                    onClick={() => advance('solution_dashboard')}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer shadow-xs"
-                  >
+                  <button type="button" onClick={() => advance('solution_dashboard')} className={HEADER_BTN_PRIMARY}>
                     <span>Continue to Solution Planning</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleNextPhase}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
-                  >
-                    <span>{activeWorkspacePage === 'documentation' ? 'Complete & Validate' : 'Next Phase →'}</span>
+                  <button type="button" onClick={handleNextPhase} className={HEADER_BTN}>
+                    {activeWorkspacePage === 'documentation' ? 'Complete & Validate' : 'Next phase'}
                   </button>
                 )}
               </>
             ) : (
-              <button
-                onClick={() => setPlanExecOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200/90 hover:bg-purple-100 transition-colors cursor-pointer shadow-2xs"
-              >
-                <ShieldCheck className="w-4 h-4 text-purple-600" />
-                <span>Executive Panel</span>
-                <span className="px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px] font-extrabold uppercase">
-                  C-Suite
-                </span>
-              </button>
+              <>
+                <button onClick={() => setSkillsOpen(true)} className={HEADER_BTN}>
+                  {run === 'skills' && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />}
+                  <span>Skills</span>
+                  <span className="text-slate-400 tabular-nums">{stageSkills(active as PlanningStageId, project.name, projectDescription).length}</span>
+                </button>
+                {/* Knowledge Base only applies to the Documentation stage */}
+                {active === 'documentation' && (
+                  <button onClick={() => setKbOpen(true)} className={HEADER_BTN}>
+                    {run === 'kb' && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />}
+                    <span>Knowledge Base</span>
+                    <span className="text-slate-400 tabular-nums">{relatedProjects(planDomain).length}</span>
+                  </button>
+                )}
+                <button onClick={() => setPlanExecOpen(true)} className={HEADER_BTN}>Executive Panel</button>
+              </>
             )}
           </div>
         </div>
@@ -313,11 +319,11 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
 
         {/* CASE 2: In Solution Planning Mode (left rail with locked / open stages, like Requirement Gathering) */}
         {!isRequirementMode && (
+          <ResourceRunContext.Provider value={runApi}>
           <div className="flex-1 flex overflow-hidden">
             <PlanningNavRail
               active={active}
               maxReached={maxReached}
-              scores={Object.fromEntries(PLANNING_STAGE_IDS.map(id => [id, avgScore(planExec[id])])) as Record<PlanningStageId, number>}
               onSelect={id => setActive(id)}
               onBackToRequirements={() => setActive('requirement_context')}
               collapsed={planRailCollapsed}
@@ -325,12 +331,6 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
             />
 
             <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-white">
-              <PlanningStageHeader
-                stage={PLANNING_STAGE_BY_ID[active]}
-                status={getStageStatus(active, active, maxReached)}
-                reviews={planExec[active]}
-                onOpenExecutives={() => setPlanExecOpen(true)}
-              />
               <div className="flex-1 overflow-hidden flex flex-col min-h-0">
                 {active === 'solution_dashboard' && <SolutionDashboardPhase projectId={projectId} projectName={project.name} onComplete={() => advance('documentation')} />}
                 {active === 'documentation' && <DocumentationPhase projectId={projectId} projectName={project.name} onComplete={() => advance('architecture_validation')} />}
@@ -341,6 +341,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
               </div>
             </div>
           </div>
+          </ResourceRunContext.Provider>
         )}
       </div>
 
@@ -352,6 +353,23 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
         projectName={project.name}
         initialPhase={activeWorkspacePage}
       />
+
+      {/* Solution Planning: Skills and Knowledge Base popups */}
+      {!isRequirementMode && (
+        <>
+          <SkillsPopup
+            open={skillsOpen}
+            onClose={() => setSkillsOpen(false)}
+            projectName={project.name}
+            description={projectDescription}
+            activeStage={active}
+            statusOf={id => getStageStatus(id, active, maxReached)}
+          />
+          <KnowledgePopup open={kbOpen && active === 'documentation'} onClose={() => setKbOpen(false)} projectName={project.name} domain={planDomain} />
+          {run === 'skills' && <SkillsRunDialog stage={active} projectName={project.name} description={projectDescription} onDone={finishRun} />}
+          {run === 'kb' && <KnowledgeRunDialog projectName={project.name} domain={planDomain} onDone={finishRun} />}
+        </>
+      )}
 
       {/* Solution Planning C-Suite Panel */}
       <PlanningExecutivePanel

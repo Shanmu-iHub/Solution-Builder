@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Loader2, Sparkles, Check, X } from 'lucide-react';
-import { Button, cx, sleep, CSuiteValidation } from '../../ui';
+import { Button, cx, sleep } from '../../ui';
+import { CSuiteValidation } from '../shared/CSuiteSummary';
 import { usePlanning } from '../PlanningStore';
 import { StageResourceActivity } from './StageResourceActivity';
 
