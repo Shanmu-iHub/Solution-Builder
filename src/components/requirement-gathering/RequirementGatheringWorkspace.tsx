@@ -1,254 +1,124 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '../../context/NavigationContext';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { StageId, StageStatus, ExecutiveReview, StageGateEvaluation } from '../../services/csuite/types';
+import { StageId, StageStatus } from '../../services/csuite/types';
 import { StageRouter } from '../../services/csuite/StageRouter';
-import { MasterAgent } from '../../services/csuite/MasterAgent';
 import { StageStepper } from './StageStepper';
+import { RGStoreProvider, useRGStore } from './engine/RGStore';
 
-// 10 Stages
 import { IdeaUnderstandingStage } from './stages/IdeaUnderstandingStage';
-import { OpportunityDiscoveryStage } from './stages/OpportunityDiscoveryStage';
-import { ProblemDiscoveryStage } from './stages/ProblemDiscoveryStage';
-import { SolutionDiscoveryStage } from './stages/SolutionDiscoveryStage';
-import { BusinessModelStage } from './stages/BusinessModelStage';
-import { ProductDefinitionStage } from './stages/ProductDefinitionStage';
-import { RequirementsStage } from './stages/RequirementsStage';
-import { DocumentsStage } from './stages/DocumentsStage';
-import { ReviewStage } from './stages/ReviewStage';
-import { HandoffStage } from './stages/HandoffStage';
+import { PhaseStage } from './engine/PhaseStage';
+import { PHASE_CONFIGS } from './engine/phaseConfigs';
 
-export const RequirementGatheringWorkspace: React.FC = () => {
+
+const STATUS_LABEL: Record<StageStatus, string> = {
+  Draft: 'Not started',
+  'In Progress': 'In progress',
+  'Needs Validation': 'Needs your input',
+  Validated: 'Confirmed',
+  Blocked: 'On hold',
+  Completed: 'Confirmed'
+};
+
+const STATUS_STYLE: Record<StageStatus, string> = {
+  Draft: 'bg-slate-100 text-slate-600',
+  'In Progress': 'bg-blue-50 text-blue-700',
+  'Needs Validation': 'bg-amber-50 text-amber-800',
+  Validated: 'bg-emerald-50 text-emerald-700',
+  Blocked: 'bg-rose-50 text-rose-700',
+  Completed: 'bg-emerald-50 text-emerald-700'
+};
+
+export const RequirementGatheringWorkspace: React.FC = () => (
+  <RGStoreProvider>
+    <WorkspaceContent />
+  </RGStoreProvider>
+);
+
+const WorkspaceContent: React.FC = () => {
   const { setCurrentView } = useNavigation();
+  const { statuses, setStatus } = useRGStore();
 
-  // Active Stage (Default: 'idea-understanding')
   const [currentStageId, setCurrentStageId] = useState<StageId>('idea-understanding');
+  // Furthest stage the user has reached — stages beyond it can't be opened from the stage bar
+  const [maxReachedIndex, setMaxReachedIndex] = useState(0);
 
-  // Stage Statuses
-  const [stageStatuses, setStageStatuses] = useState<Record<StageId, StageStatus>>({
-    'idea-understanding': 'Validated',
-    'opportunity': 'In Progress',
-    'problem-discovery': 'Draft',
-    'solution-discovery': 'Draft',
-    'business-model': 'Draft',
-    'product-definition': 'Draft',
-    'requirements': 'Draft',
-    'documents': 'Draft',
-    'review': 'Draft',
-    'handoff': 'Draft'
-  });
-
-  // Validation Scenarios per stage ('approved' | 'needs-changes')
-  const [stageScenarios, setStageScenarios] = useState<Record<StageId, 'approved' | 'needs-changes'>>({
-    'idea-understanding': 'approved',
-    'opportunity': 'approved',
-    'problem-discovery': 'approved',
-    'solution-discovery': 'approved',
-    'business-model': 'approved',
-    'product-definition': 'approved',
-    'requirements': 'approved',
-    'documents': 'approved',
-    'review': 'approved',
-    'handoff': 'approved'
-  });
-
-  // Current stage C-Suite reviews & Gate
-  const [reviews, setReviews] = useState<ExecutiveReview[]>([]);
-  const [gateEvaluation, setGateEvaluation] = useState<StageGateEvaluation | null>(null);
-  const [isRevalidating, setIsRevalidating] = useState<boolean>(false);
-
+  const allStageIds = StageRouter.getAllStages().map((s) => s.id);
   const currentStageConfig = StageRouter.resolve(currentStageId);
   const prevStageId = StageRouter.getPreviousStage(currentStageId);
-  const prevStageConfig = prevStageId ? StageRouter.resolve(prevStageId) : null;
   const nextStageId = StageRouter.getNextStage(currentStageId);
   const nextStageConfig = nextStageId ? StageRouter.resolve(nextStageId) : null;
-  const currentScenario = stageScenarios[currentStageId] || 'approved';
+  const currentStatus = statuses[currentStageId];
+  // Continue stays locked until the user confirms (or approves) the stage output
+  const canContinue = currentStatus === 'Completed';
 
-  // Load / run C-Suite validation whenever currentStageId or scenario changes
-  useEffect(() => {
-    let isCancelled = false;
-
-    const runValidation = async () => {
-      setIsRevalidating(true);
-      const result = await MasterAgent.startStage(
-        currentStageId,
-        { stage: currentStageId, version: 'v2.0' },
-        {},
-        currentScenario
-      );
-
-      if (!isCancelled) {
-        setReviews(result.reviews);
-        setGateEvaluation(result.gate);
-        setIsRevalidating(false);
-
-        // Update stage status based on decision
-        setStageStatuses((prev) => ({
-          ...prev,
-          [currentStageId]: result.gate.decision === 'APPROVED' ? 'Validated' : 'Blocked'
-        }));
-      }
-    };
-
-    runValidation();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [currentStageId, currentScenario]);
-
-  // Scenario Switcher (Happy path vs Needs changes)
-  const handleScenarioChange = (scenario: 'approved' | 'needs-changes') => {
-    setStageScenarios((prev) => ({
-      ...prev,
-      [currentStageId]: scenario
-    }));
+  const goTo = (id: StageId) => {
+    setCurrentStageId(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Revalidate action
-  const handleRevalidate = async () => {
-    setIsRevalidating(true);
-    // Revalidation simulates user fixing the stage issue and rerunning the executives
-    const result = await MasterAgent.revalidateStage(currentStageId);
-    setReviews(result.reviews);
-    setGateEvaluation(result.gate);
-    setIsRevalidating(false);
-
-    setStageScenarios((prev) => ({
-      ...prev,
-      [currentStageId]: 'approved'
-    }));
-
-    setStageStatuses((prev) => ({
-      ...prev,
-      [currentStageId]: 'Validated'
-    }));
-  };
-
-  // Advance to next stage
   const handleContinue = () => {
-    if (nextStageId) {
-      // Mark current stage as Completed
-      setStageStatuses((prev) => ({
-        ...prev,
-        [currentStageId]: 'Completed',
-        [nextStageId]: prev[nextStageId] === 'Draft' ? 'In Progress' : prev[nextStageId]
-      }));
-
-      setCurrentStageId(nextStageId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handlePrevStage = () => {
-    const prevId = StageRouter.getPreviousStage(currentStageId);
-    if (prevId) {
-      setCurrentStageId(prevId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleNextStage = () => {
-    if (nextStageId) {
-      setCurrentStageId(nextStageId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if (!nextStageId || !canContinue) return;
+    if (statuses[nextStageId] === 'Draft') setStatus(nextStageId, 'In Progress');
+    setMaxReachedIndex((prev) => Math.max(prev, allStageIds.indexOf(nextStageId)));
+    goTo(nextStageId);
   };
 
   const renderActiveStageContent = () => {
-    switch (currentStageId) {
-      case 'idea-understanding':
-        return <IdeaUnderstandingStage />;
-      case 'opportunity':
-        return <OpportunityDiscoveryStage />;
-      case 'problem-discovery':
-        return <ProblemDiscoveryStage />;
-      case 'solution-discovery':
-        return <SolutionDiscoveryStage />;
-      case 'business-model':
-        return <BusinessModelStage />;
-      case 'product-definition':
-        return <ProductDefinitionStage />;
-      case 'requirements':
-        return <RequirementsStage />;
-      case 'documents':
-        return <DocumentsStage />;
-      case 'review':
-        return <ReviewStage />;
-      case 'handoff':
-        return <HandoffStage />;
-      default:
-        return <IdeaUnderstandingStage />;
-    }
+    const config = PHASE_CONFIGS[currentStageId];
+    // key resets local state when switching between config-driven stages
+    return config ? <PhaseStage key={currentStageId} config={config} /> : <IdeaUnderstandingStage />;
   };
 
   return (
-    <div className="w-full pb-20 animate-fade-in select-none">
-      
-      {/* 1. Stage Stepper Navigation Header */}
+    <div className="w-full animate-fade-in">
       <StageStepper
         currentStageId={currentStageId}
-        stageStatuses={stageStatuses}
-        onSelectStage={(id) => {
-          setCurrentStageId(id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onPrevStage={handlePrevStage}
-        onNextStage={handleNextStage}
+        stageStatuses={statuses}
+        maxReachedIndex={maxReachedIndex}
+        onSelectStage={goTo}
       />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
-        
-        {/* 2. Stage Title & Eyebrow */}
-        <div className="space-y-1">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            {currentStageConfig.phaseLabel}
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            {currentStageConfig.title}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-3xl leading-relaxed">
-            {currentStageConfig.subtitle}
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{currentStageConfig.title}</h1>
+            <p className="text-sm text-slate-500 max-w-3xl">{currentStageConfig.subtitle}</p>
+          </div>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLE[currentStatus]}`}>
+            {STATUS_LABEL[currentStatus]}
+          </span>
         </div>
 
-        {/* 3. Main Stage Content */}
         {renderActiveStageContent()}
+      </div>
 
-        {/* 4. Stage Progression Navigation */}
-        <div className="mt-12 pt-6 border-t border-slate-200 flex items-center justify-between gap-4">
+      {/* Single sticky footer: Back + one primary action */}
+      <div className="sticky bottom-0 z-20 mt-8 bg-white/95 backdrop-blur border-t border-slate-200">
+        <div className="pl-4 sm:pl-6 lg:pl-8 pr-20 py-3 flex items-center justify-between gap-4">
           {prevStageId ? (
             <button
               type="button"
-              onClick={handlePrevStage}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+              onClick={() => goTo(prevStageId)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium text-slate-700 cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Previous Stage ({prevStageConfig?.title || 'Back'})</span>
+              <ArrowLeft className="w-4 h-4" /> Back
             </button>
           ) : (
             <div />
           )}
-
-          {nextStageId ? (
+          <div className="flex items-center gap-3">
+            {!canContinue && <span className="hidden sm:inline text-xs text-slate-500">Confirm this stage to continue</span>}
             <button
               type="button"
-              onClick={handleContinue}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#18181b] hover:bg-black text-white text-xs font-bold transition-all shadow-xs cursor-pointer group"
+              onClick={nextStageId ? handleContinue : () => setCurrentView('solution-builder-ide')}
+              disabled={!canContinue}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#18181b] hover:bg-black text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
-              <span>Continue to {nextStageConfig?.title || 'Next Stage'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              {nextStageId ? `Continue to ${nextStageConfig?.title}` : 'Proceed to Solution Builder IDE'}
+              <ArrowRight className="w-4 h-4" />
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCurrentView('solution-builder-ide')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#18181b] hover:bg-black text-white text-xs font-bold transition-all shadow-xs cursor-pointer group"
-            >
-              <span>Proceed to Solution Builder IDE</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          )}
+          </div>
         </div>
       </div>
     </div>
