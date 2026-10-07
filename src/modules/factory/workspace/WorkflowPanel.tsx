@@ -44,10 +44,27 @@ const INITIAL_WORKFLOWS: WorkflowItem[] = [
   { id: 10, endpoint: '/api/notifications', method: 'GET', description: 'Get notifications', workflowName: 'Notifications', status: 'Not Started', progress: 0 },
 ];
 
-export const WorkflowPanel: React.FC<{ projectName?: string }> = ({ projectName = 'ExpensifyIQ' }) => {
+export const WorkflowPanel: React.FC<{
+  projectName?: string;
+  isWorkflowReady?: boolean;
+}> = ({ projectName = 'ExpensifyIQ', isWorkflowReady = true }) => {
   const { toast } = useToast();
   const [workflows, setWorkflows] = useState<WorkflowItem[]>(INITIAL_WORKFLOWS);
   const [search, setSearch] = useState('');
+
+  if (!isWorkflowReady) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center text-center p-8 bg-white font-sans">
+        <div className="w-14 h-14 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center mb-4 shadow-2xs">
+          <Layers className="w-6 h-6" />
+        </div>
+        <h4 className="text-[16px] font-bold text-slate-900 mb-1">Backend Workflow Classifier</h4>
+        <p className="text-[13px] text-slate-500 max-w-sm leading-relaxed">
+          Endpoints and backend workflows will be classified and compiled during the context-architect execution stage.
+        </p>
+      </div>
+    );
+  }
   const [statusFilter, setStatusFilter] = useState<'All' | 'Completed' | 'In Progress' | 'Pending' | 'Not Started'>('All');
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowItem | null>(null);
   const [generatingAll, setGeneratingAll] = useState(false);

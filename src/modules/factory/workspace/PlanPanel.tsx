@@ -8,11 +8,19 @@ interface Props {
   projectId: string;
   state: WorkspaceState;
   canProceed?: boolean;
+  isPlanReady?: boolean;
   onSubmitClarifications: (answers: Record<string, { question: string; answer: string }>) => Promise<void>;
   onProceed: () => void;
 }
 
-export const PlanPanel: React.FC<Props> = ({ projectId, state, canProceed, onSubmitClarifications, onProceed }) => {
+export const PlanPanel: React.FC<Props> = ({
+  projectId,
+  state,
+  canProceed,
+  isPlanReady = true,
+  onSubmitClarifications,
+  onProceed,
+}) => {
   const [answers, setAnswers] = useState<Record<string, { question: string; answer: string }>>({});
   const [custom, setCustom] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -106,7 +114,7 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, canProceed, onSub
             })}
             <div className="flex items-center justify-between text-[13.5px] text-slate-500 font-mono pb-4"><span>{answeredCount} of {state.questions.length} decisions selected</span><span className="text-slate-400">Click “Generate plan” above when ready</span></div>
           </div>
-        ) : state.planMarkdown ? (
+        ) : state.planMarkdown && isPlanReady ? (
           <div className="max-w-4xl mx-auto">
             <Card className="!p-6 md:!p-8">
               <div className="flex items-center gap-2 text-[13.5px] font-mono text-slate-500 pb-4 mb-4 border-b border-slate-200"><FileText className="w-3.5 h-3.5" /><span className="font-semibold uppercase tracking-wider text-[12.5px]">Artifact: implementation_plan.md</span></div>
@@ -126,9 +134,13 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, canProceed, onSub
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mb-4"><Sparkles className="w-6 h-6" /></div>
-            <h4 className="text-[15px] font-bold text-[#0F172A] mb-1">No plan yet</h4>
-            <p className="text-[13.5px] text-slate-500 max-w-md">Describe what you want to build in the chat. I’ll ask a few architecture questions and then draft the implementation plan here.</p>
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+              <Sparkles className="w-6 h-6 text-amber-500" />
+            </div>
+            <h4 className="text-[16px] font-bold text-slate-900 mb-1">Synthesizing Implementation Plan</h4>
+            <p className="text-[13px] text-slate-500 max-w-sm">
+              The technical plan will appear here once drafted by the agent. Click &apos;Start Application Generation&apos; in the chat panel to begin.
+            </p>
           </div>
         )}
         {submitting && <div className="fixed inset-0 pointer-events-none flex items-end justify-center pb-10"><span className="bg-[#0F172A] text-white text-[13.5px] px-4 py-2 rounded-full flex items-center gap-2 shadow-modal"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Synthesizing implementation plan…</span></div>}
