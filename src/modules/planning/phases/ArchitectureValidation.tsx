@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Activity, AlertTriangle, ArrowRight, CheckCircle2, FileText, GitBranch, Link as LinkIcon, Loader2, Play, XCircle } from 'lucide-react';
-import { Badge, Button, Card, Dialog, ProgressBar, cx, sleep } from '../../ui';
+import React, { useMemo, useState } from 'react';
+import { Activity, AlertTriangle, ArrowRight, CheckCircle2, FileText, GitBranch, Link as LinkIcon, Loader2, Play, RefreshCw, XCircle } from 'lucide-react';
+import { Badge, Button, Card, Dialog, ProgressBar, cx, sleep, useToast } from '../../ui';
 import { usePlanning } from '../PlanningStore';
-import { DIMENSION_CRITERIA, DOC_DEFS, makeFindings } from '../content';
+import { DIMENSION_CRITERIA, DOC_DEFS, makeDocContent, makeFindings } from '../content';
+import { SkillsPanel, skillsFor, useSkillLoader } from '../SkillsLoader';
 import { Finding } from '../types';
 import { CSuiteValidation } from '../../ui/CSuiteValidation';
 
@@ -16,20 +17,43 @@ const Ring: React.FC<{ value: number; color: string }> = ({ value, color }) => {
 };
 
 export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: () => void }> = ({ projectId, onComplete }) => {
-  const { state, patch } = usePlanning();
+  const { state, patch, projects } = usePlanning();
   const s = state(projectId);
+  const { toast } = useToast();
+  const project = projects.find(p => p.id === projectId);
   const [busy, setBusy] = useState(false);
+  const [regen, setRegen] = useState<string | null>(null);
   const [dimModal, setDimModal] = useState(false);
   const [docModal, setDocModal] = useState<{ abbr: string; label: string; findings: Finding[] } | null>(null);
   const v = s.validation;
   const done = v.status === 'completed';
+  const skills = useMemo(() => skillsFor('validation', project?.name ?? '', project?.description), [project?.name, project?.description]);
+  const loader = useSkillLoader(skills, done);
 
   const validate = async () => {
     setBusy(true);
     patch(projectId, st => ({ validation: { ...st.validation, status: 'validating' } }));
-    await sleep(3200);
+    await loader.load();
+    await sleep(2400);
     patch(projectId, { validation: { status: 'completed', findings: makeFindings(), at: new Date().toISOString() } });
     setBusy(false);
+  };
+
+  /** Rewrites a document that failed validation, clears its failed findings and stamps the validation time. */
+  const regenerate = async (abbr: string) => {
+    const def = DOC_DEFS.find(d => d.abbr === abbr);
+    if (!def || regen) return;
+    const fixed = v.findings.filter(f => f.doc === abbr && f.status === 'failed').length;
+    setRegen(abbr);
+    await loader.load();
+    await sleep(1400);
+    patch(projectId, st => ({
+      docs: { ...st.docs, [def.type]: { status: 'completed', content: makeDocContent(def.type, project?.name ?? '') } },
+      validation: { ...st.validation, at: new Date().toISOString(), findings: st.validation.findings.map(f => (f.doc === abbr && f.status === 'failed' ? { ...f, status: 'passed' as const, severity: 'low' as const, finding: `Resolved: ${f.finding}`, recommendation: undefined } : f)) },
+    }));
+    setRegen(null);
+    setDocModal(null);
+    toast({ title: `${abbr} regenerated`, description: `${fixed} failed finding${fixed === 1 ? '' : 's'} resolved.` });
   };
 
   const findings = v.findings;
@@ -85,7 +109,7 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
                       <div key={d.abbr} onClick={() => setDocModal({ abbr: d.abbr, label: d.title, findings: f })} className="flex items-start gap-4 border border-slate-100 rounded-xl p-4 cursor-pointer hover:bg-slate-50 transition">
                         <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#2563EB] shrink-0"><FileText className="w-5 h-5" /></div>
                         <div className="flex-1 min-w-0"><p className="text-[15px] font-bold text-[#0F172A] truncate">{d.title}</p><p className="text-[13.5px] text-slate-400 mb-2">{d.abbr}</p>
-                          {worst === 'ok' ? <Badge tone="green"><CheckCircle2 className="w-3 h-3" />Ready</Badge> : worst === 'warning' ? <Badge tone="amber"><AlertTriangle className="w-3 h-3" />Ready with warnings</Badge> : <Badge tone="red"><XCircle className="w-3 h-3" />Needs work</Badge>}
+                          {worst === 'ok' ? <Badge tone="green"><CheckCircle2 className="w-3 h-3" />Ready</Badge> : worst === 'warning' ? <Badge tone="amber"><AlertTriangle className="w-3 h-3" />Ready with warnings</Badge> : <span className="inline-flex items-center gap-2"><Badge tone="red"><XCircle className="w-3 h-3" />Needs work</Badge><Button size="xs" loading={regen === d.abbr} disabled={!!regen} icon={<RefreshCw className="w-3 h-3" />} onClick={e => { e.stopPropagation(); regenerate(d.abbr); }}>{regen === d.abbr ? 'Regenerating…' : 'Regenerate'}</Button></span>}
                           <p className="text-[13.5px] text-slate-500 mt-1.5 line-clamp-2">{bad[0] ? `${bad[0].finding.slice(0, 80)}…` : 'All criteria passed.'}</p></div>
                       </div>
                     );
@@ -114,6 +138,7 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
         </div>
         </div>
         <div className="w-[380px] bg-white border-l border-slate-200 overflow-y-auto shrink-0 flex flex-col p-6 space-y-6">
+          <SkillsPanel skills={skills} status={loader.status} loading={loader.loading} />
           <CSuiteValidation stageId="architecture_validation" status={done ? 'Validated' : 'Pending'} />
         </div>
       </div>
@@ -121,7 +146,7 @@ export const ArchitectureValidation: React.FC<{ projectId: string; onComplete: (
       <Dialog open={dimModal} onClose={() => setDimModal(false)} title="Validation dimensions & criteria" width="max-w-4xl" footer={<Button onClick={() => setDimModal(false)}>Close</Button>}>
         <div className="space-y-5">{DIMENSION_CRITERIA.map(d => <div key={d.id}><h4 className="text-[15px] font-bold text-[#0F172A] flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />{d.label}</h4><ul className="mt-2 grid md:grid-cols-2 gap-x-6 gap-y-1">{d.criteria.map(c => <li key={c} className="text-[13.5px] text-slate-600 flex gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />{c}</li>)}</ul></div>)}</div>
       </Dialog>
-      <Dialog open={!!docModal} onClose={() => setDocModal(null)} title={docModal?.label ?? ''} subtitle="Validation findings for this document." width="max-w-2xl" footer={<Button onClick={() => setDocModal(null)}>Close</Button>}>
+      <Dialog open={!!docModal} onClose={() => setDocModal(null)} title={docModal?.label ?? ''} subtitle="Validation findings for this document." width="max-w-2xl" footer={<>{docModal?.findings.some(f => f.status === 'failed') && <Button variant="primary" loading={regen === docModal.abbr} icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={() => regenerate(docModal.abbr)}>Regenerate document</Button>}<Button onClick={() => setDocModal(null)}>Close</Button></>}>
         {docModal && (docModal.findings.length === 0 ? <p className="text-[15px] text-slate-500">No findings available.</p> : <div className="space-y-3">{docModal.findings.map((f, i) => <div key={i} className="border border-slate-200 rounded-xl p-4 space-y-1.5"><div className="flex items-center justify-between"><Badge tone={f.status === 'passed' ? 'green' : f.status === 'failed' ? 'red' : f.status === 'warning' ? 'amber' : 'purple'}>{f.status.replace('_', ' ')}</Badge><span className={cx('px-2 py-0.5 rounded-md text-[11.5px] font-bold uppercase', SEV[f.severity])}>{f.severity}</span></div><p className="text-[14.5px] text-[#0F172A]">{f.finding}</p>{f.recommendation && <p className="text-[13.5px] text-slate-500"><b>Recommendation:</b> {f.recommendation}</p>}</div>)}</div>)}
       </Dialog>
     </div>

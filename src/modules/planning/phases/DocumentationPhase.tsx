@@ -1,34 +1,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Bold, Code, Download, Edit3, Eye, FileText, CheckCircle2, Italic, List, ListOrdered, Loader2, Maximize2, Minus, Plus, RefreshCw, Save, Sparkles, X } from 'lucide-react';
+import { Bold, Code, Copy, Database, Download, Edit3, Eye, FileText, CheckCircle2, Italic, List, ListOrdered, Loader2, Maximize2, Minus, Plus, RefreshCw, Save, Sparkles, X } from 'lucide-react';
 import { Button, Dialog, cx, sleep, useToast, CSuiteValidation } from '../../ui';
 import { Markdown } from '../../ui/Markdown';
-import { GraphCanvas } from '../../knowledge/GraphCanvas';
+import { MermaidDiagram } from '../../ui/MermaidDiagram';
 import { usePlanning } from '../PlanningStore';
 import { DOC_DEFS, makeDocContent } from '../content';
 import { Primary } from '../shared';
 import { DocType } from '../types';
-
-const ARCH_NODES = [
-  { id: 'gw', type: 'Edge', label: 'API Gateway', description: 'Authentication, rate limiting and routing.', version: null },
-  { id: 'case', type: 'Service', label: 'Case Service', description: 'Case lifecycle, routing and SLAs.', version: null },
-  { id: 'kb', type: 'Service', label: 'Knowledge Service', description: 'Articles, embeddings and retrieval.', version: null },
-  { id: 'ai', type: 'Service', label: 'Assistant Service', description: 'Reply drafting and summarisation with guardrails.', version: null },
-  { id: 'notify', type: 'Worker', label: 'Notification Worker', description: 'Email / SMS delivery with retries.', version: null },
-  { id: 'ana', type: 'Pipeline', label: 'Analytics Pipeline', description: 'Event ingestion and dashboards.', version: null },
-  { id: 'pg', type: 'Data', label: 'PostgreSQL', description: 'System of record for cases and audit data.', version: null },
-  { id: 'redis', type: 'Data', label: 'Redis', description: 'Queues and caching.', version: null },
-  { id: 'idp', type: 'External', label: 'Identity Provider', description: 'OIDC single sign-on.', version: null },
-  { id: 'crm', type: 'External', label: 'CRM', description: 'Customer profile enrichment (read).', version: null },
-  { id: 'llm', type: 'External', label: 'LLM Provider', description: 'Hosted model behind a provider-agnostic gateway.', version: null },
-];
-const ARCH_EDGES = [['gw', 'case'], ['gw', 'kb'], ['gw', 'ai'], ['gw', 'idp'], ['ai', 'kb'], ['ai', 'case'], ['ai', 'llm'], ['case', 'pg'], ['kb', 'pg'], ['case', 'redis'], ['notify', 'redis'], ['case', 'notify'], ['case', 'ana'], ['case', 'crm']].map(([source, target], i) => ({ id: `a${i}`, source, target, type: 'CALLS' }));
+import { makeArchitecture } from '../archModel';
+import { KbSource, allFacts, findRelatedProjects } from '../kbReferences';
+import { SkillsPanel, skillsFor, useSkillLoader } from '../SkillsLoader';
 
 interface Props { projectId: string; projectName: string; onComplete: () => void }
 
+const downloadSvg = (svg: string, projectName: string) => {
+  if (!svg) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  a.download = `${projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-architecture.svg`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
 export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, onComplete }) => {
-  const { state, patch } = usePlanning();
+  const { state, patch, projects } = usePlanning();
   const s = state(projectId);
   const { toast } = useToast();
+  const description = `${projects.find(p => p.id === projectId)?.description ?? ''} ${s.idea}`.trim();
+  const arch = useMemo(() => makeArchitecture(projectName, description), [projectName, description]);
+  const skills = useMemo(() => skillsFor('documentation', projectName, description), [projectName, description]);
   const [selected, setSelected] = useState<DocType | null>(() => (DOC_DEFS.find(d => s.docs[d.type]?.status === 'completed')?.type ?? null));
   const [view, setView] = useState<'documents' | 'architecture'>('documents');
   const [editing, setEditing] = useState(false);
@@ -37,25 +37,50 @@ export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, on
   const [archPreview, setArchPreview] = useState(false);
   const [generating, setGenerating] = useState<DocType | null>(null);
   const [all, setAll] = useState(false);
-  const [zoomTick, setZoomTick] = useState(1);
+  const [zoom, setZoom] = useState(1);
+  const [archCode, setArchCode] = useState(false);
+  const [archSvg, setArchSvg] = useState('');
+  const [step, setStep] = useState<'kb' | 'write' | null>(null);
+  const [kbType, setKbType] = useState<DocType | null>(null);
+  const [kbShown, setKbShown] = useState(0);
+  const [kbView, setKbView] = useState<KbSource | null>(null);
 
   const doc = selected ? s.docs[selected] : null;
   const allReady = DOC_DEFS.every(d => s.docs[d.type]?.status === 'completed');
   const archReady = s.docs['Solution Architecture Document']?.status === 'completed';
+  const loader = useSkillLoader(skills, DOC_DEFS.some(d => s.docs[d.type]?.status === 'completed'));
+  const kbDoc = kbType ?? selected;
+  const kbDocDef = DOC_DEFS.find(d => d.type === kbDoc);
+  const refs = kbDocDef ? findRelatedProjects(arch.domain, kbDocDef.abbr) : [];
 
   useEffect(() => setEditing(false), [selected]);
 
-  const generate = async (type: DocType, select = true) => {
+  /** Skills load first, then similar projects' documents are pulled from the knowledge base one by one, then the document is written. */
+  const prepare = async (type: DocType) => {
+    await loader.load();
+    setKbType(type);
+    setKbShown(0);
+    setStep('kb');
+    await sleep(500);
+    for (let i = 1; i <= 3; i++) { setKbShown(i); await sleep(450); }
+  };
+  const generate = async (type: DocType, select = true, prepared = false) => {
     setGenerating(type);
+    if (!prepared) await prepare(type);
+    setKbType(type);
+    setStep('write');
     patch(projectId, st => ({ docs: { ...st.docs, [type]: { status: 'generating', content: '' } } }));
     await sleep(1400);
     patch(projectId, st => ({ docs: { ...st.docs, [type]: { status: 'completed', content: makeDocContent(type, projectName) } } }));
     setGenerating(null);
+    setStep(null);
+    setKbType(null);
     if (select) { setSelected(type); setView('documents'); }
   };
   const generateAll = async () => {
     setAll(true);
-    for (const d of DOC_DEFS) if (s.docs[d.type]?.status !== 'completed') await generate(d.type, false);
+    await prepare(DOC_DEFS.find(d => s.docs[d.type]?.status !== 'completed')?.type ?? DOC_DEFS[0].type);
+    for (const d of DOC_DEFS) if (s.docs[d.type]?.status !== 'completed') await generate(d.type, false, true);
     setAll(false);
     setSelected(sel => sel ?? DOC_DEFS[0].type);
     toast({ title: 'All documents generated' });
@@ -104,6 +129,28 @@ export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, on
         </div>
         <div className="p-6 border-b border-slate-200"><h1 className="text-[19px] font-bold tracking-tight text-[#0F172A]">Documentation</h1><p className="text-[14.5px] text-slate-500 mt-1.5 leading-relaxed">Generate technical specifications from project context.</p>
           <Button size="sm" className="mt-3" loading={all} icon={<Sparkles className="w-3.5 h-3.5" />} onClick={generateAll} disabled={allReady}>{all ? 'Generating all…' : 'Generate all documents'}</Button></div>
+        <div className="p-4 border-b border-slate-200 space-y-2.5">
+          <SkillsPanel skills={skills} status={loader.status} loading={loader.loading} />
+          {kbDoc && (
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 border-b border-slate-100 bg-slate-50/60">
+                <span className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-slate-500"><Database className="w-3.5 h-3.5 text-[#2563EB]" />Knowledge base</span>
+                <span className={cx('text-[12.5px] font-semibold', step === 'kb' ? 'text-[#2563EB]' : 'text-slate-400')}>{step === 'kb' ? 'Searching…' : refs.length ? `${refs.length} similar project${refs.length === 1 ? '' : 's'}` : 'No matches'}</span>
+              </div>
+              <div className="p-2 space-y-1.5">
+                {refs.slice(0, step === 'kb' ? kbShown : refs.length).map(r => (
+                  <button key={r.id} type="button" onClick={() => setKbView(r)} className="w-full text-left rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 px-3 py-2.5 transition cursor-pointer">
+                    <div className="flex items-center justify-between gap-2"><p className="text-[13.5px] font-bold text-[#0F172A] truncate">{r.project}</p><span className="text-[12.5px] font-bold text-[#2563EB] shrink-0">{r.similarity}%</span></div>
+                    <p className="text-[12.5px] text-slate-500 truncate">{r.document} · {r.version}</p>
+                    <ul className="mt-1.5 space-y-0.5">{r.facts.map(f => <li key={f} className="text-[12.5px] text-slate-600 leading-snug">• {f}</li>)}</ul>
+                    <span className="text-[12px] font-semibold text-[#2563EB] mt-1.5 inline-block">View details →</span>
+                  </button>
+                ))}
+                {step === 'kb' && kbShown < 3 && <p className="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-slate-400"><Loader2 className="w-3.5 h-3.5 animate-spin" />Looking for similar projects…</p>}
+              </div>
+            </div>
+          )}
+        </div>
         <div className="p-4 flex flex-col gap-3">
           {DOC_DEFS.map(def => {
             const d = s.docs[def.type];
@@ -135,18 +182,31 @@ export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, on
       {/* Right */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 relative">
         {view === 'architecture' ? (
-          <div className="flex-1 relative bg-white">
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 bg-white p-1.5 rounded-xl shadow-card border border-slate-200">
-              <button className={floatBtn} title="Zoom in" onClick={() => setZoomTick(z => z + 1)}><Plus className="w-[18px] h-[18px]" /></button>
-              <button className={floatBtn} title="Zoom out" onClick={() => setZoomTick(z => z + 1)}><Minus className="w-[18px] h-[18px]" /></button>
-              <div className="w-6 h-px bg-slate-100" />
-              <button className={floatBtn} title="Preview in fullscreen" onClick={() => setArchPreview(true)}><Maximize2 className="w-[18px] h-[18px]" /></button>
-              <div className="w-6 h-px bg-slate-100" />
-              <button className={floatBtn} title="Regenerate architecture" onClick={() => generate('Solution Architecture Document', false)}>{generating === 'Solution Architecture Document' ? <Loader2 className="w-[18px] h-[18px] animate-spin" /> : <RefreshCw className="w-[18px] h-[18px]" />}</button>
-              <div className="w-6 h-px bg-slate-100" />
-              <button className={floatBtn} title="Export diagram" onClick={() => toast({ title: 'Diagram exported', description: 'architecture-diagram.svg downloaded (prototype).' })}><Download className="w-[18px] h-[18px]" /></button>
+          <div className="flex-1 min-h-0 flex flex-col bg-white">
+            <div className="flex items-center justify-between gap-4 px-6 py-3.5 border-b border-slate-200 shrink-0">
+              <div className="min-w-0"><h2 className="text-[15px] font-bold text-[#0F172A] truncate">{projectName} — technical architecture</h2><p className="text-[13.5px] text-slate-500 truncate">{arch.label} · {arch.style} · {arch.components} components</p></div>
+              <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shrink-0">{([false, true] as const).map(code => <button key={String(code)} onClick={() => setArchCode(code)} className={cx('px-3 py-1.5 text-[13px] font-bold rounded-lg transition cursor-pointer', archCode === code ? 'bg-white text-[#2563EB] shadow-subtle' : 'text-slate-500 hover:text-slate-700')}>{code ? 'Mermaid source' : 'Diagram'}</button>)}</div>
             </div>
-            {archReady ? <GraphCanvas key={zoomTick > 0 ? 'arch' : 'arch'} nodes={ARCH_NODES} edges={ARCH_EDGES} /> : <div className="h-full flex flex-col items-center justify-center text-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300 mb-3" /><p className="text-[15px] text-slate-500">Generate the Solution Architecture Document to see the diagram.</p><Button className="mt-4" variant="primary" onClick={() => generate('Solution Architecture Document', false)}>Generate architecture</Button></div>}
+            <div className="flex-1 min-h-0 relative">
+              {archReady && (
+                <div className="absolute right-6 top-6 z-20 flex flex-col items-center gap-1.5 bg-white p-1.5 rounded-xl shadow-card border border-slate-200">
+                  {archCode ? <button className={floatBtn} title="Copy Mermaid source" onClick={async () => { try { await navigator.clipboard.writeText(arch.mermaid); } catch { /* ignore */ } toast({ title: 'Mermaid source copied' }); }}><Copy className="w-[18px] h-[18px]" /></button> : (
+                    <>
+                      <button className={floatBtn} title="Zoom in" onClick={() => setZoom(z => Math.min(2.5, +(z + 0.2).toFixed(1)))}><Plus className="w-[18px] h-[18px]" /></button>
+                      <button className={floatBtn} title="Zoom out" onClick={() => setZoom(z => Math.max(0.4, +(z - 0.2).toFixed(1)))}><Minus className="w-[18px] h-[18px]" /></button>
+                      <div className="w-6 h-px bg-slate-100" />
+                      <button className={floatBtn} title="Preview in fullscreen" onClick={() => setArchPreview(true)}><Maximize2 className="w-[18px] h-[18px]" /></button>
+                    </>
+                  )}
+                  <div className="w-6 h-px bg-slate-100" />
+                  <button className={floatBtn} title="Regenerate architecture" onClick={() => generate('Solution Architecture Document', false)}>{generating === 'Solution Architecture Document' ? <Loader2 className="w-[18px] h-[18px] animate-spin" /> : <RefreshCw className="w-[18px] h-[18px]" />}</button>
+                  {!archCode && <><div className="w-6 h-px bg-slate-100" /><button className={floatBtn} title="Export diagram (SVG)" onClick={() => downloadSvg(archSvg, projectName)}><Download className="w-[18px] h-[18px]" /></button></>}
+                </div>
+              )}
+              {!archReady ? <div className="h-full flex flex-col items-center justify-center text-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300 mb-3" /><p className="text-[15px] text-slate-500">Generate the Solution Architecture Document to see the diagram.</p><Button className="mt-4" variant="primary" onClick={() => generate('Solution Architecture Document', false)}>Generate architecture</Button></div>
+                : archCode ? <pre className="h-full overflow-auto m-0 p-6 pr-20 bg-slate-900 text-slate-100 text-[14px] leading-relaxed font-mono">{arch.mermaid}</pre>
+                : <MermaidDiagram code={arch.mermaid} zoom={zoom} onSvg={setArchSvg} className="h-full pr-16" />}
+            </div>
           </div>
         ) : doc && doc.status === 'completed' && selected ? (
           <>
@@ -177,7 +237,15 @@ export const DocumentationPhase: React.FC<Props> = ({ projectId, projectName, on
       </div>
 
       <Dialog open={preview && !!selected} onClose={() => setPreview(false)} title={selected ?? ''} subtitle="Preview" width="max-w-4xl" footer={<Button onClick={() => setPreview(false)}>Close preview</Button>}>{doc && <Markdown source={doc.content} />}</Dialog>
-      <Dialog open={archPreview} onClose={() => setArchPreview(false)} title="Technical architecture" subtitle="Component view — drag to pan, scroll to zoom" width="max-w-6xl" footer={<Button onClick={() => setArchPreview(false)}>Close</Button>}><div className="h-[520px] rounded-xl border border-slate-200 overflow-hidden"><GraphCanvas nodes={ARCH_NODES} edges={ARCH_EDGES} /></div></Dialog>
+      <Dialog open={!!kbView} onClose={() => setKbView(null)} title={kbView ? `${kbView.project} — ${kbView.document}` : ''} subtitle={kbView ? `${kbView.similarity}% similar to ${projectName} · ${kbView.version}` : ''} width="max-w-2xl" footer={<Button onClick={() => setKbView(null)}>Close</Button>}>
+        {kbView && (
+          <div className="space-y-4">
+            <p className="text-[15px] text-slate-600">{kbView.summary}</p>
+            <div><p className="text-[12.5px] font-bold uppercase tracking-wider text-slate-400 mb-2">Data used from this project</p><ul className="space-y-2">{allFacts(arch.domain, kbView.project).map(f => <li key={f} className="border border-slate-200 rounded-xl px-4 py-3 text-[14.5px] text-slate-700">{f}</li>)}</ul></div>
+          </div>
+        )}
+      </Dialog>
+      <Dialog open={archPreview} onClose={() => setArchPreview(false)} title="Technical architecture" subtitle={`${projectName} — scroll to pan`} width="max-w-6xl" footer={<Button onClick={() => setArchPreview(false)}>Close</Button>}><div className="h-[520px] rounded-xl border border-slate-200 overflow-hidden">{archPreview && <MermaidDiagram code={arch.mermaid} className="h-full" />}</div></Dialog>
     </div>
   );
 };
