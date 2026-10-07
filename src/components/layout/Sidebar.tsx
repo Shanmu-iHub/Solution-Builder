@@ -70,11 +70,11 @@ export const Sidebar: React.FC = () => {
 
   // Auto-detect if current view belongs to a sub-menu to highlight the parent
   const isSolutionBuilderActive =
-    currentView === 'requirement-gathering' ||
-    currentView === 'solution-builder-ide' ||
-    currentView === 'solution-builder-fullstack' ||
-    currentView === 'solution-builder-frontend' ||
-    currentView === 'agent-deep-research';
+    currentView === 'product-requirement-gathering' ||
+    currentView === 'product-solution-planning' ||
+    currentView === 'product-solution-factor' ||
+    currentView === 'agents' ||
+    currentView === 'agent-builder';
 
   const isAiServicesActive =
     currentView === 'services' ||
@@ -419,8 +419,8 @@ export const Sidebar: React.FC = () => {
               <div className="pl-6 space-y-0.5 pt-0.5 pb-1 animate-fade-in">
                 <button
                   type="button"
-                  onClick={() => handleNav('requirement-gathering')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'requirement-gathering'
+                  onClick={() => handleNav('product-requirement-gathering')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-requirement-gathering'
                       ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
                       : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
                     }`}
@@ -430,55 +430,38 @@ export const Sidebar: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleNav('solution-builder-ide')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'solution-builder-ide'
+                  onClick={() => handleNav('product-solution-planning')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-planning'
                       ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
                       : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
                     }`}
                 >
-                  <Terminal className="w-3.5 h-3.5" />
-                  <span className="truncate">Solution Builder IDE</span>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="truncate">Solution Planning</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleNav('product-solution-architect')}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-architect'
+                  onClick={() => handleNav('product-solution-factor')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'product-solution-factor'
                       ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
                       : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
                     }`}
                 >
                   <Box className="w-3.5 h-3.5" />
-                  <span className="truncate">Solution Architect</span>
+                  <span className="truncate">Solution Factory</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNav('agents')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${currentView === 'agents' || currentView === 'agent-builder'
+                      ? 'bg-[#E8F0FE] text-[#2563EB] font-bold'
+                      : 'text-[#334155] hover:text-[#0F172A] hover:bg-slate-50'
+                    }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span className="truncate">Agent Builder</span>
                 </button>
               </div>
-            )}
-
-            {renderNavItem(
-              'Requirement Gathering',
-              <FileText className="w-[18px] h-[18px]" />,
-              currentView === 'product-requirement-gathering',
-              () => handleNav('product-requirement-gathering')
-            )}
-
-            {renderNavItem(
-              'Solution Planning',
-              <Layers className="w-[18px] h-[18px]" />,
-              currentView === 'product-solution-planning',
-              () => handleNav('product-solution-planning')
-            )}
-
-            {renderNavItem(
-              'Solution Factory',
-              <Box className="w-[18px] h-[18px]" />,
-              currentView === 'product-solution-factor',
-              () => handleNav('product-solution-factor')
-            )}
-
-            {renderNavItem(
-              'Agent Builder',
-              <User className="w-[18px] h-[18px]" />,
-              currentView === 'agents' || currentView === 'agent-builder',
-              () => handleNav('agents')
             )}
           </div>
 
