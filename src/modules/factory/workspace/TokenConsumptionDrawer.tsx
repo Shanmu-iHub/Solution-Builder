@@ -15,6 +15,7 @@ import { cx } from '../../ui';
 interface Props {
   open: boolean;
   onClose: () => void;
+  tokensCount?: number;
 }
 
 const FILE_TOKENS = [
@@ -33,10 +34,14 @@ const FILE_TOKENS = [
   { file: 'src/app/api/expenses/route.ts', in: 780, out: 1450, total: 2230 },
 ];
 
-export const TokenConsumptionDrawer: React.FC<Props> = ({ open, onClose }) => {
+export const TokenConsumptionDrawer: React.FC<Props> = ({ open, onClose, tokensCount }) => {
   const [isCodeGroupOpen, setIsCodeGroupOpen] = useState(true);
 
   if (!open) return null;
+
+  const totalTokens = tokensCount !== undefined ? tokensCount : 101293;
+  const inputTokens = Math.round(totalTokens * (44813 / 101293));
+  const outputTokens = Math.max(0, totalTokens - inputTokens);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs font-sans animate-fade-in">
@@ -68,13 +73,13 @@ export const TokenConsumptionDrawer: React.FC<Props> = ({ open, onClose }) => {
               <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
                 Input Tokens
               </span>
-              <span className="text-lg font-bold text-slate-800 font-mono">44,813</span>
+              <span className="text-lg font-bold text-slate-800 font-mono">{inputTokens.toLocaleString()}</span>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 flex flex-col">
               <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
                 Output Tokens
               </span>
-              <span className="text-lg font-bold text-slate-800 font-mono">56,480</span>
+              <span className="text-lg font-bold text-slate-800 font-mono">{outputTokens.toLocaleString()}</span>
             </div>
             <div className="rounded-xl border border-indigo-400/30 bg-indigo-50/50 p-3.5 flex flex-col relative overflow-hidden group">
               <div className="absolute right-1 bottom-0 translate-y-2 opacity-10 text-indigo-600 group-hover:scale-110 transition-transform">
@@ -83,7 +88,7 @@ export const TokenConsumptionDrawer: React.FC<Props> = ({ open, onClose }) => {
               <span className="text-[10px] uppercase tracking-wider text-indigo-600 font-bold mb-1">
                 Total Tokens
               </span>
-              <span className="text-lg font-bold text-indigo-700 font-mono">101,293</span>
+              <span className="text-lg font-bold text-indigo-700 font-mono">{totalTokens.toLocaleString()}</span>
             </div>
           </div>
 

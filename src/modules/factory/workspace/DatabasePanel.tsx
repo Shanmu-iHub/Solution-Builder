@@ -78,7 +78,7 @@ export const DatabasePanel: React.FC<DatabasePanelProps> = ({
               )}
             </div>
             <p className="text-[12px] text-slate-500 leading-tight mt-0.5">
-              Cluster: {dbName || 'expensifyiq'} ({COLLECTIONS.length} Collections)
+              Cluster: {dbName || 'expensifyiq'} ({connected ? COLLECTIONS.length : 0} Collections)
             </p>
           </div>
         </div>

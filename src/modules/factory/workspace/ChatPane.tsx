@@ -43,6 +43,7 @@ interface Props {
   projectName: string;
   state: WorkspaceState;
   storyStage: StoryStage;
+  planStep?: number;
   pipeline1Step: number;
   pipeline2Step: number;
   tokensCount: number;
@@ -64,6 +65,53 @@ interface Props {
 }
 
 const TRACE_DATA: Record<string, { operation: string; json: object }> = {
+  'knowledge-graph-retriever': {
+    operation: 'knowledge_graph_retrieval',
+    json: {
+      operation: 'knowledge_graph_retrieval',
+      args: {
+        graph: 'Enterprise Solution Knowledge Graph',
+        query: 'ExpensifyIQ Context & Domain Entities',
+        active_skills: ['Knowledge Graph Navigator', 'Context Extraction Agent'],
+      },
+      result: {
+        status: 'context_retrieved',
+        nodes_extracted: 48,
+        relations_traversed: 112,
+        key_entities: [
+          'Expense Management Core',
+          'Receipt OCR & Parsing Pipeline',
+          'Multi-Tier Approval Hierarchy',
+          'Policy Rule Compliance Engine',
+          'MongoDB Live Collections',
+        ],
+        context_readiness: 'optimal',
+      },
+    },
+  },
+  'plan-synthesizer': {
+    operation: 'plan_synthesis',
+    json: {
+      operation: 'plan_synthesis',
+      args: {
+        context_source: 'Enterprise Knowledge Graph',
+        methodology: 'Iterative Solution Architecture',
+        active_skills: ['Technical Planner', 'Architecture Synthesizer'],
+      },
+      result: {
+        status: 'plan_drafted',
+        blueprint_sections: [
+          'Executive Summary',
+          'Database Schema & Collections',
+          'Backend API Routing & Workflows',
+          'Frontend UI Components',
+          'Validation & Deployment Strategy',
+        ],
+        target_platform: 'Next.js 15 App Router + TailwindCSS',
+        implementation_ready: true,
+      },
+    },
+  },
   'requirement-analyzer': {
     operation: 'requirement_analyzer',
     json: {
@@ -286,6 +334,7 @@ export const ChatPane: React.FC<Props> = ({
   projectName,
   state,
   storyStage,
+  planStep = 3,
   pipeline1Step,
   pipeline2Step,
   tokensCount,
@@ -429,11 +478,143 @@ export const ChatPane: React.FC<Props> = ({
               <span className="text-[10px] text-slate-400 pr-8">04:42 PM</span>
             </div>
 
-            {/* Generating Plan indicator */}
-            {storyStage === 'generating_plan' && (
-              <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 text-indigo-700 text-xs font-semibold animate-pulse">
-                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-                <span>AI is analyzing specs and synthesizing implementation plan…</span>
+            {/* PLAN SYNTHESIS PIPELINE CARD */}
+            {(storyStage === 'generating_plan' ||
+              storyStage === 'plan_ready' ||
+              storyStage === 'pipeline1_running' ||
+              storyStage === 'awaiting_db' ||
+              storyStage === 'pipeline2_running' ||
+              storyStage === 'completed') && (
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden animate-fade-in">
+                {/* Header */}
+                <div className="p-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-[12.5px] font-bold text-slate-900 leading-tight">Plan Synthesis</h4>
+                      <p className="text-[10.5px] text-slate-400 leading-none mt-0.5">Knowledge graph context &amp; plan generation</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {planStep >= 3 ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-500" /> PLAN DRAFTED
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-500" /> SYNTHESIZING...
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-3.5 space-y-3 font-sans">
+                  {/* Step 1: knowledge-graph-retriever */}
+                  <div className="flex items-start gap-2.5">
+                    {planStep >= 2 ? (
+                      <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </div>
+                    ) : (
+                      <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[12px] font-semibold text-slate-800">knowledge-graph-retriever</span>
+                        {planStep >= 2 ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                            CONTEXT RETRIEVED
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                            FETCHING CONTEXT...
+                          </span>
+                        )}
+                      </div>
+                      {planStep < 2 && (
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Fetching domain and architectural context from enterprise knowledge graph…
+                        </p>
+                      )}
+                      {planStep >= 2 && (
+                        <>
+                          <button
+                            onClick={() => toggleTrace('p0-kg')}
+                            className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                          >
+                            <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p0-kg'] && 'rotate-90')} />
+                            <span>_ View technical trace · 1 event</span>
+                          </button>
+                          {expandedTraces['p0-kg'] && (
+                            <TraceTerminalView
+                              title="knowledge_graph_retrieval"
+                              data={TRACE_DATA['knowledge-graph-retriever'].json}
+                              copied={copiedTrace === 'p0-kg'}
+                              onCopy={() => copyTraceJson('p0-kg', TRACE_DATA['knowledge-graph-retriever'].json)}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Step 2: plan-synthesizer */}
+                  {planStep >= 2 && (
+                    <div className="flex items-start gap-2.5 animate-fade-in">
+                      {planStep >= 3 ? (
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                          <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[12px] font-semibold text-slate-800">plan-synthesizer</span>
+                          {planStep >= 3 ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                              PLAN DRAFTED
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                              DRAFTING PLAN BASED ON CONTEXT...
+                            </span>
+                          )}
+                        </div>
+                        {planStep < 3 && (
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Synthesizing technical plan based on retrieved knowledge graph entities…
+                          </p>
+                        )}
+                        {planStep >= 3 && (
+                          <>
+                            <button
+                              onClick={() => toggleTrace('p0-plan')}
+                              className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                            >
+                              <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p0-plan'] && 'rotate-90')} />
+                              <span>_ View technical trace · 1 event</span>
+                            </button>
+                            {expandedTraces['p0-plan'] && (
+                              <TraceTerminalView
+                                title="plan_synthesis"
+                                data={TRACE_DATA['plan-synthesizer'].json}
+                                copied={copiedTrace === 'p0-plan'}
+                                onCopy={() => copyTraceJson('p0-plan', TRACE_DATA['plan-synthesizer'].json)}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
