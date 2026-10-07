@@ -63,7 +63,6 @@ export const ProductDefinition: React.FC<{ projectId: string; projectName: strin
       <StageResourceActivity active={drafting} activity="Shaping product scope and priorities" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 06 of 10</div>
           <h1 className="text-2xl font-bold text-[#0F172A]">Product Definition</h1>
           <p className="text-[15px] text-slate-500 mt-1">Scope, features, journeys and metrics.</p>
         </div>
