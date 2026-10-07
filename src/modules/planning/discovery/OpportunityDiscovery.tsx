@@ -77,7 +77,6 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
       <StageResourceActivity active={drafting} activity="Synthesizing opportunity and customer context" />
       <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 02 of 10</div>
           <h1 className="text-2xl font-bold text-[#0F172A]">Opportunity Discovery</h1>
           <p className="text-[15px] text-slate-500 mt-1">Market research and customer segments.</p>
         </div>

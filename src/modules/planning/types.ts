@@ -149,4 +149,35 @@ export interface PlanningState {
   documentsConfirmed?: boolean;
   requirementsConfirmed?: boolean;
   solutionConfirmed?: boolean;
+  /* Solution Definition Map & Executive Layer */
+  viewPerspective?: 'team' | 'executive';
+  activeWorkspacePage?: DiscoveryPage | null;
+  phaseMeta?: Partial<Record<DiscoveryPage, PhaseMetadata>>;
+  executiveDecisions?: ExecutiveDecision[];
+}
+
+export type PhaseStatus = 'not_started' | 'in_progress' | 'ready_for_review' | 'approved' | 'needs_attention';
+
+export interface PhaseMetadata {
+  status: PhaseStatus;
+  confidence: number;
+  openQuestions: number;
+  evidenceSources: number;
+  lastUpdated: string;
+  summaryText: string;
+}
+
+export interface ExecutiveDecision {
+  id: string;
+  phaseId: DiscoveryPage;
+  title: string;
+  category: string;
+  description: string;
+  impact: string;
+  risk: 'low' | 'medium' | 'high';
+  confidence: number;
+  status: 'pending' | 'approved' | 'changes_requested';
+  options?: string[];
+  selectedOption?: string;
+  decisionNote?: string;
 }
