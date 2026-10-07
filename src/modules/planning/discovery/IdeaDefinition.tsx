@@ -104,6 +104,7 @@ export const IdeaDefinition: React.FC<{
     const initial: Record<string, any> = {};
     CLARIFY_QUESTIONS.forEach(q => {
       initial[q.id] = (s.answers || {})[q.id]?.value ?? q.suggested;
+      initial[`${q.id}_other`] = (s.answers || {})[`${q.id}_other`]?.value ?? '';
     });
     return initial;
   });
@@ -143,6 +144,25 @@ export const IdeaDefinition: React.FC<{
     }));
   };
 
+  const handleOtherAnswer = (qId: string, value: string) => {
+    const otherAnswerId = `${qId}_other`;
+    setAnswers(current => ({ ...current, [otherAnswerId]: value }));
+    patch(projectId, st => ({
+      answers: { ...(st.answers || {}), [otherAnswerId]: { value } }
+    }));
+  };
+
+  const isQuestionAnswered = (question: ClarifyQuestion) => {
+    const answer = answers[question.id];
+    const hasAnswer = Array.isArray(answer)
+      ? answer.length > 0
+      : typeof answer === 'string' && answer.trim().length > 0;
+    const hasOtherSelected = Array.isArray(answer)
+      ? answer.includes('other')
+      : answer === 'other';
+    return hasAnswer && (!hasOtherSelected || String(answers[`${question.id}_other`] || '').trim().length > 0);
+  };
+
   // Handle State B -> State C
   const handleGenerateBrief = async () => {
     setGeneratingBriefLoading(true);
@@ -170,9 +190,6 @@ export const IdeaDefinition: React.FC<{
         {/* Header */}
         <div className="flex items-center justify-between px-8 py-5 border-b border-slate-200 bg-white shrink-0">
           <div>
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-              Phase 01 · Solution Definition
-            </div>
             <h1 className="text-xl font-bold text-[#0F172A]">Idea Definition</h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Turn your raw business idea into a validated, reviewable Idea Brief.
@@ -264,7 +281,7 @@ export const IdeaDefinition: React.FC<{
     }
 
     const currentQ = CLARIFY_QUESTIONS[currentQuestionIndex];
-    const answeredCount = CLARIFY_QUESTIONS.filter(q => !!answers[q.id]).length;
+    const answeredCount = CLARIFY_QUESTIONS.filter(isQuestionAnswered).length;
     const allAnswered = answeredCount === CLARIFY_QUESTIONS.length;
 
     return (
@@ -274,9 +291,9 @@ export const IdeaDefinition: React.FC<{
           <div>
 
             <h1 className="text-xl font-bold text-[#0F172A]">Idea Definition</h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              We extracted initial context from your idea. Complete clarifications to generate the formal Idea Brief.
-            </p>
+            {/* <p className="text-xs text-slate-500 mt-0.5">
+              Initial context from your idea. Complete clarifications to generate the formal Idea Brief.
+            </p> */}
           </div>
 
           <div className="flex items-center gap-3">
@@ -416,7 +433,7 @@ export const IdeaDefinition: React.FC<{
               {/* Progress Stepper Dots */}
               <div className="flex items-center gap-1.5 mt-3">
                 {CLARIFY_QUESTIONS.map((q, idx) => {
-                  const isDone = !!answers[q.id];
+                  const isDone = isQuestionAnswered(q);
                   const isCurrent = idx === currentQuestionIndex;
                   return (
                     <button
@@ -438,7 +455,7 @@ export const IdeaDefinition: React.FC<{
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                   <span>Question {currentQuestionIndex + 1} of {CLARIFY_QUESTIONS.length}</span>
-                  {answers[currentQ.id] && (
+                  {isQuestionAnswered(currentQ) && (
                     <span className="text-emerald-600 flex items-center gap-1">
                       <Check className="w-3 h-3" /> Answered
                     </span>
@@ -455,7 +472,7 @@ export const IdeaDefinition: React.FC<{
               <div className="pt-2">
                 {currentQ.type === 'single_select' && currentQ.options && (
                   <div className="space-y-2">
-                    {currentQ.options.map(opt => {
+                    {[...currentQ.options, { value: 'other', label: 'Other' }].map(opt => {
                       const selected = answers[currentQ.id] === opt.value;
                       return (
                         <button
@@ -484,7 +501,7 @@ export const IdeaDefinition: React.FC<{
 
                 {currentQ.type === 'multi_select' && currentQ.options && (
                   <div className="space-y-2">
-                    {currentQ.options.map(opt => {
+                    {[...currentQ.options, { value: 'other', label: 'Other' }].map(opt => {
                       const currentVals = Array.isArray(answers[currentQ.id]) ? answers[currentQ.id] : [];
                       const selected = currentVals.includes(opt.value);
                       return (
@@ -515,6 +532,21 @@ export const IdeaDefinition: React.FC<{
                       );
                     })}
                   </div>
+                )}
+
+                {currentQ.type !== 'text' && (
+                  (Array.isArray(answers[currentQ.id])
+                    ? answers[currentQ.id].includes('other')
+                    : answers[currentQ.id] === 'other') && (
+                    <div className="mt-3">
+                      <Input
+                        value={answers[`${currentQ.id}_other`] || ''}
+                        onChange={e => handleOtherAnswer(currentQ.id, e.target.value)}
+                        placeholder="Please specify"
+                        aria-label={`Specify other answer for ${currentQ.title}`}
+                      />
+                    </div>
+                  )
                 )}
 
                 {currentQ.type === 'text' && (
@@ -568,7 +600,7 @@ export const IdeaDefinition: React.FC<{
                 variant="primary"
                 className="w-full text-xs font-bold py-2.5 bg-blue-600 hover:bg-blue-700 shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                 onClick={handleGenerateBrief}
-                disabled={generatingBriefLoading}
+                disabled={generatingBriefLoading || !allAnswered}
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Generate Idea Brief</span>
@@ -589,12 +621,9 @@ export const IdeaDefinition: React.FC<{
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-            Phase 01 · Final Document Review
-          </div>
           <h1 className="text-xl font-bold text-[#0F172A]">Idea Brief Document</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Consolidated business brief generated from your idea and clarifications.
+             Brief generated from your idea and clarifications.
           </p>
         </div>
 
@@ -617,9 +646,6 @@ export const IdeaDefinition: React.FC<{
           <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-6">
             {/* Document Header */}
             <div className="border-b border-slate-100 pb-5">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 block mb-1">
-                Solution Definition Brief · v0.1
-              </span>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                 Mobile Receipt Capture &amp; Expense Approval Automation
               </h2>

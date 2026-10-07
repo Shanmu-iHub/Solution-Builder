@@ -45,9 +45,9 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-6 space-y-6">
           <div>
-            <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Phase · Discovery</div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] mt-2">Opportunity &amp; Discovery</h1>
-            <p className="text-[15px] text-slate-500 mt-2 max-w-2xl">Establish the market and customer context for this initiative.</p>
+            {/* <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest">Phase · Discovery</div> */}
+            <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] mt-2">Opportunity &amp; Market Discovery</h1>
+            {/* <p className="text-[15px] text-slate-500 mt-2 max-w-2xl">Establish the market and customer context for this idea.</p> */}
           </div>
 
           <nav className="flex gap-7 border-b border-slate-200 overflow-x-auto" aria-label="Opportunity & Discovery sections">

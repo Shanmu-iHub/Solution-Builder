@@ -205,13 +205,12 @@ export const OpportunityTab: React.FC<{ projectId: string }> = ({ projectId }) =
 
   return (
     <DiscoveryDashboard
-      phase="Phase 3"
       title="Opportunity Discovery"
       subtitle="Where the validated problem becomes a ranked, selectable opportunity."
       badge={primary ? 'Opportunity Artifact · Draft v0.1' : 'Opportunity Artifact · Not started'}
       kpis={[
         { label: 'Opportunities', value: live.length, hint: `${rejected.length} rejected`, icon: <Lightbulb className="w-4 h-4" />, tone: 'purple' },
-        { label: 'Top score', value: ranked[0] ? `${total(ranked[0])} / 10` : '—', hint: ranked[0]?.name, icon: <Trophy className="w-4 h-4" />, tone: 'green' },
+        { label: 'TOP-RANKED SCORE', value: ranked[0] ? `${total(ranked[0])} / 10` : '—', hint: ranked[0]?.name, icon: <Trophy className="w-4 h-4" />, tone: 'green' },
         { label: 'Primary', value: primary ? 'Chosen' : 'Pending', hint: primary?.name ?? 'Select one below', icon: <Target className="w-4 h-4" />, tone: primary ? 'green' : 'amber' },
         { label: 'Open risks', value: (focus?.risks.length ?? 0) + (focus?.assumptions.length ?? 0), hint: 'Risks + assumptions to test', icon: <AlertTriangle className="w-4 h-4" />, tone: 'orange' },
       ]}
