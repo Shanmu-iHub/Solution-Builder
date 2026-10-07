@@ -208,28 +208,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
     toast({ title: 'Exported', description: `${fileCount} files downloaded as a JSON bundle (prototype export).` });
   };
 
-  const prompts = isUi
-    ? [
-        'Create a modern landing page for a B2B analytics product with a hero, feature grid, pricing table, testimonials and a demo request form.',
-        'Add a dark-mode toggle to the header and a sticky navigation bar.',
-        'Add an FAQ accordion and a footer with newsletter sign-up.',
-      ]
-    : [
-        'Build a vendor management portal with supplier onboarding, contract tracking, invoice approvals, role-based access and an audit log.',
-        'Add a monthly spend chart to the dashboard and a CSV export on the records table.',
-        'Add email notifications when an invoice is approved or rejected.',
-      ];
-  const suggestions = isUi
-    ? [
-        'Create a modern SaaS landing page with hero, pricing and testimonials',
-        'Add a dark mode toggle to the header',
-        'Build a pricing comparison table',
-      ]
-    : [
-        'Build an admin dashboard with KPI cards, a searchable records table and settings',
-        'I need an inventory tracker with low-stock alerts',
-        'Create a customer portal with login and order history',
-      ];
+
 
   // Pass previewReady depending on story stage
   const effectiveState = {

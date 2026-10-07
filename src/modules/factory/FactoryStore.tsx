@@ -204,7 +204,7 @@ export const FactoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const now = new Date().toISOString();
       const project: FactoryProject = { projectId: `fs-${uid('p').slice(2)}`, kind: 'full-stack', projectName: name, description, createdAt: now, updatedAt: now };
       setProjects(p => [project, ...p]);
-      setWorkspaces(w => ({ ...w, [project.projectId]: { ...emptyWorkspace(), planMarkdown, planStatus: 'APPROVED', clarificationStatus: 'ANSWERED', questions: defaultQuestions, messages: [{ id: uid('m'), role: 'assistant', content: 'I imported the approved **Solution Planner** roadmap as the implementation plan. Say **start building** (or add any extra instructions) and I will generate the application.' }] } }));
+      setWorkspaces(w => ({ ...w, [project.projectId]: { ...emptyWorkspace(), planMarkdown, planStatus: 'APPROVED', clarificationStatus: 'ANSWERED', questions: defaultQuestions, messages: [] } }));
       return project;
     },
 

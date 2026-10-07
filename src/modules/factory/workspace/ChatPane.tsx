@@ -1230,7 +1230,13 @@ export const ChatPane: React.FC<Props> = ({
             )}
 
             {/* Dynamic New Messages */}
-            {state.messages.map(m => (
+            {state.messages
+              .filter(
+                m =>
+                  !m.content.toLowerCase().includes('imported the approved') &&
+                  !m.content.toLowerCase().includes('solution planner')
+              )
+              .map(m => (
               <div key={m.id} className={cx('flex gap-2.5', m.role === 'user' && 'flex-row-reverse')}>
                 <div
                   className={cx(
