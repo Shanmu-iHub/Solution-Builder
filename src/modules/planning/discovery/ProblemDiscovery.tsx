@@ -58,7 +58,8 @@ export const ProblemDiscovery: React.FC<{ projectId: string; projectName: string
   };
 
   const confirm = () => {
-    patch(projectId, { discoveryPage: 'solution' });
+    patch(projectId, { problemCompleted: true, discoveryPage: 'solution' });
+    onContinue();
   };
 
   useEffect(() => {

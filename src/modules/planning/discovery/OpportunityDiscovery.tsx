@@ -57,7 +57,8 @@ export const OpportunityDiscovery: React.FC<{ projectId: string; projectName: st
   };
 
   const confirm = () => {
-    patch(projectId, { discoveryPage: 'problem' });
+    patch(projectId, { oppCompleted: true, discoveryPage: 'problem' });
+    onContinue();
   };
 
   useEffect(() => {

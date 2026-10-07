@@ -284,3 +284,49 @@ export const calculateReadinessMetrics = (s: PlanningState) => {
     architectureReadiness: Math.round((solutionScore + reqScore + docScore) / 3)
   };
 };
+
+export const ORDERED_PHASES: DiscoveryPage[] = [
+  'idea',
+  'opportunity',
+  'problem',
+  'solution',
+  'business_model',
+  'product_definition',
+  'requirements',
+  'documentation'
+];
+
+export const isPhaseInputCompleted = (s: PlanningState, phaseId: DiscoveryPage): boolean => {
+  switch (phaseId) {
+    case 'idea':
+      return Boolean(s.briefConfirmed);
+    case 'opportunity':
+      return Boolean(s.oppCompleted);
+    case 'problem':
+      return Boolean(s.problemCompleted || s.decision || s.selectedStatement);
+    case 'solution':
+      return Boolean(s.solutionConfirmed);
+    case 'business_model':
+      return Boolean(s.businessModelConfirmed);
+    case 'product_definition':
+      return Boolean(s.productDefinitionConfirmed);
+    case 'requirements':
+      return Boolean(s.requirementsConfirmed);
+    case 'documentation':
+      return Boolean(s.documentsConfirmed);
+    default:
+      return false;
+  }
+};
+
+export const isPhaseUnlocked = (s: PlanningState, phaseId: DiscoveryPage): boolean => {
+  const index = ORDERED_PHASES.indexOf(phaseId);
+  if (index <= 0) return true; // Phase 01 'idea' is always open
+  // Each subsequent phase opens ONLY after filling/confirming all previous phases inputs
+  for (let i = 0; i < index; i++) {
+    if (!isPhaseInputCompleted(s, ORDERED_PHASES[i])) {
+      return false;
+    }
+  }
+  return true;
+};

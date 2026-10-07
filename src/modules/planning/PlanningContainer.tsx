@@ -23,7 +23,7 @@ import { TaskBreakdown } from './phases/TaskBreakdown';
 import { RequirementNavRail } from './navigation/RequirementNavRail';
 import { DependencyBanner } from './shared/DependencyBanner';
 import { CSuiteExecutivePanel } from './executive/CSuiteExecutivePanel';
-import { PHASE_CONFIGS } from './map/mapData';
+import { PHASE_CONFIGS, ORDERED_PHASES, isPhaseInputCompleted, isPhaseUnlocked } from './map/mapData';
 
 const STAGES: { id: PlanningStage; label: string }[] = [
   { id: 'requirement_context', label: 'Requirement Gathering' },
@@ -89,15 +89,31 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
   const maxReached = Math.max(planningStages.indexOf(active), planningStages.indexOf(persisted));
 
   const handleSelectPhase = (phase: DiscoveryPage) => {
+    if (!isPhaseUnlocked(s, phase)) {
+      const idx = ORDERED_PHASES.indexOf(phase);
+      const prevTitle = idx > 0 ? PHASE_CONFIGS[ORDERED_PHASES[idx - 1]].shortTitle : 'previous phase';
+      toast({
+        title: 'Phase Locked',
+        description: `Please complete the inputs for ${prevTitle} before proceeding to this phase.`
+      });
+      return;
+    }
     patch(projectId, { discoveryPage: phase });
     setActiveWorkspacePage(phase);
   };
 
   const handleNextPhase = () => {
-    const phases: DiscoveryPage[] = ['idea', 'opportunity', 'problem', 'solution', 'business_model', 'product_definition', 'requirements', 'documentation'];
-    const nextIdx = phases.indexOf(activeWorkspacePage) + 1;
-    if (nextIdx < phases.length) {
-      handleSelectPhase(phases[nextIdx]);
+    if (!isPhaseInputCompleted(s, activeWorkspacePage)) {
+      const currentConfig = PHASE_CONFIGS[activeWorkspacePage];
+      toast({
+        title: 'Current Phase Incomplete',
+        description: `Please complete and confirm the inputs for ${currentConfig.shortTitle} before continuing to the next phase.`
+      });
+      return;
+    }
+    const nextIdx = ORDERED_PHASES.indexOf(activeWorkspacePage) + 1;
+    if (nextIdx < ORDERED_PHASES.length) {
+      handleSelectPhase(ORDERED_PHASES[nextIdx]);
     } else {
       setExecutivePanelOpen(true);
     }
@@ -237,7 +253,6 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
               onSelectPhase={handleSelectPhase}
               collapsed={railCollapsed}
               onToggleCollapse={() => setRailCollapsed(!railCollapsed)}
-              onOpenExecutivePanel={() => setExecutivePanelOpen(true)}
             />
 
             {/* Right Main Workspace Canvas */}
@@ -255,7 +270,6 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
                     projectId={projectId} 
                     projectName={project.name} 
                     onContinue={() => handleSelectPhase('opportunity')} 
-                    onOpenExecutivePanel={() => setExecutivePanelOpen(true)}
                   />
                 )}
                 {activeWorkspacePage === 'opportunity' && (

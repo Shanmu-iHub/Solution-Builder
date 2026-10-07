@@ -1,12 +1,12 @@
 import React from 'react';
 import { 
   ChevronLeft, CheckCircle2, AlertTriangle, 
-  ChevronRight, ShieldCheck 
+  ChevronRight, Lock 
 } from 'lucide-react';
 import { DiscoveryPage } from '../types';
 import { usePlanning } from '../PlanningStore';
-import { MACRO_AREAS, PHASE_CONFIGS, getPhaseInfo } from '../map/mapData';
-import { cx } from '../../ui';
+import { MACRO_AREAS, PHASE_CONFIGS, getPhaseInfo, isPhaseUnlocked, ORDERED_PHASES } from '../map/mapData';
+import { cx, useToast } from '../../ui';
 
 interface Props {
   projectId: string;
@@ -15,7 +15,6 @@ interface Props {
   onSelectPhase: (phase: DiscoveryPage) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
-  onOpenExecutivePanel: () => void;
 }
 
 export const RequirementNavRail: React.FC<Props> = ({
@@ -25,17 +24,31 @@ export const RequirementNavRail: React.FC<Props> = ({
   onSelectPhase,
   collapsed,
   onToggleCollapse,
-  onOpenExecutivePanel
 }) => {
   const { state } = usePlanning();
+  const { toast } = useToast();
   const s = state(projectId);
 
   const phaseList = Object.keys(PHASE_CONFIGS) as DiscoveryPage[];
   const approvedCount = phaseList.filter(pid => getPhaseInfo(s, pid, projectName).status === 'approved').length;
 
+  const handlePhaseClick = (pid: DiscoveryPage) => {
+    const unlocked = isPhaseUnlocked(s, pid);
+    if (!unlocked) {
+      const idx = ORDERED_PHASES.indexOf(pid);
+      const prevTitle = idx > 0 ? PHASE_CONFIGS[ORDERED_PHASES[idx - 1]].shortTitle : 'previous phase';
+      toast({
+        title: 'Phase Locked',
+        description: `Please complete the inputs for ${prevTitle} before proceeding to this phase.`
+      });
+      return;
+    }
+    onSelectPhase(pid);
+  };
+
   if (collapsed) {
     return (
-      <div className="w-14 bg-white border-r border-slate-200 flex flex-col items-center py-4 shrink-0 justify-between select-none">
+      <div className="w-14 bg-white border-r border-slate-200 flex flex-col items-center py-4 shrink-0 select-none">
         <div className="flex flex-col items-center gap-2.5">
           <button
             onClick={onToggleCollapse}
@@ -49,33 +62,33 @@ export const RequirementNavRail: React.FC<Props> = ({
             const config = PHASE_CONFIGS[pid];
             const isActive = activePhase === pid;
             const info = getPhaseInfo(s, pid, projectName);
+            const unlocked = isPhaseUnlocked(s, pid);
+
             return (
               <button
                 key={pid}
-                onClick={() => onSelectPhase(pid)}
-                title={`${config.num} ${config.shortTitle}`}
+                onClick={() => handlePhaseClick(pid)}
+                title={`${config.num} ${config.shortTitle}${!unlocked ? ' (Locked)' : ''}`}
                 className={cx(
-                  "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all cursor-pointer relative",
+                  "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all relative",
                   isActive
-                    ? "bg-blue-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-xs cursor-pointer"
+                    : !unlocked
+                    ? "text-slate-300 bg-slate-50 cursor-not-allowed"
                     : info.status === 'approved'
-                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                    : "text-slate-500 hover:bg-slate-100"
+                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 cursor-pointer"
+                    : "text-slate-500 hover:bg-slate-100 cursor-pointer"
                 )}
               >
-                {config.num}
+                {!unlocked ? (
+                  <Lock className="w-3.5 h-3.5 text-slate-300" />
+                ) : (
+                  config.num
+                )}
               </button>
             );
           })}
         </div>
-
-        <button
-          onClick={onOpenExecutivePanel}
-          title="Open C-Suite Executive Panel"
-          className="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 flex items-center justify-center transition-colors cursor-pointer"
-        >
-          <ShieldCheck className="w-4 h-4" />
-        </button>
       </div>
     );
   }
@@ -114,31 +127,36 @@ export const RequirementNavRail: React.FC<Props> = ({
                 const config = PHASE_CONFIGS[pid];
                 const isActive = activePhase === pid;
                 const info = getPhaseInfo(s, pid, projectName);
+                const unlocked = isPhaseUnlocked(s, pid);
 
                 return (
                   <button
                     key={pid}
-                    onClick={() => onSelectPhase(pid)}
+                    onClick={() => handlePhaseClick(pid)}
                     className={cx(
-                      "w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-left transition-all cursor-pointer relative",
+                      "w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-left transition-all relative",
                       isActive
-                        ? "bg-blue-50/90 text-blue-700 font-bold shadow-2xs"
-                        : "text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+                        ? "bg-blue-50/90 text-blue-700 font-bold shadow-2xs cursor-pointer"
+                        : !unlocked
+                        ? "text-slate-400 hover:bg-slate-50/50 cursor-not-allowed opacity-75"
+                        : "text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
                     )}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={cx(
                         "font-mono text-[11px] font-extrabold shrink-0",
-                        isActive ? "text-blue-600" : "text-slate-400"
+                        isActive ? "text-blue-600" : !unlocked ? "text-slate-300" : "text-slate-400"
                       )}>
                         {config.num}
                       </span>
                       <span className="truncate text-[12.5px]">{config.shortTitle}</span>
                     </div>
 
-                    {/* Status dot */}
+                    {/* Status dot or Lock icon */}
                     <div className="shrink-0 ml-1">
-                      {info.status === 'approved' ? (
+                      {!unlocked ? (
+                        <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      ) : info.status === 'approved' ? (
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       ) : info.status === 'needs_attention' ? (
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
@@ -155,8 +173,6 @@ export const RequirementNavRail: React.FC<Props> = ({
           </div>
         ))}
       </div>
-
-
     </div>
   );
 };

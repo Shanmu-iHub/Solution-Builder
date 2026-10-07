@@ -144,6 +144,7 @@ export interface PlanningState {
   wireframes: WireframePage[];
   tasks: { epics: EpicNode[]; review: 'pending' | 'approved' | 'changes_requested'; notes: string } | null;
   /* confirmations */
+  problemCompleted?: boolean;
   productDefinitionConfirmed?: boolean;
   businessModelConfirmed?: boolean;
   documentsConfirmed?: boolean;
