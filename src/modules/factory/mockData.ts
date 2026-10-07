@@ -128,18 +128,32 @@ export const previewHtml = (name: string, page: string, dark: boolean) => {
   const fg = dark ? '#e2e8f0' : '#0f172a';
   const muted = dark ? '#94a3b8' : '#64748b';
   const line = dark ? '#1e293b' : '#e2e8f0';
-  const nav = ['Dashboard', 'Records', 'Settings'].map(n => `<a class="nav ${n === page ? 'active' : ''}">${n}</a>`).join('');
-  const stats = [['Total records', '1,284', '+12% this month'], ['Open', '48', '+4 today'], ['In review', '17', '-2 today'], ['Closed', '312', '+9% this month']]
-    .map(([l, v, d]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt">${d}</p></div>`).join('');
-  const rows = [['Q3 vendor onboarding', 'open'], ['Refund policy update', 'in_review'], ['Warehouse audit — Pune', 'closed'], ['New tier benefits copy', 'open'], ['Partner API rate limits', 'in_review'], ['Holiday campaign assets', 'closed']]
-    .map(([t, s]) => `<tr><td>${t}</td><td><span class="pill ${s}">${s.replace('_', ' ')}</span></td><td class="m">2 hrs ago</td></tr>`).join('');
+  const isExpensify = name.toLowerCase().includes('expensif');
+  const nav = isExpensify
+    ? ['Dashboard', 'Expenses', 'Approvals', 'Policies', 'Analytics', 'Settings'].map(n => `<a class="nav ${n === page ? 'active' : ''}">${n}</a>`).join('')
+    : ['Dashboard', 'Records', 'Settings'].map(n => `<a class="nav ${n === page ? 'active' : ''}">${n}</a>`).join('');
+
+  const stats = isExpensify
+    ? [['Pending Approvals', '8', '3 urgent SLA < 24h'], ['Monthly Spend', '$42,850', '+12.4% vs last mo'], ['Receipts Processed', '1,420', '98.5% OCR accuracy'], ['Policy Exceptions', '3', 'Requires CFO sign-off']]
+        .map(([l, v, d]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt">${d}</p></div>`).join('')
+    : [['Total records', '1,284', '+12% this month'], ['Open', '48', '+4 today'], ['In review', '17', '-2 today'], ['Closed', '312', '+9% this month']]
+        .map(([l, v, d]) => `<div class="card"><p class="lbl">${l}</p><p class="val">${v}</p><p class="dlt">${d}</p></div>`).join('');
+
+  const rows = isExpensify
+    ? [['Client Dinner (Le Bernardin)', 'approved', '$340.00', 'John D.'], ['Delta Airlines SFO → JFK', 'in_review', '$680.50', 'Sarah M.'], ['Uber Business Ride', 'approved', '$42.20', 'Alex K.'], ['AWS Cloud Hosting', 'approved', '$1,250.00', 'DevOps'], ['Hotel Booking (Marriott NYC)', 'in_review', '$520.00', 'Sarah M.'], ['Team Offsite Lunch', 'closed', '$210.00', 'Finance']]
+        .map(([t, s, amt, user]) => `<tr><td><b>${t}</b><br><small style="color:${muted}">${user}</small></td><td><span class="pill ${s}">${s.replace('_', ' ')}</span></td><td style="font-weight:700">${amt}</td><td class="m">2 hrs ago</td></tr>`).join('')
+    : [['Q3 vendor onboarding', 'open'], ['Refund policy update', 'in_review'], ['Warehouse audit — Pune', 'closed'], ['New tier benefits copy', 'open'], ['Partner API rate limits', 'in_review'], ['Holiday campaign assets', 'closed']]
+        .map(([t, s]) => `<tr><td>${t}</td><td><span class="pill ${s}">${s.replace('_', ' ')}</span></td><td class="m">2 hrs ago</td></tr>`).join('');
+
   const bars = [40, 64, 52, 78, 60, 92, 70].map(h => `<div class="bar" style="height:${h}%"></div>`).join('');
   const body =
     page === 'Settings'
-      ? `<h1>Settings</h1><p class="sub">Profile and notification preferences</p><div class="card" style="max-width:520px"><p class="lbl">Display name</p><input value="Demo User"/><p class="lbl" style="margin-top:14px">Email</p><input value="demo.user@sns.test"/><p class="lbl" style="margin-top:14px">Notifications</p><label class="chk"><input type="checkbox" checked/> Email digests</label><label class="chk"><input type="checkbox"/> Product updates</label><button>Save changes</button></div>`
-      : page === 'Records'
-        ? `<h1>Records</h1><p class="sub">Search, filter and manage everything in one list</p><div class="card"><input placeholder="Search records…" style="max-width:300px"/><table>${rows}${rows}</table></div>`
-        : `<h1>Dashboard</h1><p class="sub">Live overview of your workspace</p><div class="grid">${stats}</div><div class="two"><div class="card"><p class="lbl">Weekly activity</p><div class="chart">${bars}</div></div><div class="card"><p class="lbl">Recent records</p><table>${rows}</table></div></div>`;
+      ? `<h1>Settings</h1><p class="sub">Profile and notification preferences</p><div class="card" style="max-width:520px"><p class="lbl">Display name</p><input value="Henry (SNS Square)"/><p class="lbl" style="margin-top:14px">Email</p><input value="henry@snssquare.com"/><p class="lbl" style="margin-top:14px">Notifications</p><label class="chk"><input type="checkbox" checked/> Real-time expense approval alerts</label><label class="chk"><input type="checkbox" checked/> OCR receipt scan verification digests</label><button>Save changes</button></div>`
+      : page === 'Expenses' || page === 'Approvals'
+        ? `<h1>${page}</h1><p class="sub">Real-time expense stream & multi-tier approval hierarchy</p><div class="card"><input placeholder="Search expenses by employee, category or amount…" style="max-width:400px;margin-bottom:12px"/><table>${rows}${rows}</table></div>`
+        : page === 'Records'
+          ? `<h1>Records</h1><p class="sub">Search, filter and manage everything in one list</p><div class="card"><input placeholder="Search records…" style="max-width:300px"/><table>${rows}${rows}</table></div>`
+          : `<h1>${isExpensify ? 'ExpensifyIQ Dashboard' : 'Dashboard'}</h1><p class="sub">${isExpensify ? 'Live overview of automated corporate expense management' : 'Live overview of your workspace'}</p><div class="grid">${stats}</div><div class="two"><div class="card"><p class="lbl">Weekly Spend Volume ($k)</p><div class="chart">${bars}</div></div><div class="card"><p class="lbl">Recent Expense Submissions</p><table>${rows}</table></div></div>`;
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:${bg};color:${fg};display:flex;min-height:100vh}
 aside{width:200px;background:${card};border-right:1px solid ${line};padding:18px 12px;flex-shrink:0}
@@ -307,7 +321,7 @@ export const plannerDocs: PlannerDoc[] = [
   { id: 'sad', title: 'Solution Architecture Document (SAD)', subtitle: 'Logical and deployment architecture', body: 'Style: modular monolith with an event bus.\nFrontend: Next.js 15 + Tailwind.\nBackend: Node.js (Express) modules — cases, documents, kyc, notifications.\nData: PostgreSQL for cases, S3-compatible object store for documents, Redis for queues.\nIntegrations: KYC provider (REST), e-sign, email/SMS gateway, core-banking adapter.\nSecurity: OIDC SSO, field-level encryption for IDs, immutable audit log.' },
   { id: 'tdd', title: 'Technical Design Document (TDD)', subtitle: 'Modules, sequences and non-functional design', body: 'Case lifecycle: CREATED → DOCS_PENDING → KYC_RUNNING → REVIEW → APPROVED | REJECTED.\nEach transition emits a domain event consumed by notifications and the audit writer.\nPagination is mandatory on every list endpoint; p95 latency budget 300 ms.\nBackground jobs use BullMQ with exponential back-off and a dead-letter queue.' },
   { id: 'api', title: 'API Specification & Endpoints List', subtitle: 'REST contract grouped by module', body: 'POST   /v1/cases\nGET    /v1/cases?status=&cursor=\nGET    /v1/cases/{id}\nPOST   /v1/cases/{id}/documents\nPOST   /v1/cases/{id}/kyc/run\nPOST   /v1/cases/{id}/decision\nGET    /v1/cases/{id}/timeline\nPOST   /v1/webhooks/kyc-result' },
-  { id: 'ddd', title: 'Domain-Driven Design (DDD) Models', subtitle: 'Aggregates, entities and value objects', body: 'Aggregate: OnboardingCase (id, customerRef, status, assignee)\n  Entity: DocumentSubmission (type, storageKey, verifiedAt)\n  Entity: KycCheck (provider, result, riskScore)\n  Value object: Decision (outcome, reason, decidedBy)\nDomain events: CaseCreated, DocumentReceived, KycCompleted, CaseDecided' },
+  { id: 'ddd', title: 'Data Design (DDD) Models', subtitle: 'Aggregates, entities and value objects', body: 'Aggregate: OnboardingCase (id, customerRef, status, assignee)\n  Entity: DocumentSubmission (type, storageKey, verifiedAt)\n  Entity: KycCheck (provider, result, riskScore)\n  Value object: Decision (outcome, reason, decidedBy)\nDomain events: CaseCreated, DocumentReceived, KycCompleted, CaseDecided' },
   { id: 'tasks', title: 'Implementation Task Breakdown', subtitle: 'Epics → features → stories → tasks', body: 'EPIC 1  Case management — 5 features, 21 stories\nEPIC 2  Document intake — 3 features, 14 stories\nEPIC 3  KYC orchestration — 3 features, 13 stories\nEPIC 4  Notifications & reminders — 2 features, 9 stories\nEPIC 5  Audit & reporting — 3 features, 11 stories\nEPIC 6  Platform & security — 2 features, 6 stories' },
 ];
 

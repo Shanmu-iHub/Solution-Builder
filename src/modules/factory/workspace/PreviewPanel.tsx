@@ -47,7 +47,7 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
 
       <div className="relative flex-1 min-h-0 bg-slate-100 flex justify-center overflow-auto p-0 md:p-4">
         {!state.previewReady ? (
-          <div className="m-auto text-center max-w-xs">
+          <div className="m-auto text-center max-w-md px-6 py-12">
             {state.generating ? (
               <>
                 <Loader2 className="w-8 h-8 animate-spin text-[#2563EB] mx-auto mb-3" />
@@ -56,10 +56,13 @@ export const PreviewPanel: React.FC<Props> = ({ appName, state, onRefresh, onPag
               </>
             ) : (
               <>
-                <div className="w-12 h-12 rounded-2xl bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-3"><PowerOff className="w-6 h-6" /></div>
-                <p className="text-[15px] font-bold text-[#0F172A]">Sandbox offline</p>
-                <p className="text-[13.5px] text-slate-500 mt-1 mb-4">Nothing is running yet. Build something in the chat, or wake the sandbox.</p>
-                <Button variant="primary" size="sm" onClick={onRefresh}>Wake up sandbox</Button>
+                <div className="w-16 h-16 rounded-2xl bg-indigo-50/80 text-indigo-500 border border-indigo-100 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+                  <Monitor className="w-8 h-8" />
+                </div>
+                <h3 className="text-[16px] font-bold text-[#0F172A] mb-2">Live App Preview</h3>
+                <p className="text-[13px] text-slate-500 leading-relaxed max-w-xs mx-auto">
+                  Describe what you want to build in the chat panel. The AI builder will generate your Next.js application and launch an interactive preview canvas here.
+                </p>
               </>
             )}
           </div>

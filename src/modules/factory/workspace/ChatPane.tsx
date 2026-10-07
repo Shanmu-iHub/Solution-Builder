@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  ArrowRight,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -16,6 +17,7 @@ import {
   Layers,
   Layout,
   Loader2,
+  RotateCcw,
   Send,
   Settings,
   Sparkles,
@@ -28,10 +30,27 @@ import { Markdown } from '../../ui/Markdown';
 import { cx, useToast } from '../../ui';
 import { WorkspaceState } from '../types';
 
+export type StoryStage =
+  | 'unstarted'
+  | 'generating_plan'
+  | 'plan_ready'
+  | 'pipeline1_running'
+  | 'awaiting_db'
+  | 'pipeline2_running'
+  | 'completed';
+
 interface Props {
   projectName: string;
   state: WorkspaceState;
+  storyStage: StoryStage;
+  pipeline1Step: number;
+  pipeline2Step: number;
+  tokensCount: number;
   placeholder?: string;
+  onStartGeneration: () => void;
+  onProceedToBuild: () => void;
+  onConnectDatabase: () => void;
+  onResetStory?: () => void;
   onBack: () => void;
   onSend: (text: string) => void;
   onStop: () => void;
@@ -204,7 +223,15 @@ const TRACE_DATA: Record<string, { operation: string; json: object }> = {
 export const ChatPane: React.FC<Props> = ({
   projectName,
   state,
+  storyStage,
+  pipeline1Step,
+  pipeline2Step,
+  tokensCount,
   placeholder = 'Describe what you want to build…',
+  onStartGeneration,
+  onProceedToBuild,
+  onConnectDatabase,
+  onResetStory,
   onBack,
   onSend,
   onStop,
@@ -228,20 +255,14 @@ export const ChatPane: React.FC<Props> = ({
   const [pipeline2Collapsed, setPipeline2Collapsed] = useState(false);
   const [copiedTrace, setCopiedTrace] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!state.generating && prompts[userCount]) {
-      setDraft(d => (d.trim() ? d : prompts[userCount]));
-    }
-  }, [userCount, state.generating]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [state.messages]);
+  }, [storyStage, pipeline1Step, pipeline2Step, state.messages]);
 
   const submit = () => {
     const t = draft.trim();
-    if (!t || state.generating) return;
+    if (!t || state.generating || storyStage !== 'completed') return;
     setDraft('');
     onSend(t);
   };
@@ -257,7 +278,7 @@ export const ChatPane: React.FC<Props> = ({
     setTimeout(() => setCopiedTrace(null), 2000);
   };
 
-  const totalTokens = state.tokens.reduce((s, t) => s + t.input + t.output, 0) || 101293;
+  const cleanProjectName = projectName.replace(/—\s*Build/i, '').trim();
 
   return (
     <div className="flex h-full flex-col bg-[#FAFAFA] font-sans border-r border-slate-200">
@@ -273,7 +294,7 @@ export const ChatPane: React.FC<Props> = ({
           </button>
           <div className="min-w-0">
             <span className="text-[13.5px] font-bold text-slate-900 truncate block leading-tight">
-              {projectName}
+              {cleanProjectName}
             </span>
             <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600 leading-none">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -289,8 +310,19 @@ export const ChatPane: React.FC<Props> = ({
             className="flex items-center gap-1.5 text-[11.5px] font-semibold text-indigo-600 bg-indigo-50/80 hover:bg-indigo-100/70 border border-indigo-100 px-2.5 py-1 rounded-full cursor-pointer transition"
           >
             <Zap className="w-3 h-3 text-indigo-500" />
-            <span>{totalTokens.toLocaleString()} tokens</span>
+            <span>{tokensCount.toLocaleString()} tokens</span>
           </button>
+
+          {onResetStory && storyStage !== 'unstarted' && (
+            <button
+              onClick={onResetStory}
+              title="Restart story from initial state"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
+
           <button
             onClick={onOpenTokens}
             title="Project settings"
@@ -301,588 +333,844 @@ export const ChatPane: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Main Conversation & Pipeline Traces */}
+      {/* Main Conversation & Step-by-Step Pipeline Area */}
       <div ref={listRef} className="flex-1 overflow-y-auto px-3.5 py-4 space-y-4 text-[13px]">
-        {/* User Initial Message */}
-        <div className="flex flex-col items-end space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[13px] font-medium shadow-sm flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Start Solution Application Generation</span>
+        {/* STAGE 0: UNSTARTED (Matches Image 4) */}
+        {storyStage === 'unstarted' && (
+          <div className="h-full min-h-[380px] flex flex-col items-center justify-center text-center px-4 py-8 animate-fade-in">
+            <div className="w-16 h-16 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center mb-5 shadow-md">
+              <Sparkles className="w-8 h-8 text-amber-400" />
             </div>
-            <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-              <User className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pr-8">04:42 PM</span>
-        </div>
-
-        {/* Assistant Response 1 */}
-        <div className="flex flex-col items-start space-y-1">
-          <div className="flex items-start gap-2 max-w-[92%]">
-            <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-              <Sparkles className="w-3.5 h-3.5" />
-            </div>
-            <div className="rounded-2xl rounded-tl-sm bg-white border border-slate-200/80 p-3 text-slate-700 leading-relaxed shadow-xs">
-              I have drafted the feature-wise <strong className="text-slate-900 font-semibold">Implementation Plan</strong>! Review it in the{' '}
-              <button
-                onClick={onOpenPlan}
-                className="inline-flex items-center font-bold text-slate-900 underline decoration-slate-300 hover:text-indigo-600 cursor-pointer"
-              >
-                PLAN
-              </button>{' '}
-              tab on the right and click <strong className="text-slate-900 font-semibold">Proceed to Build</strong> when ready.
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pl-8">04:42 PM</span>
-        </div>
-
-        {/* User Response 2 */}
-        <div className="flex flex-col items-end space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[12.5px] font-medium shadow-sm flex items-center gap-2 max-w-[85%] text-right">
-              <span>Implementation plan approved. Proceed with full-stack code generation.</span>
-            </div>
-            <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-              <User className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pr-8">08:35 AM</span>
-        </div>
-
-        {/* PIPELINE 1 CARD */}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          {/* Pipeline Header */}
-          <div className="p-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                <Layers className="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <h4 className="text-[12.5px] font-bold text-slate-900 leading-tight">Execution Pipeline</h4>
-                <p className="text-[10.5px] text-slate-400 leading-none mt-0.5">Live execution status &amp; technical trace logs</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                <Check className="w-3 h-3 text-emerald-500" /> PIPELINE COMPLETE
-              </span>
-              <button
-                onClick={() => setPipeline1Collapsed(c => !c)}
-                className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                {pipeline1Collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-
-          {!pipeline1Collapsed && (
-            <div className="p-3.5 space-y-3 font-sans">
-              {/* Step 1: requirement-analyzer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">requirement-analyzer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      DATA FEEDED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p1-req')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-req'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p1-req'] && (
-                    <TraceTerminalView
-                      traceKey="p1-req"
-                      title="requirement_analyzer"
-                      data={TRACE_DATA['requirement-analyzer'].json}
-                      copied={copiedTrace === 'p1-req'}
-                      onCopy={() => copyTraceJson('p1-req', TRACE_DATA['requirement-analyzer'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 2: skill-gathering */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">skill-gathering</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      SKILLS GATHERED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p1-skill-gathering')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-skill-gathering'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p1-skill-gathering'] && (
-                    <TraceTerminalView
-                      traceKey="p1-skill-gathering"
-                      title="skill_discovery"
-                      data={TRACE_DATA['skill-gathering'].json}
-                      copied={copiedTrace === 'p1-skill-gathering'}
-                      onCopy={() => copyTraceJson('p1-skill-gathering', TRACE_DATA['skill-gathering'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 3: context-architect */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">context-architect</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      ARCHITECTURE PLANNED
-                    </span>
-                  </div>
-
-                  {/* Planned Code Structure Banner */}
-                  <div className="rounded-xl bg-gradient-to-r from-[#1E1B4B] via-[#2E1065] to-[#1E1B4B] border border-purple-800/40 p-2.5 flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-purple-600/60 border border-purple-400/40 text-purple-200 flex items-center justify-center font-bold text-[10px]">
-                        tb
-                      </div>
-                      <span className="text-[12px] font-bold text-white tracking-wide">
-                        Planned Code Structure
-                      </span>
-                    </div>
-                    <button
-                      onClick={onViewArchitecture}
-                      className="flex items-center gap-1.5 text-[11px] font-semibold text-purple-200 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-lg transition cursor-pointer"
-                    >
-                      <span>View Architecture</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => toggleTrace('p1-arch')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-arch'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p1-arch'] && (
-                    <TraceTerminalView
-                      traceKey="p1-arch"
-                      title="architecture_synthesis"
-                      data={TRACE_DATA['context-architect'].json}
-                      copied={copiedTrace === 'p1-arch'}
-                      onCopy={() => copyTraceJson('p1-arch', TRACE_DATA['context-architect'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 4: project-initializer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">project-initializer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      PROJECT INITIALIZED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p1-proj')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-proj'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p1-proj'] && (
-                    <TraceTerminalView
-                      traceKey="p1-proj"
-                      title="scaffold_project_files"
-                      data={TRACE_DATA['project-initializer'].json}
-                      copied={copiedTrace === 'p1-proj'}
-                      onCopy={() => copyTraceJson('p1-proj', TRACE_DATA['project-initializer'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 5: database-initializer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Clock className="w-2.5 h-2.5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">database-initializer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200">
-                      AWAITING CLUSTER
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p1-db')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-db'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p1-db'] && (
-                    <TraceTerminalView
-                      traceKey="p1-db"
-                      title="mongodb_cluster_init"
-                      data={TRACE_DATA['database-initializer-awaiting'].json}
-                      copied={copiedTrace === 'p1-db'}
-                      onCopy={() => copyTraceJson('p1-db', TRACE_DATA['database-initializer-awaiting'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Database Connection Required Banner */}
-        <div className="flex flex-col items-start space-y-1">
-          <div className="w-full rounded-2xl border border-amber-200/90 bg-[#FFFDF5] p-3.5 shadow-xs">
-            <div className="flex items-start gap-2.5">
-              <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                <Zap className="w-3.5 h-3.5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h5 className="text-[12.5px] font-bold text-amber-900 leading-snug">
-                  Database Connection Required
-                </h5>
-                <p className="text-[11.5px] text-amber-800/90 leading-relaxed mt-0.5">
-                  Please connect your MongoDB cluster URL in the Database tab to proceed with full-stack application code generation.
-                </p>
-                <div className="mt-2.5">
-                  <button
-                    onClick={onOpenDatabase}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11.5px] font-bold shadow-xs transition cursor-pointer"
-                  >
-                    <span>Configure Database</span>
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pl-2">08:37 AM</span>
-        </div>
-
-        {/* User Response 3 */}
-        <div className="flex flex-col items-end space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[12.5px] font-medium shadow-sm flex items-center gap-2">
-              <span>Database connected successfully. Proceed with code generation.</span>
-            </div>
-            <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-              <User className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pr-8">08:38 AM</span>
-        </div>
-
-        {/* PIPELINE 2 CARD */}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          {/* Header */}
-          <div className="p-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                <Layers className="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <h4 className="text-[12.5px] font-bold text-slate-900 leading-tight">Execution Pipeline</h4>
-                <p className="text-[10.5px] text-slate-400 leading-none mt-0.5">Live execution status &amp; technical trace logs</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                <Check className="w-3 h-3 text-emerald-500" /> PIPELINE COMPLETE
-              </span>
-              <button
-                onClick={() => setPipeline2Collapsed(c => !c)}
-                className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                {pipeline2Collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-
-          {!pipeline2Collapsed && (
-            <div className="p-3.5 space-y-3 font-sans">
-              {/* Step 1: requirement-analyzer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">requirement-analyzer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      DATA FEEDED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-req')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-req'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p2-req'] && (
-                    <TraceTerminalView
-                      traceKey="p2-req"
-                      title="requirement_analyzer"
-                      data={TRACE_DATA['requirement-analyzer'].json}
-                      copied={copiedTrace === 'p2-req'}
-                      onCopy={() => copyTraceJson('p2-req', TRACE_DATA['requirement-analyzer'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 2: database-initializer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">database-initializer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      DATABASE CONFIGURED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-db')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-db'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p2-db'] && (
-                    <TraceTerminalView
-                      traceKey="p2-db"
-                      title="database_connection_test"
-                      data={TRACE_DATA['database-initializer-ready'].json}
-                      copied={copiedTrace === 'p2-db'}
-                      onCopy={() => copyTraceJson('p2-db', TRACE_DATA['database-initializer-ready'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 3: code-writer */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">code-writer</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      56 FILES GENERATED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-code')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-code'] && 'rotate-90')} />
-                    <span>_ View technical trace · 44 events</span>
-                  </button>
-                  {expandedTraces['p2-code'] && (
-                    <TraceTerminalView
-                      traceKey="p2-code"
-                      title="fullstack_code_generator"
-                      data={TRACE_DATA['code-writer'].json}
-                      copied={copiedTrace === 'p2-code'}
-                      onCopy={() => copyTraceJson('p2-code', TRACE_DATA['code-writer'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 4: code-validator */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">code-validator</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      CODE VALIDATED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-val')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-val'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p2-val'] && (
-                    <TraceTerminalView
-                      traceKey="p2-val"
-                      title="syntax_and_type_check"
-                      data={TRACE_DATA['code-validator'].json}
-                      copied={copiedTrace === 'p2-val'}
-                      onCopy={() => copyTraceJson('p2-val', TRACE_DATA['code-validator'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 5: build-executor */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">build-executor</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      BUILD EXECUTED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-build')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-build'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p2-build'] && (
-                    <TraceTerminalView
-                      traceKey="p2-build"
-                      title="next_build_runner"
-                      data={TRACE_DATA['build-executor'].json}
-                      copied={copiedTrace === 'p2-build'}
-                      onCopy={() => copyTraceJson('p2-build', TRACE_DATA['build-executor'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Step 6: build-validator */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2.5 h-2.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[12px] font-semibold text-slate-800">build-validator</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      BUILD VALIDATED
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleTrace('p2-val2')}
-                    className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
-                  >
-                    <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-val2'] && 'rotate-90')} />
-                    <span>_ View technical trace · 1 event</span>
-                  </button>
-                  {expandedTraces['p2-val2'] && (
-                    <TraceTerminalView
-                      traceKey="p2-val2"
-                      title="runtime_smoke_test"
-                      data={TRACE_DATA['build-validator'].json}
-                      copied={copiedTrace === 'p2-val2'}
-                      onCopy={() => copyTraceJson('p2-val2', TRACE_DATA['build-validator'].json)}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Application Ready Box */}
-        <div className="flex flex-col items-start space-y-1">
-          <div className="w-full rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs space-y-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <h5 className="text-[12.5px] font-bold text-slate-900">Application Ready!</h5>
-            </div>
-            <p className="text-[11.5px] text-slate-600 leading-relaxed">
-              Your application preview is live in the <strong className="text-slate-900 font-semibold">Preview</strong> panel! You can test interactive features or ask for further customizations.
+            <h3 className="text-[15px] font-black uppercase tracking-wider text-slate-900 mb-2">
+              {cleanProjectName.toUpperCase()}
+            </h3>
+            <p className="text-[13px] text-slate-500 leading-relaxed max-w-[280px] mb-8">
+              Discovery &amp; Planning context (BRD, PRD, SAD, Epics, Wireframes) is loaded. Click below to analyze specs and generate your technical implementation plan.
             </p>
-            <div className="pt-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0F172A] text-white text-[11px] font-bold shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>CURRENTLY PREVIEWING</span>
-              </div>
-            </div>
-          </div>
-          <span className="text-[10px] text-slate-400 pl-2">08:39 AM</span>
-        </div>
-
-        {/* Dynamic New Messages */}
-        {state.messages.map(m => (
-          <div key={m.id} className={cx('flex gap-2.5', m.role === 'user' && 'flex-row-reverse')}>
-            <div
-              className={cx(
-                'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs',
-                m.role === 'user' ? 'bg-slate-200 text-slate-600' : 'bg-[#0F172A] text-white'
-              )}
+            <button
+              onClick={onStartGeneration}
+              className="w-full max-w-[280px] flex items-center justify-center gap-2 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white py-3.5 px-6 text-[12.5px] font-bold shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
             >
-              {m.role === 'user' ? <User className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-            </div>
-            <div className={cx('max-w-[88%] min-w-0 space-y-2', m.role === 'user' && 'items-end')}>
-              <div
-                className={cx(
-                  'rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed',
-                  m.role === 'user'
-                    ? 'bg-[#0F172A] text-white rounded-tr-sm'
-                    : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                )}
-              >
-                {m.role === 'user' ? m.content : <Markdown source={m.content || '…'} className="[&_p]:my-0" />}
-                {m.streaming && <span className="inline-block w-1.5 h-3.5 bg-slate-400 ml-0.5 animate-pulse align-middle" />}
-              </div>
-              {m.activity && (
-                <div className="space-y-1">
-                  {m.activity.map((a, i) => (
-                    <button
-                      key={i}
-                      disabled={!a.file || !a.done}
-                      onClick={() => a.file && onJumpToFile(a.file)}
-                      title={a.file ? 'Jump to file' : undefined}
-                      className={cx(
-                        'w-full flex items-center gap-2 text-left text-[12px] px-2.5 py-1 rounded-lg border font-mono',
-                        a.done
-                          ? 'border-slate-200 bg-white text-slate-600 hover:border-indigo-400'
-                          : 'border-dashed border-slate-200 text-slate-400'
-                      )}
-                    >
-                      {a.done ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> : <Loader2 className="w-3 h-3 animate-spin shrink-0" />}
-                      {a.file && <FileCode2 className="w-3 h-3 text-slate-400 shrink-0" />}
-                      <span className="truncate">{a.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+              <Sparkles className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
+              <span className="tracking-wide">START APPLICATION GENERATION</span>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
-        ))}
+        )}
+
+        {/* STAGES >= GENERATING_PLAN */}
+        {storyStage !== 'unstarted' && (
+          <>
+            {/* User Initial Message 1 */}
+            <div className="flex flex-col items-end space-y-1 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[13px] font-medium shadow-sm flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Start Solution Application Generation</span>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <span className="text-[10px] text-slate-400 pr-8">04:42 PM</span>
+            </div>
+
+            {/* Generating Plan indicator */}
+            {storyStage === 'generating_plan' && (
+              <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 text-indigo-700 text-xs font-semibold animate-pulse">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                <span>AI is analyzing specs and synthesizing implementation plan…</span>
+              </div>
+            )}
+
+            {/* Assistant Response 1 */}
+            {storyStage !== 'generating_plan' && (
+              <div className="flex flex-col items-start space-y-1 animate-fade-in">
+                <div className="flex items-start gap-2 max-w-[92%]">
+                  <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="rounded-2xl rounded-tl-sm bg-white border border-slate-200/80 p-3 text-slate-700 leading-relaxed shadow-xs">
+                    I have drafted the feature-wise <strong className="text-slate-900 font-semibold">Implementation Plan</strong>! Review it in the{' '}
+                    <button
+                      onClick={onOpenPlan}
+                      className="inline-flex items-center font-bold text-slate-900 underline decoration-slate-300 hover:text-indigo-600 cursor-pointer"
+                    >
+                      PLAN
+                    </button>{' '}
+                    tab on the right and click <strong className="text-slate-900 font-semibold">Proceed to Build</strong> when ready.
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 pl-8">04:42 PM</span>
+              </div>
+            )}
+
+            {/* Quick Action banner for Plan Ready */}
+            {storyStage === 'plan_ready' && (
+              <div className="p-3.5 rounded-2xl bg-indigo-50/90 border border-indigo-200/80 flex items-center justify-between shadow-xs animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
+                  <span className="text-[12.5px] font-bold text-indigo-950">Implementation Plan Ready</span>
+                </div>
+                <button
+                  onClick={onProceedToBuild}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-[12px] font-bold shadow-xs cursor-pointer transition hover:scale-105"
+                >
+                  <span>Proceed to Build</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* User Message 2 (Plan Approved) */}
+            {(storyStage === 'pipeline1_running' ||
+              storyStage === 'awaiting_db' ||
+              storyStage === 'pipeline2_running' ||
+              storyStage === 'completed') && (
+              <div className="flex flex-col items-end space-y-1 animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[12.5px] font-medium shadow-sm flex items-center gap-2 max-w-[85%] text-right">
+                    <span>Implementation plan approved. Proceed with full-stack code generation.</span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 pr-8">08:35 AM</span>
+              </div>
+            )}
+
+            {/* PIPELINE 1 CARD */}
+            {(storyStage === 'pipeline1_running' ||
+              storyStage === 'awaiting_db' ||
+              storyStage === 'pipeline2_running' ||
+              storyStage === 'completed') && (
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden animate-fade-in">
+                {/* Header */}
+                <div className="p-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-[12.5px] font-bold text-slate-900 leading-tight">Execution Pipeline</h4>
+                      <p className="text-[10.5px] text-slate-400 leading-none mt-0.5">Live execution status &amp; technical trace logs</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {storyStage !== 'pipeline1_running' ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-500" /> PIPELINE COMPLETE
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-500" /> EXECUTING...
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setPipeline1Collapsed(c => !c)}
+                      className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {pipeline1Collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {!pipeline1Collapsed && (
+                  <div className="p-3.5 space-y-3 font-sans">
+                    {/* Step 1: requirement-analyzer */}
+                    <div className="flex items-start gap-2.5">
+                      {pipeline1Step >= 1 ? (
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                          <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[12px] font-semibold text-slate-800">requirement-analyzer</span>
+                          {pipeline1Step >= 1 ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                              DATA FEEDED
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                              ANALYZING...
+                            </span>
+                          )}
+                        </div>
+                        {pipeline1Step >= 1 && (
+                          <>
+                            <button
+                              onClick={() => toggleTrace('p1-req')}
+                              className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                            >
+                              <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-req'] && 'rotate-90')} />
+                              <span>_ View technical trace · 1 event</span>
+                            </button>
+                            {expandedTraces['p1-req'] && (
+                              <TraceTerminalView
+                                title="requirement_analyzer"
+                                data={TRACE_DATA['requirement-analyzer'].json}
+                                copied={copiedTrace === 'p1-req'}
+                                onCopy={() => copyTraceJson('p1-req', TRACE_DATA['requirement-analyzer'].json)}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 2: skill-gathering */}
+                    {pipeline1Step >= 1 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline1Step >= 2 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">skill-gathering</span>
+                            {pipeline1Step >= 2 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                SKILLS GATHERED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                DISCOVERING...
+                              </span>
+                            )}
+                          </div>
+                          {pipeline1Step >= 2 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p1-skill-gathering')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-skill-gathering'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p1-skill-gathering'] && (
+                                <TraceTerminalView
+                                  title="skill_discovery"
+                                  data={TRACE_DATA['skill-gathering'].json}
+                                  copied={copiedTrace === 'p1-skill-gathering'}
+                                  onCopy={() => copyTraceJson('p1-skill-gathering', TRACE_DATA['skill-gathering'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 3: context-architect */}
+                    {pipeline1Step >= 2 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline1Step >= 3 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">context-architect</span>
+                            {pipeline1Step >= 3 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                ARCHITECTURE PLANNED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                PLANNING...
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Planned Code Structure Banner */}
+                          {pipeline1Step >= 3 && (
+                            <div className="rounded-xl bg-gradient-to-r from-[#1E1B4B] via-[#2E1065] to-[#1E1B4B] border border-purple-800/40 p-2.5 flex items-center justify-between shadow-xs animate-fade-in">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-purple-600/60 border border-purple-400/40 text-purple-200 flex items-center justify-center font-bold text-[10px]">
+                                  tb
+                                </div>
+                                <span className="text-[12px] font-bold text-white tracking-wide">
+                                  Planned Code Structure
+                                </span>
+                              </div>
+                              <button
+                                onClick={onViewArchitecture}
+                                className="flex items-center gap-1.5 text-[11px] font-semibold text-purple-200 hover:text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-lg transition cursor-pointer"
+                              >
+                                <span>View Architecture</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+
+                          {pipeline1Step >= 3 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p1-arch')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-arch'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p1-arch'] && (
+                                <TraceTerminalView
+                                  title="architecture_synthesis"
+                                  data={TRACE_DATA['context-architect'].json}
+                                  copied={copiedTrace === 'p1-arch'}
+                                  onCopy={() => copyTraceJson('p1-arch', TRACE_DATA['context-architect'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 4: project-initializer */}
+                    {pipeline1Step >= 3 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline1Step >= 4 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">project-initializer</span>
+                            {pipeline1Step >= 4 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                PROJECT INITIALIZED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                INITIALIZING...
+                              </span>
+                            )}
+                          </div>
+                          {pipeline1Step >= 4 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p1-proj')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-proj'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p1-proj'] && (
+                                <TraceTerminalView
+                                  title="scaffold_project_files"
+                                  data={TRACE_DATA['project-initializer'].json}
+                                  copied={copiedTrace === 'p1-proj'}
+                                  onCopy={() => copyTraceJson('p1-proj', TRACE_DATA['project-initializer'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 5: database-initializer */}
+                    {pipeline1Step >= 4 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {storyStage !== 'pipeline1_running' ? (
+                          <div className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Clock className="w-2.5 h-2.5" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">database-initializer</span>
+                            {storyStage !== 'pipeline1_running' ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200">
+                                AWAITING CLUSTER
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-amber-600 bg-amber-50 border border-amber-200 animate-pulse">
+                                CHECKING DB...
+                              </span>
+                            )}
+                          </div>
+                          {storyStage !== 'pipeline1_running' && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p1-db')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p1-db'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p1-db'] && (
+                                <TraceTerminalView
+                                  title="mongodb_cluster_init"
+                                  data={TRACE_DATA['database-initializer-awaiting'].json}
+                                  copied={copiedTrace === 'p1-db'}
+                                  onCopy={() => copyTraceJson('p1-db', TRACE_DATA['database-initializer-awaiting'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Database Connection Required Banner */}
+            {(storyStage === 'awaiting_db' ||
+              storyStage === 'pipeline2_running' ||
+              storyStage === 'completed') && (
+              <div className="flex flex-col items-start space-y-1 animate-fade-in">
+                <div className="w-full rounded-2xl border border-amber-200/90 bg-[#FFFDF5] p-3.5 shadow-xs">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Zap className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-[12.5px] font-bold text-amber-900 leading-snug">
+                        Database Connection Required
+                      </h5>
+                      <p className="text-[11.5px] text-amber-800/90 leading-relaxed mt-0.5">
+                        Please connect your MongoDB cluster URL in the Database tab to proceed with full-stack application code generation.
+                      </p>
+                      {storyStage === 'awaiting_db' && (
+                        <div className="mt-2.5">
+                          <button
+                            onClick={onConnectDatabase}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[11.5px] font-bold shadow-xs transition cursor-pointer hover:scale-105"
+                          >
+                            <span>Configure Database</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 pl-2">08:37 AM</span>
+              </div>
+            )}
+
+            {/* User Message 3: Database connected */}
+            {(storyStage === 'pipeline2_running' || storyStage === 'completed') && (
+              <div className="flex flex-col items-end space-y-1 animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-[#0F172A] text-white px-4 py-2 text-[12.5px] font-medium shadow-sm flex items-center gap-2">
+                    <span>Database connected successfully. Proceed with code generation.</span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 pr-8">08:38 AM</span>
+              </div>
+            )}
+
+            {/* PIPELINE 2 CARD */}
+            {(storyStage === 'pipeline2_running' || storyStage === 'completed') && (
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden animate-fade-in">
+                {/* Header */}
+                <div className="p-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-[12.5px] font-bold text-slate-900 leading-tight">Execution Pipeline</h4>
+                      <p className="text-[10.5px] text-slate-400 leading-none mt-0.5">Live execution status &amp; technical trace logs</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {storyStage === 'completed' ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-500" /> PIPELINE COMPLETE
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin text-indigo-500" /> EXECUTING...
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setPipeline2Collapsed(c => !c)}
+                      className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {pipeline2Collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {!pipeline2Collapsed && (
+                  <div className="p-3.5 space-y-3 font-sans">
+                    {/* Step 1: requirement-analyzer */}
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[12px] font-semibold text-slate-800">requirement-analyzer</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                            DATA FEEDED
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => toggleTrace('p2-req')}
+                          className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                        >
+                          <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-req'] && 'rotate-90')} />
+                          <span>_ View technical trace · 1 event</span>
+                        </button>
+                        {expandedTraces['p2-req'] && (
+                          <TraceTerminalView
+                            title="requirement_analyzer"
+                            data={TRACE_DATA['requirement-analyzer'].json}
+                            copied={copiedTrace === 'p2-req'}
+                            onCopy={() => copyTraceJson('p2-req', TRACE_DATA['requirement-analyzer'].json)}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 2: database-initializer */}
+                    <div className="flex items-start gap-2.5">
+                      {pipeline2Step >= 2 ? (
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                          <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[12px] font-semibold text-slate-800">database-initializer</span>
+                          {pipeline2Step >= 2 ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                              DATABASE CONFIGURED
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                              CONNECTING...
+                            </span>
+                          )}
+                        </div>
+                        {pipeline2Step >= 2 && (
+                          <>
+                            <button
+                              onClick={() => toggleTrace('p2-db')}
+                              className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                            >
+                              <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-db'] && 'rotate-90')} />
+                              <span>_ View technical trace · 1 event</span>
+                            </button>
+                            {expandedTraces['p2-db'] && (
+                              <TraceTerminalView
+                                title="database_connection_test"
+                                data={TRACE_DATA['database-initializer-ready'].json}
+                                copied={copiedTrace === 'p2-db'}
+                                onCopy={() => copyTraceJson('p2-db', TRACE_DATA['database-initializer-ready'].json)}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 3: code-writer */}
+                    {pipeline2Step >= 2 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline2Step >= 3 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">code-writer</span>
+                            {pipeline2Step >= 3 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                56 FILES GENERATED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                WRITING 56 FILES...
+                              </span>
+                            )}
+                          </div>
+                          {pipeline2Step >= 3 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p2-code')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-code'] && 'rotate-90')} />
+                                <span>_ View technical trace · 44 events</span>
+                              </button>
+                              {expandedTraces['p2-code'] && (
+                                <TraceTerminalView
+                                  title="fullstack_code_generator"
+                                  data={TRACE_DATA['code-writer'].json}
+                                  copied={copiedTrace === 'p2-code'}
+                                  onCopy={() => copyTraceJson('p2-code', TRACE_DATA['code-writer'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 4: code-validator */}
+                    {pipeline2Step >= 3 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline2Step >= 4 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">code-validator</span>
+                            {pipeline2Step >= 4 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                CODE VALIDATED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                TYPE CHECKING...
+                              </span>
+                            )}
+                          </div>
+                          {pipeline2Step >= 4 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p2-val')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-val'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p2-val'] && (
+                                <TraceTerminalView
+                                  title="syntax_and_type_check"
+                                  data={TRACE_DATA['code-validator'].json}
+                                  copied={copiedTrace === 'p2-val'}
+                                  onCopy={() => copyTraceJson('p2-val', TRACE_DATA['code-validator'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 5: build-executor */}
+                    {pipeline2Step >= 4 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {pipeline2Step >= 5 ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">build-executor</span>
+                            {pipeline2Step >= 5 ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                BUILD EXECUTED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                COMPILING...
+                              </span>
+                            )}
+                          </div>
+                          {pipeline2Step >= 5 && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p2-build')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-build'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p2-build'] && (
+                                <TraceTerminalView
+                                  title="next_build_runner"
+                                  data={TRACE_DATA['build-executor'].json}
+                                  copied={copiedTrace === 'p2-build'}
+                                  onCopy={() => copyTraceJson('p2-build', TRACE_DATA['build-executor'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 6: build-validator */}
+                    {pipeline2Step >= 5 && (
+                      <div className="flex items-start gap-2.5 animate-fade-in">
+                        {storyStage === 'completed' ? (
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-600" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[12px] font-semibold text-slate-800">build-validator</span>
+                            {storyStage === 'completed' ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                BUILD VALIDATED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-200 animate-pulse">
+                                VERIFYING...
+                              </span>
+                            )}
+                          </div>
+                          {storyStage === 'completed' && (
+                            <>
+                              <button
+                                onClick={() => toggleTrace('p2-val2')}
+                                className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-slate-800 mt-1 cursor-pointer"
+                              >
+                                <ChevronRight className={cx('w-3 h-3 transition-transform', expandedTraces['p2-val2'] && 'rotate-90')} />
+                                <span>_ View technical trace · 1 event</span>
+                              </button>
+                              {expandedTraces['p2-val2'] && (
+                                <TraceTerminalView
+                                  title="runtime_smoke_test"
+                                  data={TRACE_DATA['build-validator'].json}
+                                  copied={copiedTrace === 'p2-val2'}
+                                  onCopy={() => copyTraceJson('p2-val2', TRACE_DATA['build-validator'].json)}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Application Ready Box */}
+            {storyStage === 'completed' && (
+              <div className="flex flex-col items-start space-y-1 animate-fade-in">
+                <div className="w-full rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <h5 className="text-[12.5px] font-bold text-slate-900">Application Ready!</h5>
+                  </div>
+                  <p className="text-[11.5px] text-slate-600 leading-relaxed">
+                    Your application preview is live in the <strong className="text-slate-900 font-semibold">Preview</strong> panel! You can test interactive features or ask for further customizations.
+                  </p>
+                  <div className="pt-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0F172A] text-white text-[11px] font-bold shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>CURRENTLY PREVIEWING</span>
+                    </div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 pl-2">08:39 AM</span>
+              </div>
+            )}
+
+            {/* Dynamic New Messages */}
+            {state.messages.map(m => (
+              <div key={m.id} className={cx('flex gap-2.5', m.role === 'user' && 'flex-row-reverse')}>
+                <div
+                  className={cx(
+                    'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs',
+                    m.role === 'user' ? 'bg-slate-200 text-slate-600' : 'bg-[#0F172A] text-white'
+                  )}
+                >
+                  {m.role === 'user' ? <User className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+                </div>
+                <div className={cx('max-w-[88%] min-w-0 space-y-2', m.role === 'user' && 'items-end')}>
+                  <div
+                    className={cx(
+                      'rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed',
+                      m.role === 'user'
+                        ? 'bg-[#0F172A] text-white rounded-tr-sm'
+                        : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+                    )}
+                  >
+                    {m.role === 'user' ? m.content : <Markdown source={m.content || '…'} className="[&_p]:my-0" />}
+                    {m.streaming && <span className="inline-block w-1.5 h-3.5 bg-slate-400 ml-0.5 animate-pulse align-middle" />}
+                  </div>
+                  {m.activity && (
+                    <div className="space-y-1">
+                      {m.activity.map((a, i) => (
+                        <button
+                          key={i}
+                          disabled={!a.file || !a.done}
+                          onClick={() => a.file && onJumpToFile(a.file)}
+                          title={a.file ? 'Jump to file' : undefined}
+                          className={cx(
+                            'w-full flex items-center gap-2 text-left text-[12px] px-2.5 py-1 rounded-lg border font-mono',
+                            a.done
+                              ? 'border-slate-200 bg-white text-slate-600 hover:border-indigo-400'
+                              : 'border-dashed border-slate-200 text-slate-400'
+                          )}
+                        >
+                          {a.done ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> : <Loader2 className="w-3 h-3 animate-spin shrink-0" />}
+                          {a.file && <FileCode2 className="w-3 h-3 text-slate-400 shrink-0" />}
+                          <span className="truncate">{a.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Bottom Input Area */}
@@ -893,9 +1181,17 @@ export const ChatPane: React.FC<Props> = ({
             <span>AI is generating… click stop to pause.</span>
           </div>
         )}
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-2 focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100 transition">
+        <div
+          className={cx(
+            'rounded-2xl border p-2 transition',
+            storyStage === 'unstarted'
+              ? 'border-slate-200 bg-slate-100/60 opacity-70'
+              : 'border-slate-200 bg-slate-50/70 focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100'
+          )}
+        >
           <textarea
             value={draft}
+            disabled={storyStage === 'unstarted'}
             onChange={e => setDraft(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -904,11 +1200,19 @@ export const ChatPane: React.FC<Props> = ({
               }
             }}
             rows={2}
-            placeholder={placeholder}
-            className="w-full resize-none bg-transparent min-h-[46px] text-[13.5px] leading-relaxed px-2 py-1 focus:outline-none placeholder:text-slate-400"
+            placeholder={
+              storyStage === 'unstarted'
+                ? "Click 'Start Application Generation' above to begin..."
+                : placeholder
+            }
+            className="w-full resize-none bg-transparent min-h-[46px] text-[13.5px] leading-relaxed px-2 py-1 focus:outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
           />
           <div className="flex items-center justify-between pt-1 px-1">
-            <span className="text-[10px] text-slate-400">Enter to send · Shift+Enter for new line</span>
+            <span className="text-[10px] text-slate-400">
+              {storyStage === 'unstarted'
+                ? 'Generation required'
+                : 'Enter to send · Shift+Enter for new line'}
+            </span>
             {state.generating ? (
               <button
                 onClick={onStop}
@@ -920,7 +1224,7 @@ export const ChatPane: React.FC<Props> = ({
             ) : (
               <button
                 onClick={submit}
-                disabled={!draft.trim()}
+                disabled={storyStage === 'unstarted' || !draft.trim()}
                 className="w-7 h-7 rounded-xl bg-[#0F172A] text-white flex items-center justify-center hover:bg-slate-800 disabled:opacity-30 cursor-pointer shadow-xs transition"
               >
                 <Send className="w-3.5 h-3.5" />
@@ -935,7 +1239,6 @@ export const ChatPane: React.FC<Props> = ({
 
 /** Terminal-style execution trace log viewer matching Screenshot 4 */
 interface TraceTerminalViewProps {
-  traceKey: string;
   title: string;
   data: object;
   copied: boolean;
@@ -944,7 +1247,7 @@ interface TraceTerminalViewProps {
 
 const TraceTerminalView: React.FC<TraceTerminalViewProps> = ({ title, data, copied, onCopy }) => {
   return (
-    <div className="mt-2 rounded-xl border border-stone-200 bg-white p-2.5 shadow-sm space-y-2">
+    <div className="mt-2 rounded-xl border border-stone-200 bg-white p-2.5 shadow-sm space-y-2 animate-fade-in">
       <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-600">
         <span className="text-slate-400">#1</span>
         <Check className="w-3 h-3 text-emerald-500" />
@@ -972,7 +1275,7 @@ const TraceTerminalView: React.FC<TraceTerminalViewProps> = ({ title, data, copi
           </button>
         </div>
 
-        {/* Code Content */}
+        {/* Monospace Code Content */}
         <pre className="p-3 text-[11px] font-mono text-emerald-400 leading-relaxed overflow-x-auto max-h-[160px] scrollbar-thin">
           {JSON.stringify(data, null, 2)}
         </pre>

@@ -7,11 +7,12 @@ import { WorkspaceState } from '../types';
 interface Props {
   projectId: string;
   state: WorkspaceState;
+  canProceed?: boolean;
   onSubmitClarifications: (answers: Record<string, { question: string; answer: string }>) => Promise<void>;
   onProceed: () => void;
 }
 
-export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifications, onProceed }) => {
+export const PlanPanel: React.FC<Props> = ({ projectId, state, canProceed, onSubmitClarifications, onProceed }) => {
   const [answers, setAnswers] = useState<Record<string, { question: string; answer: string }>>({});
   const [custom, setCustom] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -60,7 +61,7 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifica
           )}
           {showForm ? (
             <Button size="sm" variant="dark" loading={submitting} disabled={answeredCount === 0} icon={<Sparkles className="w-3.5 h-3.5" />} onClick={generate}>{submitting ? 'Generating plan…' : 'Generate plan'}</Button>
-          ) : !approved && state.planMarkdown ? (
+          ) : (canProceed || (!approved && state.planMarkdown)) ? (
             <Button size="sm" variant="primary" icon={<Play className="w-3.5 h-3.5" />} onClick={onProceed}>Proceed to build <ArrowRight className="w-3.5 h-3.5" /></Button>
           ) : null}
         </div>
@@ -110,6 +111,17 @@ export const PlanPanel: React.FC<Props> = ({ projectId, state, onSubmitClarifica
             <Card className="!p-6 md:!p-8">
               <div className="flex items-center gap-2 text-[13.5px] font-mono text-slate-500 pb-4 mb-4 border-b border-slate-200"><FileText className="w-3.5 h-3.5" /><span className="font-semibold uppercase tracking-wider text-[12.5px]">Artifact: implementation_plan.md</span></div>
               <Markdown source={state.planMarkdown} />
+              {canProceed && (
+                <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/80 -mx-6 -mb-6 md:-mx-8 md:-mb-8 p-6 rounded-b-2xl">
+                  <div>
+                    <h4 className="text-[14px] font-bold text-slate-900">Ready for full-stack code generation?</h4>
+                    <p className="text-[12px] text-slate-500 mt-0.5">Approve this plan to trigger autonomous pipeline execution.</p>
+                  </div>
+                  <Button size="md" variant="dark" icon={<Play className="w-3.5 h-3.5 text-emerald-400" />} onClick={onProceed}>
+                    Proceed to Build
+                  </Button>
+                </div>
+              )}
             </Card>
           </div>
         ) : (

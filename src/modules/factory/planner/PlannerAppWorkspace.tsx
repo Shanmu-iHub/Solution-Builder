@@ -259,12 +259,7 @@ ${plannerArchitectureLayers.map(l => `- **${l.name}** — ${l.items.join(', ')}`
                       <span className="px-3 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                         Validated Problem Context
                       </span>
-                      <span className="px-3 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20">
-                        High Priority Friction
-                      </span>
-                      <span className="px-3 py-1.5 bg-gray-100 text-gray-600 border border-gray-200">
-                        BRD Discovery Baseline
-                      </span>
+
                     </div>
                   </div>
 
@@ -552,12 +547,6 @@ ${plannerArchitectureLayers.map(l => `- **${l.name}** — ${l.items.join(', ')}`
                       <span className="px-3 py-1.5 bg-gray-100 text-gray-700 border border-gray-200">
                         {b.domain || 'FINTECH / CORPORATE OPERATIONS'}
                       </span>
-                      <span className="px-3 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                        {b.confidenceScore ? `${b.confidenceScore}% Confidence` : '95% Confidence'}
-                      </span>
-                      <span className="px-3 py-1.5 bg-blue-500/10 text-blue-600 border border-blue-500/20">
-                        Ready For Approval
-                      </span>
                       <span className="px-3 py-1.5 bg-gray-100 text-gray-600 border border-gray-200">
                         Complexity: {b.complexity || 'Medium'}
                       </span>
@@ -738,7 +727,7 @@ ${plannerArchitectureLayers.map(l => `- **${l.name}** — ${l.items.join(', ')}`
                 { id: 'sad' as const, label: 'SAD (Architecture)' },
                 { id: 'tdd' as const, label: 'TDD (Technical Design)' },
                 { id: 'api_list' as const, label: 'API List' },
-                { id: 'ddd' as const, label: 'DDD (Domain Design)' },
+                { id: 'ddd' as const, label: 'DDD (Data Design)' },
                 { id: 'tasks' as const, label: 'Task Breakdown' },
               ].map(tabItem => (
                 <button

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   BarChart3,
   Cloud,
@@ -19,7 +19,7 @@ import { Button, Dialog, Toggle, cx, useToast } from '../../ui';
 import { useFactory } from '../FactoryStore';
 import { FactoryProject } from '../types';
 import { ArchitecturePanel } from './ArchitecturePanel';
-import { ChatPane } from './ChatPane';
+import { ChatPane, StoryStage } from './ChatPane';
 import { CodePanel } from './CodePanel';
 import { DatabasePanel } from './DatabasePanel';
 import { DeploymentPanel } from './DeploymentPanel';
@@ -54,7 +54,16 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
     ? ALL_TABS.filter(t => t.id !== 'plan' && t.id !== 'database' && t.id !== 'workflow')
     : ALL_TABS;
 
-  const [tab, setTab] = useState<Tab>(state.planStatus === 'APPROVED' || isUi ? 'preview' : 'plan');
+  const isStoryApplicable = project.projectName.toLowerCase().includes('expensif') || Object.keys(state.files).length === 0;
+
+  // Story Line State
+  const [storyStage, setStoryStage] = useState<StoryStage>(isStoryApplicable ? 'unstarted' : 'completed');
+  const [pipeline1Step, setPipeline1Step] = useState<number>(isStoryApplicable ? 0 : 5);
+  const [pipeline2Step, setPipeline2Step] = useState<number>(isStoryApplicable ? 0 : 6);
+  const [tokensCount, setTokensCount] = useState<number>(isStoryApplicable ? 0 : 101293);
+
+  // Tab & Panes State
+  const [tab, setTab] = useState<Tab>(isStoryApplicable ? 'preview' : state.planStatus === 'APPROVED' || isUi ? 'preview' : 'plan');
   const [showArchitecture, setShowArchitecture] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
@@ -65,31 +74,103 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
     return () => setCanvasMode(false);
   }, [setCanvasMode]);
 
-  // jump to Plan when the assistant asks questions; to Preview when a build finishes
+  // Timers cleanup ref
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const clearStoryTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
   useEffect(() => {
-    if (state.clarificationStatus === 'AWAITING_USER' && !isUi) {
-      setTab('plan');
-      setShowArchitecture(false);
-    }
-  }, [state.clarificationStatus, isUi]);
+    return () => clearStoryTimers();
+  }, []);
 
-  const wasGenerating = React.useRef(false);
-  useEffect(() => {
-    if (wasGenerating.current && !state.generating && state.previewReady) {
+  // 1. User clicks "START APPLICATION GENERATION"
+  const handleStartGeneration = () => {
+    clearStoryTimers();
+    setStoryStage('generating_plan');
+    setTokensCount(14200);
+
+    const t1 = setTimeout(() => {
+      setStoryStage('plan_ready');
+      setTab('plan');
+      toast({ title: 'Implementation Plan Drafted', description: 'Review the technical plan in the PLAN tab.' });
+    }, 1200);
+    timersRef.current.push(t1);
+  };
+
+  // 2. User clicks "Proceed to Build"
+  const handleProceedToBuild = () => {
+    clearStoryTimers();
+    setStoryStage('pipeline1_running');
+    setPipeline1Step(0);
+    setTokensCount(18500);
+
+    const t1 = setTimeout(() => { setPipeline1Step(1); setTokensCount(24000); }, 1100);
+    const t2 = setTimeout(() => { setPipeline1Step(2); setTokensCount(32500); }, 2300);
+    const t3 = setTimeout(() => { setPipeline1Step(3); setTokensCount(39800); }, 3700);
+    const t4 = setTimeout(() => { setPipeline1Step(4); setTokensCount(45000); }, 4900);
+    const t5 = setTimeout(() => {
+      setPipeline1Step(5);
+      setTokensCount(49277);
+      setStoryStage('awaiting_db');
+      toast({ title: 'Pipeline 1 Complete', description: 'Database cluster connection required to continue.' });
+    }, 6200);
+
+    timersRef.current.push(t1, t2, t3, t4, t5);
+  };
+
+  // 3. User clicks "Configure Database"
+  const handleConnectDatabase = () => {
+    clearStoryTimers();
+    setStoryStage('pipeline2_running');
+    setPipeline2Step(1);
+    setTokensCount(58200);
+
+    const t1 = setTimeout(() => { setPipeline2Step(2); setTokensCount(68000); }, 1000);
+    const t2 = setTimeout(() => { setPipeline2Step(3); setTokensCount(79500); }, 2800);
+    const t3 = setTimeout(() => { setPipeline2Step(4); setTokensCount(88400); }, 3900);
+    const t4 = setTimeout(() => { setPipeline2Step(5); setTokensCount(94200); }, 5000);
+    const t5 = setTimeout(() => {
+      setPipeline2Step(6);
+      setTokensCount(101293);
+      setStoryStage('completed');
+      f.restartPreview(id);
       setTab('preview');
-    }
-    if (!wasGenerating.current && state.generating) {
-      setTab(t => (t === 'plan' && !isUi ? 'code' : t));
-    }
-    wasGenerating.current = state.generating;
-  }, [state.generating, state.previewReady, isUi]);
+      toast({ title: 'Application Ready!', description: 'Full-stack application preview is live.' });
+    }, 6200);
+
+    timersRef.current.push(t1, t2, t3, t4, t5);
+  };
+
+  // 4. Reset Story (Replay Walkthrough)
+  const handleResetStory = () => {
+    clearStoryTimers();
+    setStoryStage('unstarted');
+    setPipeline1Step(0);
+    setPipeline2Step(0);
+    setTokensCount(0);
+    setShowArchitecture(false);
+    setTab('preview');
+    toast({ title: 'Story Reset', description: 'Generation walkthrough returned to initial state.' });
+  };
 
   const fileCount = Object.keys(state.files).length;
-  const status = state.generating
-    ? { label: 'Building', cls: 'text-amber-500', dot: 'bg-amber-400 animate-ping' }
-    : state.previewReady
-    ? { label: 'Live', cls: 'text-emerald-600', dot: 'bg-emerald-500' }
-    : { label: 'Ready', cls: 'text-slate-400', dot: 'bg-slate-400' };
+  const isPreviewLive = storyStage === 'completed';
+
+  const status =
+    storyStage === 'unstarted'
+      ? { label: 'Ready', cls: 'text-slate-400', dot: 'bg-slate-400' }
+      : storyStage === 'generating_plan'
+      ? { label: 'Drafting Plan', cls: 'text-indigo-600', dot: 'bg-indigo-500 animate-ping' }
+      : storyStage === 'plan_ready'
+      ? { label: 'Plan Ready', cls: 'text-indigo-600', dot: 'bg-indigo-500' }
+      : storyStage === 'pipeline1_running'
+      ? { label: 'Building', cls: 'text-amber-500', dot: 'bg-amber-400 animate-ping' }
+      : storyStage === 'awaiting_db'
+      ? { label: 'Action Required', cls: 'text-amber-600', dot: 'bg-amber-500' }
+      : storyStage === 'pipeline2_running'
+      ? { label: 'Synthesizing', cls: 'text-purple-600', dot: 'bg-purple-500 animate-ping' }
+      : { label: 'Live', cls: 'text-emerald-600', dot: 'bg-emerald-500' };
 
   const handleTabClick = (t: Tab) => {
     setShowArchitecture(false);
@@ -134,6 +215,12 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
         'Create a customer portal with login and order history',
       ];
 
+  // Pass previewReady depending on story stage
+  const effectiveState = {
+    ...state,
+    previewReady: isPreviewLive,
+  };
+
   return (
     <div className="h-full w-full flex bg-[#F8FAFC]">
       {/* Left Chat & Execution Logs Pane */}
@@ -141,8 +228,16 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
         <div className="w-[33%] min-w-[340px] max-w-[480px] shrink-0 border-r border-slate-200 bg-white">
           <ChatPane
             projectName={project.projectName}
-            state={state}
+            state={effectiveState}
+            storyStage={storyStage}
+            pipeline1Step={pipeline1Step}
+            pipeline2Step={pipeline2Step}
+            tokensCount={tokensCount}
             placeholder={isUi ? 'Describe the page or change you want…' : 'Describe what you want to build…'}
+            onStartGeneration={handleStartGeneration}
+            onProceedToBuild={handleProceedToBuild}
+            onConnectDatabase={handleConnectDatabase}
+            onResetStory={handleResetStory}
             onBack={onBack}
             onSend={t => f.send(id, t)}
             onStop={() => f.stop(id)}
@@ -195,11 +290,15 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
             </div>
             <span
               className={cx(
-                'hidden xl:flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider shrink-0 text-emerald-700'
+                'hidden xl:flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wider shrink-0',
+                status.cls,
+                status.label === 'Live'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'border-slate-200 bg-slate-50'
               )}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              LIVE
+              <span className={cx('w-1.5 h-1.5 rounded-full', status.dot)} />
+              {status.label}
             </span>
           </div>
 
@@ -236,9 +335,10 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 <div className="h-full overflow-hidden p-2 lg:p-4">
                   <PlanPanel
                     projectId={id}
-                    state={state}
+                    state={effectiveState}
+                    canProceed={storyStage === 'plan_ready'}
                     onSubmitClarifications={a => f.submitClarifications(id, a)}
-                    onProceed={() => f.proceedPlan(id)}
+                    onProceed={handleProceedToBuild}
                   />
                 </div>
               )}
@@ -246,7 +346,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 <div className="h-full overflow-hidden">
                   <PreviewPanel
                     appName={project.projectName}
-                    state={state}
+                    state={effectiveState}
                     onRefresh={() => f.restartPreview(id)}
                     onPage={p => f.setPage(id, p)}
                   />
@@ -255,7 +355,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
               {tab === 'code' && (
                 <div className="h-full overflow-hidden p-2 lg:p-4">
                   <CodePanel
-                    state={state}
+                    state={effectiveState}
                     onPick={file => f.setActiveFile(id, file)}
                     onSave={(file, content) => {
                       f.saveFile(id, file, content);
@@ -268,7 +368,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                 <div className="h-full overflow-hidden p-2 lg:p-4">
                   <GitPanel
                     projectName={project.projectName}
-                    state={state}
+                    state={effectiveState}
                     hasFiles={fileCount > 0}
                     onConnect={() => f.connectGithub(id)}
                     onDisconnect={() => f.disconnectGithub(id)}
@@ -293,7 +393,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
                   <DeploymentPanel
                     projectId={id}
                     projectName={project.projectName}
-                    state={state}
+                    state={effectiveState}
                     hasFiles={fileCount > 0}
                     onDeploy={(p, n) => f.deploy(id, p, n)}
                     onStop={d => f.stopDeployment(id, d)}

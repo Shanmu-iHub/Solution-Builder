@@ -35,10 +35,10 @@ export interface PlannerBrief {
 
 const BRIEFS: Record<string, PlannerBrief> = {
   'ExpensifyIQ': {
-    domain: 'PROBLEM DISCOVERY',
-    problem: 'No business problem statement captured in discovery.',
+    domain: 'FINANCE & OPERATIONS',
+    problem: 'Corporate expense reimbursement cycles take an average of 14 business days due to manual receipt entry, frequent lost receipts, and labor-intensive compliance reviews. Finance teams spend over 35% of their time cross-referencing company travel policies, leading to delayed employee repayments and poor spend visibility.',
     solution: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
-    initiativeContext: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
+    initiativeContext: 'An enterprise intelligent expense management platform that simplifies expense submission, multi-tiered approvals, automated receipt OCR extraction, and policy compliance while improving spending visibility for corporate finance teams.',
     problemStatement: 'Expense report approval cycles take 14 business days on average. Employees frequently miss receipt attachments, and finance managers spend excessive hours manually verifying line-item compliance against company travel policies.',
     currentState: 'Employees manually upload scanned receipts into spreadsheets. Managers review each claim line by line and approve via unstructured email threads. Finance reconciles credit card feeds manually at month-end.',
     stakeholders: ['Finance Operations Lead', 'VP Corporate Controller', 'Travel & Expense Admin', 'Frontline Employee Submitter', 'Audit & Compliance Officer'],
