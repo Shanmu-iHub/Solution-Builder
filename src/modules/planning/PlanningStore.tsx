@@ -54,6 +54,7 @@ const planningState = (name: string, ideaText: string | undefined, upTo: 'dashbo
 };
 
 const seedProjects: SolutionProject[] = [
+  { id: 'sp-expensify', name: 'ExpensifyIQ', description: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.', stage: 'documentation', createdAt: daysAgo(5), updatedAt: daysAgo(1) },
   { id: 'sp-support', name: 'Customer Support AI', description: 'AI-assisted support workspace for a regional telecom: faster answers, fewer repeat contacts.', stage: 'requirement_context', createdAt: daysAgo(3), updatedAt: daysAgo(1) },
   { id: 'sp-claims', name: 'Claims Automation Portal', description: 'Self-service claim intake with automated triage and adjuster workbench for a regional insurer.', stage: 'requirement_context', createdAt: daysAgo(9), updatedAt: daysAgo(1) },
   { id: 'sp-hr', name: 'HR Onboarding Assistant', description: 'Conversational onboarding for new hires across 12 countries: paperwork, equipment, training.', stage: 'requirement_context', createdAt: daysAgo(14), updatedAt: daysAgo(2) },
@@ -64,6 +65,7 @@ const seedProjects: SolutionProject[] = [
 ];
 
 const IDEAS = {
+  expensify: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
   support: 'An AI customer support platform for a regional telecom that helps customers get faster answers and reduces support staff workload by grounding every reply in approved knowledge.',
   claims: 'A claims automation portal where policyholders report a loss in minutes, claims are triaged by severity and fraud risk, and adjusters work from one unified case file.',
   hr: 'A conversational HR assistant that guides new hires through paperwork, equipment, accounts and compliance training so they are productive in their first week.',
@@ -83,12 +85,17 @@ const inProgress = (name: string, idea: string, where: 'opportunity' | 'problem'
 };
 
 const seedStates = (): Record<string, PlanningState> => {
+  const expensify = planningState('ExpensifyIQ', IDEAS.expensify, 'documentation');
+  const expensifyDocs = { ...expensify.docs };
+  DOC_DEFS.slice(0, 4).forEach(d => (expensifyDocs[d.type] = { status: 'completed', content: makeDocContent(d.type, 'ExpensifyIQ') }));
+
   const loan = planningState('Loan Origination Portal', IDEAS.loan, 'dashboard');
   const loanDocs = { ...loan.docs };
   DOC_DEFS.slice(0, 4).forEach(d => (loanDocs[d.type] = { status: 'completed', content: makeDocContent(d.type, 'Loan Origination Portal') }));
   const fleet = planningState('Fleet Telematics Dashboard', IDEAS.fleet, 'dashboard');
   const insure = planningState('Policy Renewal Advisor', IDEAS.insure, 'validation');
   return {
+    'sp-expensify': { ...expensify, docs: expensifyDocs },
     'sp-support': { ...initialPlanningState(), idea: IDEAS.support },
     'sp-claims': inProgress('Claims Automation Portal', IDEAS.claims, 'opportunity'),
     'sp-hr': inProgress('HR Onboarding Assistant', IDEAS.hr, 'problem'),

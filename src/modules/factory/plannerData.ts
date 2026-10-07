@@ -8,17 +8,241 @@ export interface PlannerBrief {
   inScope: string[];
   outOfScope: string[];
   domain: string;
+  initiativeContext?: string;
+  problemStatement?: string;
+  currentState?: string;
+  businessRules?: string[];
+  successMetrics?: string[];
+  assumptions?: string[];
+  constraints?: string[];
+  risks?: string[];
+  securityCompliance?: string;
+  highLevelReqs?: string[];
+  solutionName?: string;
+  solutionTagline?: string;
+  solutionDesc?: string;
+  confidenceScore?: number;
+  complexity?: string;
+  aiLevel?: string;
+  solutionWhyThis?: string[];
+  solutionBenefits?: string[];
+  solutionOutcomes?: string[];
+  solutionCapabilities?: string[];
+  solutionModules?: string[];
+  solutionAiFeatures?: string[];
+  solutionIntegrations?: string[];
 }
 
 const BRIEFS: Record<string, PlannerBrief> = {
+  'ExpensifyIQ': {
+    domain: 'PROBLEM DISCOVERY',
+    problem: 'No business problem statement captured in discovery.',
+    solution: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
+    initiativeContext: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
+    problemStatement: 'Expense report approval cycles take 14 business days on average. Employees frequently miss receipt attachments, and finance managers spend excessive hours manually verifying line-item compliance against company travel policies.',
+    currentState: 'Employees manually upload scanned receipts into spreadsheets. Managers review each claim line by line and approve via unstructured email threads. Finance reconciles credit card feeds manually at month-end.',
+    stakeholders: ['Finance Operations Lead', 'VP Corporate Controller', 'Travel & Expense Admin', 'Frontline Employee Submitter', 'Audit & Compliance Officer'],
+    objectives: [
+      'Accelerate reimbursement turnaround from 14 days to under 48 hours',
+      'Automate 80% of routine receipt-to-policy compliance checks',
+      'Reduce fraudulent or out-of-policy claims by 65%',
+      'Achieve seamless real-time ERP ledger synchronization'
+    ],
+    inScope: [
+      'Web & Mobile receipt submission with OCR extraction',
+      'Automated corporate travel policy validation engine',
+      'Multi-tier manager approval workflow with escalation timers',
+      'Real-time corporate card transaction matching',
+      'Finance audit & anomaly detection dashboard'
+    ],
+    outOfScope: [
+      'Direct vendor invoice & accounts payable processing',
+      'Payroll direct-deposit clearing engine',
+      'Replacement of existing core ERP general ledger'
+    ],
+    businessRules: [
+      'Receipts are mandatory for all transactions exceeding $25.00',
+      'Expense reports above $1,000 require secondary approval from Department Head',
+      'Foreign currency transactions convert using daily ECB exchange rates',
+      'Weekend personal charges must be marked as non-reimbursable'
+    ],
+    successMetrics: [
+      'Reimbursement turnaround < 48 hours',
+      '95% Receipt OCR field extraction accuracy',
+      '0% Unaudited duplicate expense submissions',
+      'Employee satisfaction rating > 4.6 / 5.0'
+    ],
+    assumptions: [
+      'Employees possess smartphones with cameras capable of capturing receipt images',
+      'Corporate card issuers provide daily transaction feeds via webhook or SFTP',
+      'Enterprise SSO via Okta/Azure AD is enabled for role management'
+    ],
+    constraints: [
+      'Must strictly comply with SOC2 Type II and GDPR data retention policies',
+      'Processing cost per expense report must remain under $1.50'
+    ],
+    risks: [
+      'Low mobile app adoption if manual receipt adjustment takes too long',
+      'API rate limits or delays from banking feed aggregators',
+      'High false-positive rate on automated fraud flags'
+    ],
+    securityCompliance: 'Standard GDPR, Role-Based Access Control (RBAC), and Enterprise Security guidelines apply. All receipt image uploads encrypted with AES-256 at rest.',
+    highLevelReqs: [
+      'Mobile camera receipt scanning with instantaneous optical character recognition',
+      'Per-diem calculation auto-adjustment by city tier and travel duration',
+      'Out-of-policy flag justification prompt before submission',
+      'Multi-currency automatic rate conversion',
+      'Direct sync with NetSuite / SAP ERP accounting codes'
+    ],
+    solutionName: 'ExpensifyIQ',
+    solutionTagline: 'Eliminating manual audits through AI-driven policy enforcement and seamless workflow automation.',
+    solutionDesc: 'An intelligent expense management platform that simplifies expense submission, approvals, and policy compliance while improving spending visibility for finance teams.',
+    confidenceScore: 95,
+    complexity: 'Medium',
+    aiLevel: 'Basic',
+    solutionWhyThis: [
+      'Automates 90% of policy checks instantly at point of submission',
+      'Reduces approval lag from weeks to hours with smart mobile routing',
+      'Provides CFOs with real-time spend analytics and spend anomaly alerts'
+    ],
+    solutionBenefits: [
+      'Zero-touch audit for compliant receipts',
+      'Instant mobile OCR capture & categorization',
+      'Automated policy rule enforcement',
+      'Seamless ERP export & audit trail'
+    ],
+    solutionOutcomes: [
+      '90% reduction in audit cycle times',
+      '100% policy compliance visibility',
+      '$140k annual savings in admin labor',
+      'Sub-2 day reimbursement turnaround'
+    ],
+    solutionCapabilities: [
+      'Multi-currency receipt OCR parsing',
+      'Rule-based & AI policy anomaly detection',
+      'Dynamic hierarchical manager approval chains',
+      'Real-time card feed reconciliation'
+    ],
+    solutionModules: [
+      'SUBMISSION WEB/MOBILE APP',
+      'POLICY ENGINE',
+      'FINANCE ANALYTICS HUB'
+    ],
+    solutionAiFeatures: [
+      'RECEIPT-TO-POLICY MATCHING',
+      'DUPLICATE DETECTION',
+      'ANOMALY DETECTION FOR HIGH-VALUE CLAIMS'
+    ],
+    solutionIntegrations: [
+      'NetSuite ERP Connector',
+      'SAP General Ledger API',
+      'Visa & Mastercard Corporate Feeds',
+      'Workday HR Employee Sync',
+      'Slack Approval Bot'
+    ]
+  },
   'Loan Origination Portal': {
     domain: 'Retail Banking',
     problem: 'Loan applications take 9 days on average because customers must visit a branch, documents are checked manually and credit decisions wait in email queues. Roughly 35% of applicants abandon the process.',
     solution: 'A digital origination portal where customers apply online, upload documents once, receive an automated pre-decision within minutes and track the application end to end, with underwriters reviewing only the exceptions.',
+    initiativeContext: 'A modern, omnichannel loan origination system that accelerates retail credit underwriting, reduces manual document handling, and delivers transparent applicant status tracking.',
+    problemStatement: 'Loan applications take 9 days on average because customers must visit a branch, documents are checked manually and credit decisions wait in email queues. Roughly 35% of applicants abandon the process.',
+    currentState: 'Borrowers visit branch offices with physical paperwork. Officers manually scan and upload documents into legacy core banking screens. Underwriters evaluate creditworthiness manually in spreadsheets.',
     stakeholders: ['Head of Retail Lending', 'Chief Risk Officer', 'Compliance Officer', 'Operations Manager', 'Customer Experience Lead'],
-    objectives: ['Cut time-to-decision from 9 days to 2 days', 'Reduce application abandonment from 35% to 15%', 'Auto-decide 60% of standard applications within policy', 'Keep a complete audit trail for every decision'],
-    inScope: ['Personal and auto loans', 'Online application and document upload', 'Automated eligibility and scoring', 'Underwriter workbench', 'Customer status tracking'],
-    outOfScope: ['Mortgage lending', 'Commercial loans', 'Replacement of the core banking system'],
+    objectives: [
+      'Cut time-to-decision from 9 days to 2 days',
+      'Reduce application abandonment from 35% to 15%',
+      'Auto-decide 60% of standard applications within policy',
+      'Keep a complete audit trail for every decision'
+    ],
+    inScope: [
+      'Personal and auto loans',
+      'Online application and document upload',
+      'Automated eligibility and scoring',
+      'Underwriter workbench',
+      'Customer status tracking'
+    ],
+    outOfScope: [
+      'Mortgage lending',
+      'Commercial loans',
+      'Replacement of the core banking system'
+    ],
+    businessRules: [
+      'Credit score < 620 automatically routes to Senior Underwriter',
+      'Debt-to-Income (DTI) ratio must not exceed 43% for automated approval',
+      'Proof of income required for loan amounts exceeding $10,000',
+      'KYC identity verification must succeed within 72 hours'
+    ],
+    successMetrics: [
+      'Decision time < 48 hours for 90% of applicants',
+      'Application abandonment reduced to < 15%',
+      'Customer Net Promoter Score > 60',
+      '100% compliance audit pass rate'
+    ],
+    assumptions: [
+      'Equifax & Experian credit bureau APIs have > 99.9% uptime',
+      'Core banking engine supports RESTful account disbursement APIs'
+    ],
+    constraints: [
+      'Must strictly conform to Fair Lending and FCRA regulations',
+      'PII data must be encrypted with HSM-backed keys'
+    ],
+    risks: [
+      'Legacy core banking API throttling during peak morning hours',
+      'Borrower confusion regarding document verification requirements'
+    ],
+    securityCompliance: 'Full FCRA, GLBA, and SOC2 compliance. End-to-end encryption for all financial records and biometric KYC inputs.',
+    highLevelReqs: [
+      'Instant credit bureau pull & algorithmic scoring',
+      'Self-service borrower dashboard with live status tracker',
+      'Automated paystub OCR parsing',
+      'Digital signature & automated fund disbursement'
+    ],
+    solutionName: 'Omnichannel Loan Origination Portal',
+    solutionTagline: 'Accelerating retail lending with automated scoring, fraud checks, and end-to-end self-service tracking.',
+    solutionDesc: 'A digital origination portal where customers apply online, upload documents once, receive an automated pre-decision within minutes and track the application end to end, with underwriters reviewing only the exceptions.',
+    confidenceScore: 92,
+    complexity: 'High',
+    aiLevel: 'Intermediate',
+    solutionWhyThis: [
+      'Reduces turnaround by 75% via instant algorithmic scoring',
+      'Provides borrowers with transparent self-service status updates',
+      'Focuses expert underwriters exclusively on complex exceptions'
+    ],
+    solutionBenefits: [
+      'Automated pre-decision in under 3 minutes',
+      'Frictionless mobile document upload',
+      'Integrated fraud and identity verification',
+      'Comprehensive regulatory audit trail'
+    ],
+    solutionOutcomes: [
+      '78% drop in time-to-decision',
+      '57% reduction in processing costs',
+      '60% automated straight-through processing rate',
+      'Zero non-compliance findings'
+    ],
+    solutionCapabilities: [
+      'Instant credit bureau pull & scoring',
+      'Automated tax & paystub OCR parsing',
+      'Underwriter exception triage queue',
+      'Digital signature & automated fund disbursement'
+    ],
+    solutionModules: [
+      'BORROWER APPLICATION PORTAL',
+      'CREDIT DECISION ENGINE',
+      'UNDERWRITER WORKBENCH'
+    ],
+    solutionAiFeatures: [
+      'INCOME DOCUMENT OCR & VALIDATION',
+      'SYNTHETIC IDENTITY FRAUD DETECTION',
+      'DYNAMIC RISK-BASED PRICING'
+    ],
+    solutionIntegrations: [
+      'Core Banking System API',
+      'Experian & Equifax Credit Bureaus',
+      'Plaid Financial Account Verification',
+      'DocuSign Digital Signatures'
+    ]
   },
   'Retail Analytics Hub': {
     domain: 'Retail',
@@ -59,13 +283,35 @@ const BRIEFS: Record<string, PlannerBrief> = {
 };
 
 const generic = (name: string): PlannerBrief => ({
-  domain: 'Enterprise',
+  domain: 'Problem Discovery',
   problem: `Teams working on ${name} rely on disconnected tools and manual hand-offs, which slows delivery and makes quality hard to audit.`,
-  solution: `A single workspace for ${name} that automates the routine steps, keeps people in control of decisions and records every action for audit.`,
-  stakeholders: ['Business Sponsor', 'Product Owner', 'Operations Lead', 'Compliance Officer'],
-  objectives: ['Reduce cycle time by 40%', 'Cut manual effort by 30%', 'Provide a full audit trail'],
-  inScope: ['Core workflow', 'Dashboards', 'Integrations with existing systems'],
-  outOfScope: ['Replacement of systems of record'],
+  solution: `A single workspace for ${name} that automates routine steps, keeps people in control of decisions and records every action for audit.`,
+  initiativeContext: `Enterprise solution architecture designed to modernize and automate ${name} workflows.`,
+  problemStatement: `Teams working on ${name} face substantial workflow friction and manual overhead that impacts operational velocity.`,
+  currentState: `Workflows are currently tracked manually across disparate spreadsheets and email threads without central governance.`,
+  stakeholders: ['Business Sponsor', 'Product Owner', 'Operations Lead', 'Compliance Officer', 'Engineering Manager'],
+  objectives: ['Reduce cycle time by 40%', 'Cut manual effort by 30%', 'Provide a full audit trail', 'Improve stakeholder satisfaction'],
+  inScope: ['Core workflow', 'Dashboards', 'Integrations with existing systems', 'Role-based access control'],
+  outOfScope: ['Replacement of core systems of record', 'Direct legacy database schema migrations'],
+  businessRules: ['All transactions require authorization', 'Audit logs must be preserved for 7 years'],
+  successMetrics: ['Operational SLA improvement > 35%', 'Cycle time reduction > 40%'],
+  assumptions: ['Cloud hosting environment is configured', 'Standard identity provider is operational'],
+  constraints: ['Budget and timeline constraints apply', 'Must meet corporate security standards'],
+  risks: ['User adoption friction', 'Integration latency with legacy endpoints'],
+  securityCompliance: 'Standard enterprise security protocols, TLS 1.3 encryption, and RBAC enforced.',
+  solutionName: name,
+  solutionTagline: 'Transforming legacy operations with unified automation and intelligent workflow control.',
+  solutionDesc: `A single workspace for ${name} that automates routine steps, keeps people in control of decisions and records every action for audit.`,
+  confidenceScore: 90,
+  complexity: 'Medium',
+  aiLevel: 'Intermediate',
+  solutionWhyThis: ['Eliminates manual bottlenecks', 'Provides auditable transparency', 'Reduces delivery friction'],
+  solutionBenefits: ['Automated policy verification', 'Centralized status tracking', 'Real-time reporting'],
+  solutionOutcomes: ['35% faster execution', 'Zero compliance penalties', 'Streamlined user handoffs'],
+  solutionCapabilities: ['Workflow automation engine', 'Audit trail logger', 'Multi-role approval routing'],
+  solutionModules: ['CORE WORKSPACE', 'INTELLIGENCE ENGINE', 'ANALYTICS HUB'],
+  solutionAiFeatures: ['ANOMALY DETECTION', 'DOCUMENT PARSING', 'SMART RECOMMENDATIONS'],
+  solutionIntegrations: ['Active Directory SSO', 'Enterprise ERP API', 'Notification Webhooks']
 });
 
 export const briefFor = (name: string): PlannerBrief => BRIEFS[name] ?? generic(name);
