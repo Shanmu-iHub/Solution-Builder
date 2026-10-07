@@ -120,15 +120,15 @@ export interface PlanningState {
   oppTab: 'opportunity' | 'market' | 'customers' | 'analysis' | 'brief';
   opportunity: Opportunity | null;
   market: MarketResearch | null;
-  customers: Customers | null;
+  customers: Customers | any;
   analysis: Analysis | null;
-  marketBrief: MarketBrief | null;
+  marketBrief: MarketBrief | string | null;
   oppCompleted: boolean;
   /* problem discovery */
   pdStep: 'understand' | 'root_causes' | 'choose' | 'validate' | 'confirm';
   pdReached: number;
   pdContext: boolean;
-  pdAnswers: Record<string, { value: string[]; other?: string; skipped?: boolean }>;
+  pdAnswers: Record<string, any>;
   chains: RootChain[];
   statements: Statement[];
   selectedStatement: string | null;
@@ -145,4 +145,42 @@ export interface PlanningState {
   journeys: Journey[];
   wireframes: WireframePage[];
   tasks: { epics: EpicNode[]; review: 'pending' | 'approved' | 'changes_requested'; notes: string } | null;
+  /* confirmations */
+  problemCompleted?: boolean;
+  productDefinitionConfirmed?: boolean;
+  businessModelConfirmed?: boolean;
+  documentsConfirmed?: boolean;
+  requirementsConfirmed?: boolean;
+  solutionConfirmed?: boolean;
+  /* Solution Definition Map & Executive Layer */
+  viewPerspective?: 'team' | 'executive';
+  activeWorkspacePage?: DiscoveryPage | null;
+  phaseMeta?: Partial<Record<DiscoveryPage, PhaseMetadata>>;
+  executiveDecisions?: ExecutiveDecision[];
+}
+
+export type PhaseStatus = 'not_started' | 'in_progress' | 'ready_for_review' | 'approved' | 'needs_attention';
+
+export interface PhaseMetadata {
+  status: PhaseStatus;
+  confidence: number;
+  openQuestions: number;
+  evidenceSources: number;
+  lastUpdated: string;
+  summaryText: string;
+}
+
+export interface ExecutiveDecision {
+  id: string;
+  phaseId: DiscoveryPage;
+  title: string;
+  category: string;
+  description: string;
+  impact: string;
+  risk: 'low' | 'medium' | 'high';
+  confidence: number;
+  status: 'pending' | 'approved' | 'changes_requested';
+  options?: string[];
+  selectedOption?: string;
+  decisionNote?: string;
 }

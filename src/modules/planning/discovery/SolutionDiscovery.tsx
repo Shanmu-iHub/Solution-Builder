@@ -40,6 +40,7 @@ export const SolutionDiscovery: React.FC<{ projectId: string; projectName: strin
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ pkgs: true, caps: true });
   const [drafting, setDrafting] = useState(false);
+  const [generated, setGenerated] = useState(false);
   const [selPkg, setSelPkg] = useState<string | null>(null);
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));

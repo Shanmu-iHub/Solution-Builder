@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check, CheckCircle2, ChevronDown, ChevronRight, Edit3, Lightbulb, ListChecks, Sparkles, X } from 'lucide-react';
-import { Button, Input, Textarea, cx, sleep, useToast } from '../../ui';
+import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { Button, Input, Textarea, cx, sleep } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 import { IDEA_QUESTIONS } from '../content';
 import { StageResourceActivity } from './StageResourceActivity';
@@ -32,12 +32,21 @@ const Section: React.FC<{
   </div>
 );
 
-export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; onContinue: () => void }> = ({ projectId, onContinue }) => {
+export const IdeaDefinition: React.FC<{ 
+  projectId: string; 
+  projectName: string; 
+  onContinue: () => void;
+}> = ({ projectId, projectName, onContinue }) => {
   const { state, patch } = usePlanning();
   const s = state(projectId);
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ slots: true });
-  const [ideaText, setIdeaText] = useState(s.briefConfirmed ? 'Our field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually. I want reps to capture receipts on their phone and get claims approved faster.' : '');
+  const [ideaText, setIdeaText] = useState(
+    s.slots?.idea?.value || 
+    (s.briefConfirmed 
+      ? 'Our field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually. I want reps to capture receipts on their phone and get claims approved faster.' 
+      : '')
+  );
   const [drafting, setDrafting] = useState(false);
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));
@@ -68,16 +77,16 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
 
   const confirm = () => {
     patch(projectId, { briefConfirmed: true, discoveryPage: 'opportunity' });
+    onContinue();
   };
 
-  if (!s.briefConfirmed && !s.slots.idea.value && !drafting) {
+  if (!s.briefConfirmed && !s.slots?.idea?.value && !drafting) {
     return (
       <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden">
         <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white">
           <div>
-            <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 01 of 10</div>
-            <h1 className="text-2xl font-bold text-[#0F172A]">Idea Understanding</h1>
-            <p className="text-[15px] text-slate-500 mt-1">Describe the idea and add any notes you have. One step turns it into a reviewable Idea Brief.</p>
+            <h1 className="text-2xl font-bold text-[#0F172A]">Idea Definition</h1>
+            <p className="text-[15px] text-slate-500 mt-1">Capture the initial business idea and context to create a reviewable Idea Brief.</p>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-8 flex items-start justify-center">
@@ -93,28 +102,24 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
               className="mb-2 text-[15px] w-full border-slate-200 focus:border-[#2563EB]"
             />
             {ideaText.length < 12 && (
-              <button className="text-[13.5px] font-bold text-[#2563EB] hover:underline mb-8" onClick={() => setIdeaText('Our field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually. I want reps to capture receipts on their phone and get claims approved faster.')}>Use the expense-claims example</button>
+              <button 
+                type="button"
+                className="text-[13.5px] font-bold text-[#2563EB] hover:underline mb-8 cursor-pointer" 
+                onClick={() => setIdeaText('Our field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually. I want reps to capture receipts on their phone and get claims approved faster.')}
+              >
+                Use the expense-claims example
+              </button>
             )}
             {ideaText.length >= 12 && <div className="mb-8"></div>}
-            
-            {/* <div className="border border-dashed border-slate-300 rounded-xl p-6 bg-slate-50 flex items-center gap-4 mb-8"> */}
-              {/* <div className="w-10 h-10 bg-white border border-slate-200 rounded text-[11px] font-bold text-slate-400 flex items-center justify-center uppercase tracking-widest">PDF</div> */}
-              {/* <div>
-                <div className="text-[14.5px] font-bold text-[#0F172A]">Drop a document <span className="font-normal text-slate-500">or</span> <button className="text-[#2563EB] hover:underline font-bold">use sample notes</button></div>
-                <div className="text-[12.5px] text-slate-500 mt-1">Optional · PDF, DOCX, TXT</div>
-              </div> */}
-            {/* </div> */}
-
-            {/* <div className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-3">One step drafts all of this - you review and decide</div> */}
-            {/* <div className="flex gap-2 mb-8">
-              <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Six brief slots with origins</span>
-              <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">≤4 questions with suggested answers</span>
-              <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Three directions</span>
-              <span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-[12.5px]">Vision statement</span>
-            </div> */}
 
             <div className="flex items-center gap-4">
-              <Button variant="primary" icon={<Sparkles className="w-4 h-4" />} onClick={generate} disabled={ideaText.length < 12} className="px-6 py-2.5 text-[15px]">
+              <Button 
+                variant="primary" 
+                icon={<Sparkles className="w-4 h-4" />} 
+                onClick={generate} 
+                disabled={ideaText.length < 12} 
+                className="px-6 py-2.5 text-[15px]"
+              >
                 Understand my idea
               </Button>
               {ideaText.length < 12 && <span className="text-[14.5px] text-slate-500">Write a sentence or two first</span>}
@@ -137,8 +142,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
     );
   }
 
-
-  const canConfirm = s.slots.idea.value.trim().length >= 12;
+  const canConfirm = (s.slots?.idea?.value || ideaText).trim().length >= 12;
 
   return (
     <div className="flex flex-col h-full bg-slate-50/60 overflow-hidden relative">
@@ -164,7 +168,7 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
             <div className="space-y-6">
               <div>
                 <h4 className="text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-2">Idea</h4>
-                <div className="text-[14.5px] text-[#0F172A]">Reps capture receipts on their phone so expense claims are approved faster</div>
+                <div className="text-[14.5px] text-[#0F172A]">{s.slots?.idea?.value || ideaText}</div>
                 <div className="mt-1"><span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[11px] font-bold uppercase tracking-wider">From your idea</span></div>
               </div>
               <div className="border-t border-slate-100 pt-4">
@@ -270,44 +274,20 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
               ))}
             </div>
           </Section>
-
-          {/* <Section num="03" title="Direction & vision" summary={DIRS.find(d => d.id === s.selectedDirection)?.t || ''} need={needDir ? "Pick one" : null} open={openSecs.dir} onToggle={() => toggle('dir')}>
-            <div className="space-y-3 pt-2">
-              {DIRS.map(d => (
-                <button 
-                  key={d.id} 
-                  onClick={() => patch(projectId, { selectedDirection: d.id })}
-                  className={cx("w-full text-left p-4 rounded-xl border flex flex-col gap-1 transition cursor-pointer", s.selectedDirection === d.id ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300")}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={cx("text-[15px] font-bold", s.selectedDirection === d.id ? "text-[#1D4ED8]" : "text-[#0F172A]")}>{d.t}</span>
-                    {d.ai && <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-[11px] font-bold uppercase tracking-wider">Uses AI</span>}
-                  </div>
-                  <span className="text-[13.5px] text-slate-500">{d.d}</span>
-                </button>
-              ))}
-              {s.selectedDirection && (
-                <div className="mt-6 pt-6 border-t border-slate-100">
-                  <h4 className="text-[12.5px] font-bold text-slate-800 uppercase mb-2">Vision</h4>
-                  <p className="text-[16px] font-medium text-[#0F172A] leading-relaxed p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    {VISIONS[s.selectedDirection]?.[0] || 'Vision statement...'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </Section> */}
         </div>
 
         {/* Side Panel */}
         <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shrink-0">
           <div className="p-5 border-b border-slate-200 flex items-center justify-between">
             <h3 className="text-[16px] font-bold text-[#0F172A]">Idea Brief</h3>
-            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[11px] font-bold uppercase tracking-widest">Draft v0.1</span>
+            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[11px] font-bold uppercase tracking-widest">
+              {s.briefConfirmed ? 'v1.0' : 'Draft v0.1'}
+            </span>
           </div>
           <div className="flex-1 p-6 overflow-y-auto space-y-6">
             <div>
               <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Idea</span>
-              <p className="text-[13.5px] text-[#0F172A] leading-snug">Reps capture receipts on their phone so expense claims are approved faster</p>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">{s.slots?.idea?.value || ideaText}</p>
             </div>
             <div>
               <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Problem</span>
@@ -365,22 +345,43 @@ export const IdeaDefinition: React.FC<{ projectId: string; projectName: string; 
             </div>
             <div>
               <span className="block text-[11.5px] font-bold text-slate-400 uppercase tracking-widest mb-1">Direction</span>
-              <p className="text-[13.5px] text-[#0F172A] leading-snug">{DIRS.find(d => d.id === s.selectedDirection)?.t || ''}</p>
+              <p className="text-[13.5px] text-[#0F172A] leading-snug">{DIRS.find(d => d.id === s.selectedDirection)?.t || 'Mobile capture with AI receipt reading'}</p>
             </div>
           </div>
           <div className="p-5 border-t border-slate-200">
             {s.briefConfirmed ? (
               <>
-                <div className="flex items-center gap-2 text-emerald-600 text-[12.5px] font-bold mb-3"><CheckCircle2 className="w-4 h-4" /> Brief Confirmed</div>
-                <Button variant="primary" className="w-full text-[15px] py-2.5" onClick={() => patch(projectId, { discoveryPage: 'opportunity' })}>Continue to Opportunity <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                <div className="flex items-center gap-2 text-emerald-600 text-[12.5px] font-bold mb-3">
+                  <CheckCircle2 className="w-4 h-4" /> Brief Confirmed
+                </div>
+                <Button 
+                  variant="primary" 
+                  className="w-full text-[15px] py-2.5 cursor-pointer" 
+                  onClick={() => {
+                    patch(projectId, { discoveryPage: 'opportunity' });
+                    onContinue();
+                  }}
+                >
+                  Continue to Opportunity <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
               </>
             ) : canConfirm ? (
               <>
-                <div className="flex items-center gap-2 text-emerald-600 text-[12.5px] font-bold mb-3"><CheckCircle2 className="w-4 h-4" /> Everything decided — ready to confirm</div>
-                <Button variant="primary" className="w-full text-[15px] py-2.5 bg-[#16A34A] hover:bg-[#15803D] border-[#16A34A]" onClick={confirm}>Confirm Idea Brief</Button>
+                <div className="flex items-center gap-2 text-emerald-600 text-[12.5px] font-bold mb-3">
+                  <CheckCircle2 className="w-4 h-4" /> Everything decided — ready to confirm
+                </div>
+                <Button 
+                  variant="primary" 
+                  className="w-full text-[15px] py-2.5 bg-[#16A34A] hover:bg-[#15803D] border-[#16A34A] cursor-pointer" 
+                  onClick={confirm}
+                >
+                  Confirm Idea Brief
+                </Button>
               </>
             ) : (
-              <Button className="w-full text-[15px] py-2.5" disabled>Confirm Idea Brief</Button>
+              <Button className="w-full text-[15px] py-2.5" disabled>
+                Confirm Idea Brief
+              </Button>
             )}
           </div>
         </div>

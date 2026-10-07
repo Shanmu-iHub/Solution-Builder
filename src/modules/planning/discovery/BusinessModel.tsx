@@ -38,6 +38,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ canvas: true, case: true, fin: true });
   const [drafting, setDrafting] = useState(false);
+  const [generated, setGenerated] = useState(false);
   
   const [fin, setFin] = useState({ cost: '', run: '', save: '' });
 
@@ -78,7 +79,7 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-4">
           
-          <Section num="01" title="Business model canvas" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
+          <Section num="01" title="Business model canvas" summary="9 canvas building blocks" open={openSecs.canvas} onToggle={() => toggle('canvas')}>
             <div className="pt-2 grid grid-cols-3 gap-3">
               {CANVAS.map((c, i) => (
                 <div key={i} className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
@@ -126,9 +127,18 @@ export const BusinessModel: React.FC<{ projectId: string; projectName: string; o
             <div className="space-y-4 pt-2">
               <p className="text-[12.5px] text-slate-500 mb-4">Nothing here is estimated by AI. Leave blank if not known.</p>
               <div className="grid grid-cols-3 gap-4">
-                <Input label="One-off build cost" placeholder="e.g. 50000" value={fin.cost} onChange={e => setFin({...fin, cost: e.target.value})} />
-                <Input label="Yearly running cost" placeholder="e.g. 10000" value={fin.run} onChange={e => setFin({...fin, run: e.target.value})} />
-                <Input label="Yearly savings" placeholder="e.g. 30000" value={fin.save} onChange={e => setFin({...fin, save: e.target.value})} />
+                <div>
+                  <span className="block text-[12px] font-semibold text-slate-700 mb-1">One-off build cost</span>
+                  <Input placeholder="e.g. 50000" value={fin.cost} onChange={e => setFin({...fin, cost: e.target.value})} />
+                </div>
+                <div>
+                  <span className="block text-[12px] font-semibold text-slate-700 mb-1">Yearly running cost</span>
+                  <Input placeholder="e.g. 10000" value={fin.run} onChange={e => setFin({...fin, run: e.target.value})} />
+                </div>
+                <div>
+                  <span className="block text-[12px] font-semibold text-slate-700 mb-1">Yearly savings</span>
+                  <Input placeholder="e.g. 30000" value={fin.save} onChange={e => setFin({...fin, save: e.target.value})} />
+                </div>
               </div>
             </div>
           </Section> */}

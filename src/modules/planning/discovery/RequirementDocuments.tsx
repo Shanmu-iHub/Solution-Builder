@@ -32,6 +32,7 @@ export const RequirementDocuments: React.FC<{ projectId: string; projectName: st
   const [busy, setBusy] = useState(false);
   const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ docs: true });
   const [drafting, setDrafting] = useState(false);
+  const [generated, setGenerated] = useState(false);
   const [activeDoc, setActiveDoc] = useState('brd');
 
   const toggle = (id: string) => setOpenSecs(prev => ({ ...prev, [id]: !prev[id] }));

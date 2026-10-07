@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import mermaid from 'mermaid';
 
-type Mermaid = typeof import('mermaid').default;
-let loader: Promise<Mermaid> | null = null;
-const getMermaid = () => (loader ??= import('mermaid').then(m => {
-  m.default.initialize({
-    startOnLoad: false, theme: 'base', securityLevel: 'strict',
-    flowchart: { curve: 'basis', htmlLabels: true, nodeSpacing: 28, rankSpacing: 50, padding: 12 },
-    themeVariables: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: '15px', primaryColor: '#EFF6FF', primaryBorderColor: '#2563EB', primaryTextColor: '#0F172A', lineColor: '#64748B', clusterBkg: '#FFFFFF', clusterBorder: '#CBD5E1', edgeLabelBackground: '#FFFFFF' },
-  });
-  return m.default;
-}));
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  securityLevel: 'strict',
+  flowchart: { curve: 'basis', htmlLabels: true, nodeSpacing: 28, rankSpacing: 50, padding: 12 },
+  themeVariables: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: '15px', primaryColor: '#EFF6FF', primaryBorderColor: '#2563EB', primaryTextColor: '#0F172A', lineColor: '#64748B', clusterBkg: '#FFFFFF', clusterBorder: '#CBD5E1', edgeLabelBackground: '#FFFFFF' },
+});
 
 let seq = 0;
 
@@ -26,8 +24,7 @@ export const MermaidDiagram: React.FC<{ code: string; zoom?: number; onSvg?: (sv
   useEffect(() => {
     let stale = false;
     setError('');
-    getMermaid()
-      .then(m => m.render(`mmd-${++seq}`, code))
+    mermaid.render(`mmd-${++seq}`, code)
       .then(r => { if (!stale) { setSvg(r.svg); onSvgRef.current?.(r.svg); } })
       .catch(e => { if (!stale) { setSvg(''); setError(e instanceof Error ? e.message : 'Could not render the diagram.'); } });
     return () => { stale = true; };
