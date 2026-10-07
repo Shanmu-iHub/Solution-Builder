@@ -157,6 +157,7 @@ export interface PlanningState {
   documentsConfirmed?: boolean;
   requirementsConfirmed?: boolean;
   solutionConfirmed?: boolean;
+  selectedPackage?: string;
   /* Solution Definition Map & Executive Layer */
   viewPerspective?: 'team' | 'executive';
   activeWorkspacePage?: DiscoveryPage | null;
