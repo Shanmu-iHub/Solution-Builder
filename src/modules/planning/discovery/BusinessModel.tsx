@@ -49,7 +49,7 @@ export const BusinessModel: React.FC<{
         <div>
           <h1 className="text-lg font-bold text-[#0F172A]">Business Model Canvas</h1>
           <p className="text-xs text-slate-500">
-            Validated 9 building blocks, strategic value proposition, and economic model.
+            Strategic value proposition  and economic model.
           </p>
         </div>
         {/* <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export const BusinessModel: React.FC<{
                 <span className="font-bold text-blue-800 uppercase tracking-wider">
                   Infrastructure
                 </span>
-                <span className="text-blue-600 font-medium">3 Blocks</span>
+              
               </div>
 
               {/* Value Proposition Zone (Col 3) */}
@@ -92,7 +92,7 @@ export const BusinessModel: React.FC<{
                 <span className="font-bold text-purple-800 uppercase tracking-wider">
                   Customer Structure
                 </span>
-                <span className="text-purple-600 font-medium">3 Blocks</span>
+        
               </div>
             </div>
 

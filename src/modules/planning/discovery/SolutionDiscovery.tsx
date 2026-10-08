@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  ArrowRight, CheckCircle2, Check, LayoutDashboard, 
-  Sparkles, Cpu, Network, X, Smartphone, 
+import {
+  ArrowRight, CheckCircle2, Check, LayoutDashboard,
+  Sparkles, Cpu, Network, X, Smartphone,
   CheckCheck, Workflow, Building2, Boxes, Compass,
   Pencil, Trash2, Plus
 } from 'lucide-react';
@@ -61,69 +61,69 @@ const PACKAGES: SolutionPackage[] = [
       'Direct 2-way REST API connector for ERP ledger'
     ],
     inScope: [
-      { 
-        title: 'Cross-Platform Mobile Scanner', 
-        desc: 'Native iOS & Android mobile application for reps with on-device camera auto-capture and local offline queue.' 
+      {
+        title: 'Cross-Platform Mobile Scanner',
+        desc: 'Native iOS & Android mobile application for reps with on-device camera auto-capture and local offline queue.'
       },
-      { 
-        title: 'AI Receipt Parsing Service', 
-        desc: 'Multi-field OCR engine extracting vendor, date, line items, currency, VAT, and total spend in sub-second latency.' 
+      {
+        title: 'AI Receipt Parsing Service',
+        desc: 'Multi-field OCR engine extracting vendor, date, line items, currency, VAT, and total spend in sub-second latency.'
       },
-      { 
-        title: 'Manager Approval Web Portal', 
-        desc: 'Centralized web dashboard with 1-click batch approvals, exception highlighting, and email quick-actions.' 
+      {
+        title: 'Manager Approval Web Portal',
+        desc: 'Centralized web dashboard with 1-click batch approvals, exception highlighting, and email quick-actions.'
       },
-      { 
-        title: 'SLA Tracking & Auto-Escalation', 
-        desc: 'Configurable approval escalation rules that auto-reassign claims stalled past 48 hours to alternate managers.' 
+      {
+        title: 'SLA Tracking & Auto-Escalation',
+        desc: 'Configurable approval escalation rules that auto-reassign claims stalled past 48 hours to alternate managers.'
       },
-      { 
-        title: 'Automated ERP Accounting Bridge', 
-        desc: 'Direct bi-directional API synchronization posting verified claims into general ledger without manual re-keying.' 
+      {
+        title: 'Automated ERP Accounting Bridge',
+        desc: 'Direct bi-directional API synchronization posting verified claims into general ledger without manual re-keying.'
       },
-      { 
-        title: 'Audit Trail & Receipt Archival', 
-        desc: 'Immutable compliance logging and tamper-proof cloud storage for thermal receipt scans.' 
+      {
+        title: 'Audit Trail & Receipt Archival',
+        desc: 'Immutable compliance logging and tamper-proof cloud storage for thermal receipt scans.'
       }
     ],
     outScope: [
-      { 
-        title: 'Personal Credit Card Statement Feeds', 
-        desc: 'Parsing personal bank feeds (deferred to corporate card integration in Phase 2).' 
+      {
+        title: 'Personal Credit Card Statement Feeds',
+        desc: 'Parsing personal bank feeds (deferred to corporate card integration in Phase 2).'
       },
-      { 
-        title: 'Corporate Travel Booking Engine', 
-        desc: 'Flight and hotel reservation booking is handled externally through corporate travel partners.' 
+      {
+        title: 'Corporate Travel Booking Engine',
+        desc: 'Flight and hotel reservation booking is handled externally through corporate travel partners.'
       },
-      { 
-        title: 'Payroll Direct Deposit Adjustments', 
-        desc: 'Payroll calculation and tax withholdings remain inside core HRIS software.' 
+      {
+        title: 'Payroll Direct Deposit Adjustments',
+        desc: 'Payroll calculation and tax withholdings remain inside core HRIS software.'
       }
     ],
     features: [
-      { 
-        name: 'Point-of-Sale Camera Scanner', 
-        role: 'Field Sales Reps', 
-        desc: 'Instantly captures physical receipts with auto-crop, glare reduction, and instant preview.', 
-        type: 'Mobile App' 
+      {
+        name: 'Point-of-Sale Camera Scanner',
+        role: 'Field Sales Reps',
+        desc: 'Instantly captures physical receipts with auto-crop, glare reduction, and instant preview.',
+        type: 'Mobile App'
       },
-      { 
-        name: 'Real-Time Policy Compliance Validator', 
-        role: 'Sales Reps & Managers', 
-        desc: 'Validates meal and travel spend limits against corporate policy before submission.', 
-        type: 'AI Service' 
+      {
+        name: 'Real-Time Policy Compliance Validator',
+        role: 'Sales Reps & Managers',
+        desc: 'Validates meal and travel spend limits against corporate policy before submission.',
+        type: 'AI Service'
       },
-      { 
-        name: 'Manager Exception Queue', 
-        role: 'Line Managers', 
-        desc: 'Triage inbox with one-click approve, reject, or request clarification options.', 
-        type: 'Web Portal' 
+      {
+        name: 'Manager Exception Queue',
+        role: 'Line Managers',
+        desc: 'Triage inbox with one-click approve, reject, or request clarification options.',
+        type: 'Web Portal'
       },
-      { 
-        name: 'Finance Ledger Sync Engine', 
-        role: 'Accounting & Finance', 
-        desc: 'Automated ledger batch posting with reconciliation logs and exception alerts.', 
-        type: 'Integration API' 
+      {
+        name: 'Finance Ledger Sync Engine',
+        role: 'Accounting & Finance',
+        desc: 'Automated ledger batch posting with reconciliation logs and exception alerts.',
+        type: 'Integration API'
       }
     ],
     techStack: {
@@ -133,45 +133,45 @@ const PACKAGES: SolutionPackage[] = [
       integration: 'RESTful bi-directional connector with webhook listeners'
     },
     capabilities: [
-      { 
-        id: 'cap_cust_capture', 
-        title: 'Mobile Camera Capture & Offline Queue', 
-        category: 'Mobile / POS', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Allows field sales reps to photograph receipts on the road even without network connectivity.' 
+      {
+        id: 'cap_cust_capture',
+        title: 'Mobile Camera Capture & Offline Queue',
+        category: 'Mobile / POS',
+        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200',
+        rc: 'No mobile digital capture at point of purchase',
+        desc: 'Allows field sales reps to photograph receipts on the road even without network connectivity.'
       },
-      { 
-        id: 'cap_cust_ocr', 
-        title: 'AI Automated Receipt Data Extraction', 
-        category: 'AI / Vision', 
-        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200', 
-        rc: 'Receipts exist only on physical paper until manual filing', 
-        desc: 'Instantly digitizes vendor, date, line items, and totals, eliminating manual spreadsheet entry.' 
+      {
+        id: 'cap_cust_ocr',
+        title: 'AI Automated Receipt Data Extraction',
+        category: 'AI / Vision',
+        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200',
+        rc: 'Receipts exist only on physical paper until manual filing',
+        desc: 'Instantly digitizes vendor, date, line items, and totals, eliminating manual spreadsheet entry.'
       },
-      { 
-        id: 'cap_cust_queue', 
-        title: 'Manager Approval Queue with SLA Rules', 
-        category: 'Workflow', 
-        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Replaces unstructured email chains with a centralized queue and automated 48-hour reminders.' 
+      {
+        id: 'cap_cust_queue',
+        title: 'Manager Approval Queue with SLA Rules',
+        category: 'Workflow',
+        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        rc: 'Approval has no tracked queue or escalation rules',
+        desc: 'Replaces unstructured email chains with a centralized queue and automated 48-hour reminders.'
       },
-      { 
-        id: 'cap_cust_status', 
-        title: 'Live Claim Status & Push Tracking', 
-        category: 'Transparency', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Claims wait in managers’ email inboxes without reminders', 
-        desc: 'Provides reps live progress tracking from submission through approval and payout.' 
+      {
+        id: 'cap_cust_status',
+        title: 'Live Claim Status & Push Tracking',
+        category: 'Transparency',
+        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        rc: 'Claims wait in managers’ email inboxes without reminders',
+        desc: 'Provides reps live progress tracking from submission through approval and payout.'
       },
-      { 
-        id: 'cap_cust_erp', 
-        title: 'Automated Direct ERP Ledger Sync', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Directly posts approved expense lines into accounting software, removing finance re-keying.' 
+      {
+        id: 'cap_cust_erp',
+        title: 'Automated Direct ERP Ledger Sync',
+        category: 'Integration',
+        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        rc: 'No automated link between approval workflow and ERP',
+        desc: 'Directly posts approved expense lines into accounting software, removing finance re-keying.'
       }
     ]
   },
@@ -197,61 +197,61 @@ const PACKAGES: SolutionPackage[] = [
       'High annual enterprise licensing overhead'
     ],
     inScope: [
-      { 
-        title: 'Concur Mobile App Rollout', 
-        desc: 'Standard client rollout across iOS and Android corporate fleet devices.' 
+      {
+        title: 'Concur Mobile App Rollout',
+        desc: 'Standard client rollout across iOS and Android corporate fleet devices.'
       },
-      { 
-        title: 'Standard Approval Hierarchy', 
-        desc: 'Multi-tier manager approval workflow mapped to corporate active directory.' 
+      {
+        title: 'Standard Approval Hierarchy',
+        desc: 'Multi-tier manager approval workflow mapped to corporate active directory.'
       },
-      { 
-        title: 'Corporate Policy Compliance Engine', 
-        desc: 'Automated flags for weekend spend, alcohol limits, and per-diem violations.' 
+      {
+        title: 'Corporate Policy Compliance Engine',
+        desc: 'Automated flags for weekend spend, alcohol limits, and per-diem violations.'
       },
-      { 
-        title: 'Certified SAP ERP Connector', 
-        desc: 'Native adapter connecting Concur directly to SAP S/4HANA financial ledger.' 
+      {
+        title: 'Certified SAP ERP Connector',
+        desc: 'Native adapter connecting Concur directly to SAP S/4HANA financial ledger.'
       }
     ],
     outScope: [
-      { 
-        title: 'Custom Mobile UX Modifications', 
-        desc: 'Standard Concur UI cannot be customized for simplified 1-tap rep capture.' 
+      {
+        title: 'Custom Mobile UX Modifications',
+        desc: 'Standard Concur UI cannot be customized for simplified 1-tap rep capture.'
       },
-      { 
-        title: 'Legacy Non-SAP Accounting Integration', 
-        desc: 'Requires separate middleware if non-SAP ledgers are introduced.' 
+      {
+        title: 'Legacy Non-SAP Accounting Integration',
+        desc: 'Requires separate middleware if non-SAP ledgers are introduced.'
       },
-      { 
-        title: 'Custom Offline LLM Receipt Models', 
-        desc: 'Relies on Concur ExpenseIt proprietary OCR processing pipeline.' 
+      {
+        title: 'Custom Offline LLM Receipt Models',
+        desc: 'Relies on Concur ExpenseIt proprietary OCR processing pipeline.'
       }
     ],
     features: [
-      { 
-        name: 'Concur ExpenseIt Mobile Intake', 
-        role: 'Sales Reps', 
-        desc: 'Standard mobile receipt upload with background optical character recognition.', 
-        type: 'SaaS Mobile' 
+      {
+        name: 'Concur ExpenseIt Mobile Intake',
+        role: 'Sales Reps',
+        desc: 'Standard mobile receipt upload with background optical character recognition.',
+        type: 'SaaS Mobile'
       },
-      { 
-        name: 'Manager Approval Worklist', 
-        role: 'Managers', 
-        desc: 'Web portal for reviewing expense line items and policy exception notices.', 
-        type: 'SaaS Web' 
+      {
+        name: 'Manager Approval Worklist',
+        role: 'Managers',
+        desc: 'Web portal for reviewing expense line items and policy exception notices.',
+        type: 'SaaS Web'
       },
-      { 
-        name: 'Policy Audit Automation', 
-        role: 'Auditors', 
-        desc: 'System flags claims exceeding limits for secondary manual inspection.', 
-        type: 'SaaS Rules' 
+      {
+        name: 'Policy Audit Automation',
+        role: 'Auditors',
+        desc: 'System flags claims exceeding limits for secondary manual inspection.',
+        type: 'SaaS Rules'
       },
-      { 
-        name: 'Native SAP ERP Financial Posting', 
-        role: 'Finance', 
-        desc: 'Automated scheduled sync posting to accounts payable ledger.', 
-        type: 'Native Connector' 
+      {
+        name: 'Native SAP ERP Financial Posting',
+        role: 'Finance',
+        desc: 'Automated scheduled sync posting to accounts payable ledger.',
+        type: 'Native Connector'
       }
     ],
     techStack: {
@@ -261,37 +261,37 @@ const PACKAGES: SolutionPackage[] = [
       integration: 'SAP Certified Native ERP Connector'
     },
     capabilities: [
-      { 
-        id: 'cap_concur_mob', 
-        title: 'Standard Concur Mobile Photo Intake', 
-        category: 'Mobile SaaS', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Provides mobile camera capture using standard SAP Concur mobile application.' 
+      {
+        id: 'cap_concur_mob',
+        title: 'Standard Concur Mobile Photo Intake',
+        category: 'Mobile SaaS',
+        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200',
+        rc: 'No mobile digital capture at point of purchase',
+        desc: 'Provides mobile camera capture using standard SAP Concur mobile application.'
       },
-      { 
-        id: 'cap_concur_policy', 
-        title: 'Automated Policy Rules & Exception Flags', 
-        category: 'Governance', 
-        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Flags policy violations before claims reach manager sign-off.' 
+      {
+        id: 'cap_concur_policy',
+        title: 'Automated Policy Rules & Exception Flags',
+        category: 'Governance',
+        categoryColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        rc: 'Approval has no tracked queue or escalation rules',
+        desc: 'Flags policy violations before claims reach manager sign-off.'
       },
-      { 
-        id: 'cap_concur_route', 
-        title: 'Standard Multi-Tier Manager Worklist', 
-        category: 'Workflow', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Claims wait in managers’ email inboxes without reminders', 
-        desc: 'Centralizes approvals into a dedicated Concur web worklist.' 
+      {
+        id: 'cap_concur_route',
+        title: 'Standard Multi-Tier Manager Worklist',
+        category: 'Workflow',
+        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        rc: 'Claims wait in managers’ email inboxes without reminders',
+        desc: 'Centralizes approvals into a dedicated Concur web worklist.'
       },
-      { 
-        id: 'cap_concur_erp', 
-        title: 'Native SAP S/4HANA Ledger Posting', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Posts approved claim records directly to SAP enterprise general ledger.' 
+      {
+        id: 'cap_concur_erp',
+        title: 'Native SAP S/4HANA Ledger Posting',
+        category: 'Integration',
+        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        rc: 'No automated link between approval workflow and ERP',
+        desc: 'Posts approved claim records directly to SAP enterprise general ledger.'
       }
     ]
   },
@@ -317,61 +317,61 @@ const PACKAGES: SolutionPackage[] = [
       'SharePoint list storage with periodic CSV export to ERP'
     ],
     inScope: [
-      { 
-        title: 'PowerApps Canvas Mobile App', 
-        desc: 'Simple canvas interface for reps to take photos and enter expense details.' 
+      {
+        title: 'PowerApps Canvas Mobile App',
+        desc: 'Simple canvas interface for reps to take photos and enter expense details.'
       },
-      { 
-        title: 'AI Builder Receipt Model', 
-        desc: 'Microsoft AI Builder basic OCR extracting total spend and store names.' 
+      {
+        title: 'AI Builder Receipt Model',
+        desc: 'Microsoft AI Builder basic OCR extracting total spend and store names.'
       },
-      { 
-        title: 'Teams Adaptive Card Routing', 
-        desc: 'Sends interactive cards directly into manager Microsoft Teams chat with 1-click buttons.' 
+      {
+        title: 'Teams Adaptive Card Routing',
+        desc: 'Sends interactive cards directly into manager Microsoft Teams chat with 1-click buttons.'
       },
-      { 
-        title: 'SharePoint Staging Table', 
-        desc: 'Stores claim records in cloud lists with basic status auditing.' 
+      {
+        title: 'SharePoint Staging Table',
+        desc: 'Stores claim records in cloud lists with basic status auditing.'
       }
     ],
     outScope: [
-      { 
-        title: 'Direct Live 2-Way ERP Sync', 
-        desc: 'Requires manual CSV export or scheduled batch files rather than real-time API.' 
+      {
+        title: 'Direct Live 2-Way ERP Sync',
+        desc: 'Requires manual CSV export or scheduled batch files rather than real-time API.'
       },
-      { 
-        title: 'High-Volume Scalability (>10k claims/mo)', 
-        desc: 'Power Automate run limits make high-volume scale costly over time.' 
+      {
+        title: 'High-Volume Scalability (>10k claims/mo)',
+        desc: 'Power Automate run limits make high-volume scale costly over time.'
       },
-      { 
-        title: 'Advanced Offline Mobile Caching', 
-        desc: 'Canvas app requires active internet connectivity during claim submission.' 
+      {
+        title: 'Advanced Offline Mobile Caching',
+        desc: 'Canvas app requires active internet connectivity during claim submission.'
       }
     ],
     features: [
-      { 
-        name: 'Canvas Mobile Form', 
-        role: 'Sales Reps', 
-        desc: 'Simple photo upload form within Microsoft PowerApps container.', 
-        type: 'Canvas App' 
+      {
+        name: 'Canvas Mobile Form',
+        role: 'Sales Reps',
+        desc: 'Simple photo upload form within Microsoft PowerApps container.',
+        type: 'Canvas App'
       },
-      { 
-        name: 'Teams Interactive Approval Cards', 
-        role: 'Managers', 
-        desc: 'Direct chat notifications in Microsoft Teams with approve/reject buttons.', 
-        type: 'Teams Card' 
+      {
+        name: 'Teams Interactive Approval Cards',
+        role: 'Managers',
+        desc: 'Direct chat notifications in Microsoft Teams with approve/reject buttons.',
+        type: 'Teams Card'
       },
-      { 
-        name: 'Power Automate Reminders', 
-        role: 'All Users', 
-        desc: 'Basic automated flow triggering email reminders every 3 business days.', 
-        type: 'Cloud Flow' 
+      {
+        name: 'Power Automate Reminders',
+        role: 'All Users',
+        desc: 'Basic automated flow triggering email reminders every 3 business days.',
+        type: 'Cloud Flow'
       },
-      { 
-        name: 'Finance CSV Export Utility', 
-        role: 'Finance', 
-        desc: 'Admin export view to generate monthly CSV files for finance upload.', 
-        type: 'SharePoint View' 
+      {
+        name: 'Finance CSV Export Utility',
+        role: 'Finance',
+        desc: 'Admin export view to generate monthly CSV files for finance upload.',
+        type: 'SharePoint View'
       }
     ],
     techStack: {
@@ -381,46 +381,46 @@ const PACKAGES: SolutionPackage[] = [
       integration: 'Power Automate CSV Export / Dataverse'
     },
     capabilities: [
-      { 
-        id: 'cap_power_form', 
-        title: 'PowerApps Mobile Photo Submission', 
-        category: 'Low-Code', 
-        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200', 
-        rc: 'No mobile digital capture at point of purchase', 
-        desc: 'Enables mobile photo uploads inside corporate Microsoft 365 PowerApps app.' 
+      {
+        id: 'cap_power_form',
+        title: 'PowerApps Mobile Photo Submission',
+        category: 'Low-Code',
+        categoryColor: 'bg-blue-50 text-blue-700 border-blue-200',
+        rc: 'No mobile digital capture at point of purchase',
+        desc: 'Enables mobile photo uploads inside corporate Microsoft 365 PowerApps app.'
       },
-      { 
-        id: 'cap_power_ocr', 
-        title: 'AI Builder Basic OCR Data Parsing', 
-        category: 'AI Builder', 
-        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200', 
-        rc: 'Receipts exist only on physical paper until manual filing', 
-        desc: 'Extracts store name and total transaction cost from photo attachments.' 
+      {
+        id: 'cap_power_ocr',
+        title: 'AI Builder Basic OCR Data Parsing',
+        category: 'AI Builder',
+        categoryColor: 'bg-purple-50 text-purple-700 border-purple-200',
+        rc: 'Receipts exist only on physical paper until manual filing',
+        desc: 'Extracts store name and total transaction cost from photo attachments.'
       },
-      { 
-        id: 'cap_power_teams', 
-        title: 'Teams Adaptive Card Approval Routing', 
-        category: 'Collaboration', 
-        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', 
-        rc: 'Approval has no tracked queue or escalation rules', 
-        desc: 'Delivers approval prompts right into managers’ existing Microsoft Teams client.' 
+      {
+        id: 'cap_power_teams',
+        title: 'Teams Adaptive Card Approval Routing',
+        category: 'Collaboration',
+        categoryColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        rc: 'Approval has no tracked queue or escalation rules',
+        desc: 'Delivers approval prompts right into managers’ existing Microsoft Teams client.'
       },
-      { 
-        id: 'cap_power_export', 
-        title: 'SharePoint Ledger Staging & CSV Export', 
-        category: 'Integration', 
-        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
-        rc: 'No automated link between approval workflow and ERP', 
-        desc: 'Stages approved claims and produces structured CSV exports for finance.' 
+      {
+        id: 'cap_power_export',
+        title: 'SharePoint Ledger Staging & CSV Export',
+        category: 'Integration',
+        categoryColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        rc: 'No automated link between approval workflow and ERP',
+        desc: 'Stages approved claims and produces structured CSV exports for finance.'
       }
     ]
   }
 ];
 
-export const SolutionDiscovery: React.FC<{ 
-  projectId: string; 
-  projectName: string; 
-  onContinue: () => void 
+export const SolutionDiscovery: React.FC<{
+  projectId: string;
+  projectName: string;
+  onContinue: () => void
 }> = ({ projectId, projectName, onContinue }) => {
   const { state, patch } = usePlanning();
   const s = state(projectId);
@@ -574,10 +574,10 @@ export const SolutionDiscovery: React.FC<{
   };
 
   const confirm = () => {
-    patch(projectId, { 
-      solutionConfirmed: true, 
+    patch(projectId, {
+      solutionConfirmed: true,
       selectedPackage: selPkg,
-      discoveryPage: 'business_model' 
+      discoveryPage: 'business_model'
     });
     onContinue();
   };
@@ -589,7 +589,7 @@ export const SolutionDiscovery: React.FC<{
         <div>
           <h1 className="text-xl font-bold text-[#0F172A]">Solution Discovery</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Evaluate recommended architectural packages against confirmed requirements, root causes, and business goals.
+            Select the Solution that best addresses the core problem and delivers on executive objectives.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -608,13 +608,9 @@ export const SolutionDiscovery: React.FC<{
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 Recommended Solution
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select the architectural package that best addresses the core problem and delivers on executive objectives.
-              </p>
+
             </div>
-            <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-lg shadow-2xs">
-              3 Architectures Evaluated
-            </span>
+
           </div>
 
           {/* Solution Cards Grid */}
@@ -628,8 +624,8 @@ export const SolutionDiscovery: React.FC<{
                   onClick={() => handleSelectPackage(pkg.id)}
                   className={cx(
                     "rounded-2xl border transition-all duration-200 bg-white p-6 sm:p-7 cursor-pointer relative overflow-hidden shadow-2xs hover:shadow-xs",
-                    isSelected 
-                      ? "border-blue-600 ring-2 ring-blue-600/20 bg-blue-50/10" 
+                    isSelected
+                      ? "border-blue-600 ring-2 ring-blue-600/20 bg-blue-50/10"
                       : "border-slate-200 hover:border-slate-300"
                   )}
                 >
@@ -640,8 +636,8 @@ export const SolutionDiscovery: React.FC<{
                       <div className={cx(
                         "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs mt-0.5",
                         pkg.id === 'sol_custom' ? "bg-blue-50 text-blue-600 border border-blue-200/80" :
-                        pkg.id === 'sol_concur' ? "bg-purple-50 text-purple-600 border border-purple-200/80" :
-                        "bg-amber-50 text-amber-600 border border-amber-200/80"
+                          pkg.id === 'sol_concur' ? "bg-purple-50 text-purple-600 border border-purple-200/80" :
+                            "bg-amber-50 text-amber-600 border border-amber-200/80"
                       )}>
                         {pkg.id === 'sol_custom' && <Smartphone className="w-5 h-5" />}
                         {pkg.id === 'sol_concur' && <Building2 className="w-5 h-5" />}
@@ -743,8 +739,8 @@ export const SolutionDiscovery: React.FC<{
                         Key Deliverables:
                       </span>
                       {pkg.highlights.map((hl, idx) => (
-                        <span 
-                          key={idx} 
+                        <span
+                          key={idx}
                           className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-[11px] font-medium"
                         >
                           {hl}
@@ -776,13 +772,8 @@ export const SolutionDiscovery: React.FC<{
       {/* Bottom Sticky Action Bar */}
       <div className="bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shrink-0 shadow-xs">
         <div className="flex items-center gap-2.5 text-xs font-semibold">
-          <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Selected Architecture:</span>
-          </span>
-          <span className="text-slate-900 font-bold">
-            {selectedPackageData.name}
-          </span>
+
+
           {selectedPackageData.recommended && (
             <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
               Recommended
@@ -812,8 +803,8 @@ export const SolutionDiscovery: React.FC<{
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className={cx(
                     "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border",
-                    inspectedPackage.recommended 
-                      ? "bg-blue-50 text-blue-700 border-blue-200" 
+                    inspectedPackage.recommended
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
                       : "bg-slate-100 text-slate-600 border-slate-200"
                   )}>
                     {inspectedPackage.category}

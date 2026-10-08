@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  ArrowRight, BarChart3, Check, CheckCircle2, ChevronDown, ChevronRight, 
+import {
+  ArrowRight, BarChart3, Check, CheckCircle2, ChevronDown, ChevronRight,
   ChevronLeft, Sparkles, Loader2, AlertCircle, Layers, GitBranch, Cpu, Network,
   Workflow, Clock, FileCheck, Users
 } from 'lucide-react';
@@ -61,29 +61,29 @@ const ROOT_CAUSES_BY_ASPECT = [
 ];
 
 const FRAMINGS = [
-  { 
-    id: 'stmt_1', 
+  {
+    id: 'stmt_1',
     perspective: 'Rep-First: Workflow & Speed',
     perspectiveBadge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    t: 'Field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually.' 
+    t: 'Field sales reps lose paper receipts and wait weeks for expense reimbursement because claims are handled through email and approved manually.'
   },
-  { 
-    id: 'stmt_2', 
+  {
+    id: 'stmt_2',
     perspective: 'Finance-First: Error & Policy Audit',
     perspectiveBadge: 'bg-purple-50 text-purple-700 border-purple-200',
-    t: 'Expense claims are delayed and error-prone because reps rely on paper receipts and managers approve manually over email.' 
+    t: 'Expense claims are delayed and error-prone because reps rely on paper receipts and managers approve manually over email.'
   },
-  { 
-    id: 'stmt_3', 
+  {
+    id: 'stmt_3',
     perspective: 'Operations-First: Digital Tracking',
     perspectiveBadge: 'bg-blue-50 text-blue-700 border-blue-200',
-    t: 'The lack of digital receipt capture and tracked approval workflows causes week-long delays in reimbursing field sales reps.' 
+    t: 'The lack of digital receipt capture and tracked approval workflows causes week-long delays in reimbursing field sales reps.'
   },
 ];
 
-export const ProblemDiscovery: React.FC<{ 
-  projectId: string; 
-  projectName: string; 
+export const ProblemDiscovery: React.FC<{
+  projectId: string;
+  projectName: string;
   onContinue: () => void;
 }> = ({ projectId, projectName, onContinue }) => {
   const { state, patch } = usePlanning();
@@ -92,7 +92,7 @@ export const ProblemDiscovery: React.FC<{
   // Progressive state: 'inputs' (questions & aspects) -> 'framing' (root causes by aspect & framing selection)
   const hasExistingFraming = Boolean(s.selectedStatement || s.problemCompleted);
   const [stage, setStage] = useState<'inputs' | 'framing'>(hasExistingFraming ? 'framing' : 'inputs');
-  
+
   const [generating, setGenerating] = useState(false);
   const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -310,8 +310,8 @@ export const ProblemDiscovery: React.FC<{
                   Clarification Required
                 </h3>
                 <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
-                  {PD_QUESTIONS.length - answeredCount === 0 
-                    ? 'All answered' 
+                  {PD_QUESTIONS.length - answeredCount === 0
+                    ? 'All answered'
                     : `${PD_QUESTIONS.length - answeredCount} details remaining`}
                 </span>
               </div>
@@ -371,8 +371,8 @@ export const ProblemDiscovery: React.FC<{
                       onClick={() => handleSelectOption(currentQ.id, opt, isMulti)}
                       className={cx(
                         "w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer flex items-center justify-between",
-                        isSelected 
-                          ? "bg-blue-50/80 border-blue-600 text-blue-900 shadow-2xs" 
+                        isSelected
+                          ? "bg-blue-50/80 border-blue-600 text-blue-900 shadow-2xs"
                           : "bg-white border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50"
                       )}
                     >
@@ -465,7 +465,7 @@ export const ProblemDiscovery: React.FC<{
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Root Causes by Aspect
+                  ROOT CAUSE DIMENSIONS
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Three distinct architectural dimensions explaining why this problem occurs.
@@ -480,8 +480,8 @@ export const ProblemDiscovery: React.FC<{
               {ROOT_CAUSES_BY_ASPECT.map((rc) => {
                 const IconComponent = rc.icon;
                 return (
-                  <div 
-                    key={rc.id} 
+                  <div
+                    key={rc.id}
                     className={cx(
                       "bg-white rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-2xs hover:shadow-sm",
                       rc.theme.border
@@ -568,19 +568,19 @@ export const ProblemDiscovery: React.FC<{
               {FRAMINGS.map(f => {
                 const picked = s.selectedStatement === f.id || (f.id === 'stmt_1' && (s.selectedStatement === 'st1' || !s.selectedStatement));
                 return (
-                  <div 
-                    key={f.id} 
+                  <div
+                    key={f.id}
                     className={cx(
-                      "rounded-2xl border transition-all shadow-2xs", 
-                      picked 
-                        ? "bg-blue-50/70 border-blue-600 ring-1 ring-blue-600/30" 
+                      "rounded-2xl border transition-all shadow-2xs",
+                      picked
+                        ? "bg-blue-50/70 border-blue-600 ring-1 ring-blue-600/30"
                         : "bg-white border-slate-200 hover:border-slate-300"
                     )}
                   >
-                    <button 
-                      onClick={() => patch(projectId, { selectedStatement: f.id })} 
+                    <button
+                      onClick={() => patch(projectId, { selectedStatement: f.id })}
                       className={cx(
-                        "w-full text-left p-5 pb-3 cursor-pointer", 
+                        "w-full text-left p-5 pb-3 cursor-pointer",
                         picked ? "text-blue-900" : "text-[#0F172A]"
                       )}
                     >
@@ -604,11 +604,11 @@ export const ProblemDiscovery: React.FC<{
                         <AnalysisChips id={f.id} />
                       </div>
                     </button>
-                    
+
                     <div className="px-5 pb-4 pt-1">
-                      <Button 
-                        size="xs" 
-                        icon={<BarChart3 className="w-3.5 h-3.5" />} 
+                      <Button
+                        size="xs"
+                        icon={<BarChart3 className="w-3.5 h-3.5" />}
                         onClick={() => setAnalysisId(f.id)}
                         className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white"
                       >
@@ -624,23 +624,14 @@ export const ProblemDiscovery: React.FC<{
       </div>
 
       {/* Bottom Sticky Action Bar */}
-      <div className="bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between shrink-0 shadow-xs">
-        {canConfirm ? (
-          <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Problem statement selected</span>
-          </div>
-        ) : (
-          <div className="text-amber-600 text-xs font-semibold">
-            Select a problem statement framing to continue
-          </div>
-        )}
+      <div className="bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-end shrink-0 shadow-xs">
 
-        <Button 
-          variant="primary" 
-          disabled={!canConfirm} 
+
+        <Button
+          variant="primary"
+          disabled={!canConfirm}
           onClick={confirm}
-          className="px-6 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 shadow-xs cursor-pointer flex items-center gap-1.5"
+          className="px-6 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 shadow-xs cursor-pointer flex items-center gap-1.5 justify-end"
         >
           <span>Confirm &amp; Continue</span>
           <ArrowRight className="w-3.5 h-3.5" />

@@ -28,7 +28,7 @@ export const MACRO_AREAS: MacroArea[] = [
   },
   {
     id: 'package',
-    label: 'PACKAGE',
+    label: 'HANDOFF',
     tagline: 'Generate approved BRD, PRD, and implementation blueprint',
     phases: ['documentation']
   }

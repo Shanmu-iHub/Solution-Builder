@@ -203,7 +203,6 @@ export const IdeaDefinition: React.FC<{
               Start with your idea
             </h2>
             <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-              Describe the problem you are solving, who experiences it, and what outcome you want. Plain words are fine.
             </p>
 
             <Textarea 
@@ -290,14 +289,16 @@ export const IdeaDefinition: React.FC<{
             </p> */}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => setStage('understand')}
               className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               ← Edit Idea
             </button>
-
+            <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-semibold">
+              State 2 of 3 · Clarify
+            </span>
           </div>
         </div>
 
@@ -373,7 +374,7 @@ export const IdeaDefinition: React.FC<{
                 <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
                   <span className="font-semibold text-slate-800">Line managers &amp; approvers</span>
                   <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                    ? Needs clarification
+                    Needs clarification? 
                   </span>
                 </div>
               </div>
@@ -616,7 +617,7 @@ export const IdeaDefinition: React.FC<{
         <div>
           <h1 className="text-xl font-bold text-[#0F172A]">Idea Brief Document</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-             Brief generated from your idea and clarifications.
+             Idea Brief generated from your Problem and clarifications.
           </p>
         </div>
 
@@ -643,7 +644,6 @@ export const IdeaDefinition: React.FC<{
                 Mobile Receipt Capture &amp; Expense Approval Automation
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Authored via AI Progressive Synthesis · Ready for Executive Quorum Validation
               </p>
             </div>
 
@@ -745,7 +745,7 @@ export const IdeaDefinition: React.FC<{
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Validation summary before advancing to Problem Discovery.
+              Validation summary.
             </p>
           </div>
 
@@ -764,10 +764,7 @@ export const IdeaDefinition: React.FC<{
                   <span className="flex items-center gap-1.5">Explicit assumptions</span>
                   <span className="font-mono">2 assumptions</span>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium">
-                  <span className="flex items-center gap-1.5">Open questions</span>
-                  <span className="font-mono">0 remaining</span>
-                </div>
+
               </div>
             </div>
 
@@ -780,10 +777,7 @@ export const IdeaDefinition: React.FC<{
           <div className="p-5 border-t border-slate-200 bg-slate-50/70">
             {s.briefConfirmed ? (
               <div className="space-y-2.5">
-                <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Idea Brief Confirmed · Phase 01 Completed</span>
-                </div>
+
                 <Button 
                   variant="primary" 
                   className="w-full text-xs font-bold py-2.5 bg-blue-600 hover:bg-blue-700 cursor-pointer shadow-xs" 

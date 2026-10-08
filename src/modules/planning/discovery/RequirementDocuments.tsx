@@ -240,112 +240,22 @@ export const RequirementDocuments: React.FC<{
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
         <div>
           <h1 className="text-lg font-bold text-[#0F172A]">Enterprise Document Set</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Traceable business, product, and engineering specifications ready for executive sign-off.
+          </p>
         </div>    
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-semibold">
+            Stage 10 · Enterprise Documents
+          </span>
+        </div>
       </div>
 
-      {/* Main Workspace (Full-Width, Clean, Balanced Layout) */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
-        <div className="max-w-6xl mx-auto space-y-6">
-
-          {/* ========================================================================= */}
-          {/* 1. TOP 4 KPI SUMMARY CARDS (Matching System Aesthetic) */}
-          {/* ========================================================================= */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Generated Documents
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                3 Sets
-              </span>
-              <span className="text-[11px] text-slate-500 block">BRD · PRD · SRS</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Total Sections
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                24
-              </span>
-              <span className="text-[11px] text-slate-500 block">Fully detailed specs</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Traceable Baseline
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-emerald-600 tracking-tight">
-                38 Items
-              </span>
-              <span className="text-[11px] text-slate-500 block">Requirements covered</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Governance Status
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-blue-600 tracking-tight">
-                Ready
-              </span>
-              <span className="text-[11px] text-slate-500 block">C-Suite sign-off unblocked</span>
-            </div>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* 2. DOCUMENT SELECTOR TABS (Balanced 3-Column Layout) */}
-          {/* ========================================================================= */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {DOC_TABS.map(doc => {
-              const active = activeDoc === doc.id;
-              return (
-                <button
-                  key={doc.id}
-                  type="button"
-                  onClick={() => setActiveDoc(doc.id)}
-                  className={cx(
-                    "text-left p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between group",
-                    active
-                      ? "bg-white border-blue-600 shadow-sm ring-1 ring-blue-600/20"
-                      : "bg-white/80 border-slate-200 hover:border-slate-300 hover:bg-white"
-                  )}
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className={cx(
-                        "text-base font-extrabold tracking-tight",
-                        active ? "text-blue-600" : "text-slate-900"
-                      )}>
-                        {doc.code}
-                      </span>
-                      <span className={cx(
-                        "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                        active ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-slate-100 text-slate-500"
-                      )}>
-                        {doc.sectionsCount} Sections
-                      </span>
-                    </div>
-                    <span className="text-xs font-bold text-slate-800 block truncate">
-                      {doc.title}
-                    </span>
-                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
-                      {doc.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-3 mt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
-                    <span className="text-slate-400">{doc.version}</span>
-                    <span className={cx(
-                      "font-semibold flex items-center gap-1",
-                      active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
-                    )}>
-                      <Eye className="w-3 h-3" /> View
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+      {/* Two-Column Workspace: Center Document Viewer + Right Sidebar Document Selector */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Center: Selected Document Content Viewer */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6">
 
           {/* ========================================================================= */}
           {/* 3. DOCUMENT CONTROLS & EXPORT TOOLBAR */}
@@ -862,6 +772,112 @@ export const RequirementDocuments: React.FC<{
       </div>
 
       {/* ========================================================================= */}
+      {/* RIGHT SIDEBAR: DOCUMENT SELECTOR */}
+      {/* ========================================================================= */}
+      <div className="w-[350px] lg:w-[380px] bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-hidden">
+        {/* Sidebar Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 shrink-0">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider">
+                Document Selector
+              </h3>
+            </div>
+            <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+              {DOC_TABS.length} Documents
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 leading-relaxed mt-1">
+            Select a document specification to view and review in the center workspace.
+          </p>
+        </div>
+
+        {/* Document Selector List */}
+        <div className="flex-1 p-4 space-y-3 overflow-y-auto">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
+            Available Specifications
+          </div>
+          {DOC_TABS.map(doc => {
+            const active = activeDoc === doc.id;
+            return (
+              <button
+                key={doc.id}
+                type="button"
+                onClick={() => setActiveDoc(doc.id)}
+                className={cx(
+                  "w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col gap-2.5 group relative",
+                  active
+                    ? "bg-blue-50/30 border-blue-600 shadow-xs ring-1 ring-blue-600/20"
+                    : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={cx(
+                      "px-2 py-0.5 rounded text-[11px] font-extrabold tracking-tight",
+                      active
+                        ? doc.id === 'brd' ? 'bg-blue-600 text-white' :
+                          doc.id === 'prd' ? 'bg-purple-600 text-white' :
+                          doc.id === 'srs' ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
+                        : "bg-slate-100 text-slate-700"
+                    )}>
+                      {doc.code}
+                    </span>
+                    <span className={cx(
+                      "text-xs font-bold truncate max-w-[170px]",
+                      active ? "text-blue-900" : "text-slate-900 group-hover:text-slate-800"
+                    )}>
+                      {doc.title}
+                    </span>
+                  </div>
+
+                  {active && (
+                    <span className="w-2 h-2 rounded-full bg-blue-600 ring-4 ring-blue-100 shrink-0" />
+                  )}
+                </div>
+
+                <p className="text-[11.5px] text-slate-500 leading-relaxed line-clamp-2">
+                  {doc.description}
+                </p>
+
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
+                  <span className={cx(
+                    "px-1.5 py-0.5 rounded font-semibold",
+                    active ? "bg-white text-slate-700 border border-slate-200" : "bg-slate-50 text-slate-500"
+                  )}>
+                    {doc.sectionsCount} {doc.id === 'lifecycle' ? 'Phases' : 'Sections'}
+                  </span>
+                  <span className={cx(
+                    "font-semibold flex items-center gap-1",
+                    active ? "text-blue-600 font-bold" : "text-slate-400 group-hover:text-slate-600"
+                  )}>
+                    <Eye className="w-3 h-3" />
+                    {active ? 'Viewing in Center' : 'Select'}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Sidebar Footer: Summary & Governance */}
+        <div className="p-4 border-t border-slate-200 bg-slate-50/70 shrink-0 space-y-2.5">
+          <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-white border border-slate-200">
+            <span className="text-slate-600 font-medium">Document Baseline</span>
+            <span className="text-emerald-700 font-bold flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              v1.0 Ready
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-400 leading-relaxed">
+            ✦ All specifications are cross-traceable to confirmed discovery requirements.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* ========================================================================= */}
       {/* 5. BOTTOM STICKY ACTION BAR (Matching System Standard) */}
       {/* ========================================================================= */}
       <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">

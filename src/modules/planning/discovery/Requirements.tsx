@@ -496,14 +496,10 @@ export const Requirements: React.FC<{
       {/* Top Header */}
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-            Phase · Specification
-          </span>
+
           <h1 className="text-lg font-bold text-[#0F172A]">Business &amp; Product Requirements</h1>
         </div>
-        <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold border border-slate-200">
-          Requirements Baseline · Draft v0.1
-        </div>
+
       </div>
 
       {/* Main Full-Width Workspace Canvas (No Cramped Side Panel!) */}
@@ -513,8 +509,7 @@ export const Requirements: React.FC<{
           {/* ========================================================================= */}
           {/* 1. TOP 4 KPI METRIC CARDS (Exact Match to Reference Image 2) */}
           {/* ========================================================================= */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Card 1: Total Requirements */}
+          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                 Total Requirements
@@ -523,37 +518,7 @@ export const Requirements: React.FC<{
                 {totalCount}
               </span>
             </div>
-
-            {/* Card 2: Approved */}
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Approved
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                {approvedCount}
-              </span>
-            </div>
-
-            {/* Card 3: In Review */}
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                In Review
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                {inReviewCount}
-              </span>
-            </div>
-
-            {/* Card 4: Trace Coverage */}
-            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Trace Coverage
-              </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                {traceCoverage}
-              </span>
-            </div>
-          </div>
+          </div> */}
 
           {/* ========================================================================= */}
           {/* 2. CATEGORY TABS WITH BADGES (Exact Match to Reference Image 2) */}
@@ -682,9 +647,7 @@ export const Requirements: React.FC<{
                     <th className="px-4 py-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider w-28">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider w-36">
-                      Source
-                    </th>
+
                     <th className="px-4 py-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider text-right w-20">
                       Actions
                     </th>
@@ -765,10 +728,7 @@ export const Requirements: React.FC<{
                           </button>
                         </td>
 
-                        {/* Source */}
-                        <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap truncate max-w-[150px]">
-                          {r.source}
-                        </td>
+
 
                         {/* Actions */}
                         <td className="px-4 py-3.5 text-right whitespace-nowrap">
@@ -805,33 +765,10 @@ export const Requirements: React.FC<{
       {/* ========================================================================= */}
       {/* 5. BOTTOM STICKY ACTION BAR (Matching Image 2 and Rest of App) */}
       {/* ========================================================================= */}
-      <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
-        <div className="flex items-center gap-3">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back</span>
-            </button>
-          )}
-          <span className="text-slate-300 hidden sm:inline">|</span>
-          <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Requirements Baseline Validated</span>
-            <span className="text-slate-400 font-normal">·</span>
-            <span className="text-slate-600 font-medium">
-              {approvedCount} of {totalCount} specifications approved
-            </span>
-          </div>
-        </div>
+      <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-end shrink-0 shadow-xs">
+
 
         <div className="flex items-center gap-3">
-          <span className="text-[11.5px] text-slate-400 hidden md:inline">
-            Saved just now
-          </span>
           <Button
             variant="secondary"
             size="sm"

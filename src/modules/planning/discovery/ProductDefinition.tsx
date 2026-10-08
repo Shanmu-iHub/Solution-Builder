@@ -184,7 +184,7 @@ export const ProductDefinition: React.FC<{
         <div>
           <h1 className="text-lg font-bold text-[#0F172A]">Product Definition</h1>
           <p className="text-xs text-slate-500">
-            Turn the confirmed business model into a simplified, clear product specification.
+            Product specification.
           </p>
         </div>
         {/* <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export const ProductDefinition: React.FC<{
           {/* ========================================================================= */}
           <div className="space-y-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Product Overview · From your idea
+              Product Overview 
             </span>
 
             <div className="rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white p-6 shadow-md border border-slate-800 space-y-3">
@@ -476,21 +476,21 @@ export const ProductDefinition: React.FC<{
                     <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                       1
                     </span>
-                    <span><strong>Alex (Field Rep)</strong> photographs receipt; AI extracts fields and auto-populates claim.</span>
+                    <span><strong>Field Rep</strong> photographs receipt; AI extracts fields and auto-populates claim.</span>
                   </div>
 
                   <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
                     <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                       2
                     </span>
-                    <span><strong>Jordan (Manager)</strong> receives notification and approves via 1-click triage queue.</span>
+                    <span><strong>Manager</strong> receives notification and approves via 1-click triage queue.</span>
                   </div>
 
                   <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
                     <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                       3
                     </span>
-                    <span><strong>Sam (Finance)</strong> reviews verified claim data; syncs to accounting with zero typing.</span>
+                    <span><strong>Finance officer</strong> reviews verified claim data; syncs to accounting with zero typing.</span>
                   </div>
 
                   <div className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
@@ -642,17 +642,8 @@ export const ProductDefinition: React.FC<{
       </div>
 
       {/* Bottom Sticky Action Bar */}
-      <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Product Definition Validated</span>
-          </span>
-          <span className="text-slate-400">·</span>
-          <span className="text-slate-600">
-            Personas, Scope, UX &amp; Success Targets Confirmed
-          </span>
-        </div>
+      <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-end shrink-0 shadow-xs">
+
 
         <Button
           variant="primary"
