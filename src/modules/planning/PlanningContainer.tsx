@@ -23,6 +23,7 @@ import { TaskBreakdown } from './phases/TaskBreakdown';
 import { RequirementNavRail } from './navigation/RequirementNavRail';
 import { DependencyBanner } from './shared/DependencyBanner';
 import { CSuiteExecutivePanel } from './executive/CSuiteExecutivePanel';
+import { INITIAL_CSUITE_DATA } from './executive/csuiteData';
 import { PHASE_CONFIGS, ORDERED_PHASES, isPhaseInputCompleted, isPhaseUnlocked } from './map/mapData';
 import { PlanningNavRail } from './navigation/PlanningNavRail';
 import { PlanningExecutivePanel } from './executive/PlanningExecutivePanel';
@@ -190,7 +191,9 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
           <div className="flex items-center gap-2 shrink-0">
             {isRequirementMode ? (
               <>
-                <button onClick={() => setExecutivePanelOpen(true)} className={HEADER_BTN}>Executive Panel</button>
+                {INITIAL_CSUITE_DATA[activeWorkspacePage as DiscoveryPage]?.length > 0 && (
+                  <button onClick={() => setExecutivePanelOpen(true)} className={HEADER_BTN}>Executive Panel</button>
+                )}
                 {isReqGatheringCompleted ? (
                   <button type="button" onClick={() => advance('solution_dashboard')} className={HEADER_BTN_PRIMARY}>
                     <span>Continue to Solution Planning</span>
@@ -381,6 +384,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
         reviews={planExec}
         onChange={(stage, list) => setPlanExec(prev => ({ ...prev, [stage]: list }))}
         initialStage={active === 'requirement_context' ? 'solution_dashboard' : active}
+        statusOf={id => getStageStatus(id, active, maxReached)}
       />
     </div>
   );

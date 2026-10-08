@@ -22,7 +22,7 @@ import { FactoryProject } from '../types';
 import { ArchitecturePanel } from './ArchitecturePanel';
 import { ChatPane, StoryStage } from './ChatPane';
 import { CodePanel, EXPENSIFY_CODE_FILES } from './CodePanel';
-import { CSuiteValidationModal } from './CSuiteValidationModal';
+import { FactoryExecutivePanel } from './FactoryExecutivePanel';
 import { CreditPanel } from './CreditPanel';
 import { DatabasePanel } from './DatabasePanel';
 import { DeploymentPanel } from './DeploymentPanel';
@@ -319,10 +319,9 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
             {isPreviewLive && (
               <button
                 onClick={() => setCSuiteOpen(true)}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[11px] font-bold uppercase tracking-wider shrink-0 transition cursor-pointer animate-fade-in"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors cursor-pointer"
               >
-                <CheckCircle2 size={13} className="text-emerald-600" />
-                <span>C-SUITE VALIDATION</span>
+                Executive Panel
               </button>
             )}
           </div>
@@ -453,7 +452,7 @@ export const BuilderWorkspace: React.FC<{ project: FactoryProject; onBack: () =>
 
       {/* Drawers & Dialogs */}
       <TokenConsumptionDrawer open={tokensOpen} onClose={() => setTokensOpen(false)} tokensCount={tokensCount} />
-      <CSuiteValidationModal
+      <FactoryExecutivePanel
         open={cSuiteOpen}
         projectName={project.projectName}
         onClose={() => setCSuiteOpen(false)}

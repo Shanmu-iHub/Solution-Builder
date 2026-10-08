@@ -1,133 +1,99 @@
-import React, { useEffect, useState } from 'react';
-import { Check, X, CheckCircle2, Lock } from 'lucide-react';
-import { usePlanning } from '../PlanningStore';
-import { DiscoveryPage } from '../types';
-import { 
-  INITIAL_CSUITE_DATA, 
-  CSuiteMemberReview, 
-  CSuiteRole, 
-  CSUITE_ROLES_META
-} from './csuiteData';
-import { PHASE_CONFIGS, isPhaseUnlocked } from '../map/mapData';
-import { cx, useToast } from '../../ui';
+import React, { useState } from 'react';
+import { Check, X } from 'lucide-react';
+import { cx } from '../../ui';
+import { CSUITE_ROLES_META, CSuiteRole } from '../../planning/executive/csuiteData';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  projectId: string;
   projectName: string;
-  initialPhase?: DiscoveryPage;
 }
 
-const PHASES_LIST: DiscoveryPage[] = [
-  'idea',
-  'problem',
-  'opportunity',
-  'solution',
-  'business_model',
-  'product_definition',
-  'requirements',
-  'documentation'
+// Initial default data for the Build Validation phase
+const INITIAL_OFFICER_REVIEWS = [
+  {
+    role: 'CPO' as CSuiteRole,
+    title: 'Chief Product Officer',
+    reviewed: 'Product behavior, feature implementation, and UI/UX alignment.',
+    findings: 'All user stories are implemented as per Figma design. No blocking product issues found in UAT.',
+    criteria: ['UI/UX Fidelity', 'Feature completeness', 'User acceptance'],
+    status: 'Validated' as 'Validated' | 'Pending',
+    score: 95,
+    risk: 'Low' as 'Low' | 'Medium' | 'High',
+  },
+  {
+    role: 'CTO' as CSuiteRole,
+    title: 'Chief Technology Officer',
+    reviewed: 'Technical integration, API endpoints, and system communication.',
+    findings: 'Architecture holds up under initial load testing. Technical debt is minimal.',
+    criteria: ['API Contracts', 'Code Quality', 'Test Coverage'],
+    status: 'Validated' as 'Validated' | 'Pending',
+    score: 92,
+    risk: 'Low' as 'Low' | 'Medium' | 'High',
+  },
+  {
+    role: 'CDO' as CSuiteRole,
+    title: 'Chief Data Officer',
+    reviewed: 'Data schema, database modeling, migrations, and storage safety.',
+    findings: 'Data integrity and schema consistency verified against original ERD.',
+    criteria: ['Schema validation', 'Migration safety', 'Data retention'],
+    status: 'Validated' as 'Validated' | 'Pending',
+    score: 94,
+    risk: 'Low' as 'Low' | 'Medium' | 'High',
+  },
+  {
+    role: 'CISO' as CSuiteRole,
+    title: 'Chief Information Security Officer',
+    reviewed: 'Security architecture, RBAC, session tokens, and threat vector audit.',
+    findings: 'No critical vulnerabilities or secret leakage detected in static analysis.',
+    criteria: ['Auth/Authz', 'Secrets Management', 'Dependency Scan'],
+    status: 'Validated' as 'Validated' | 'Pending',
+    score: 96,
+    risk: 'Low' as 'Low' | 'Medium' | 'High',
+  },
+  {
+    role: 'CIO' as CSuiteRole,
+    title: 'Chief Information Officer',
+    reviewed: 'Operational readiness, cloud deployment, and system availability.',
+    findings: 'Infrastructure pipelines and monitoring satisfy operational criteria.',
+    criteria: ['CI/CD Pipeline', 'Observability', 'Uptime SLAs'],
+    status: 'Validated' as 'Validated' | 'Pending',
+    score: 91,
+    risk: 'Low' as 'Low' | 'Medium' | 'High',
+  },
 ];
 
-/** Risk is the only thing colored here, because it is the thing a reviewer must notice. */
 const RISK_STYLE = { Low: 'text-slate-600 border-slate-200 bg-slate-50', Medium: 'text-amber-700 border-amber-200 bg-amber-50', High: 'text-rose-700 border-rose-200 bg-rose-50' };
 const RISK_BADGE = { Low: 'bg-emerald-100 text-emerald-700 border-emerald-200', Medium: 'bg-amber-100 text-amber-700 border-amber-200', High: 'bg-rose-100 text-rose-700 border-rose-200' };
 
-export const CSuiteExecutivePanel: React.FC<Props> = ({
-  open,
-  onClose,
-  projectId,
-  projectName,
-  initialPhase = 'idea'
-}) => {
-  const { patch, state } = usePlanning();
-  const s = state(projectId);
-  const { toast } = useToast();
-
-  const [csuiteState, setCsuiteState] = useState<Record<DiscoveryPage, CSuiteMemberReview[]>>(INITIAL_CSUITE_DATA);
-  const [activePhase, setActivePhase] = useState<DiscoveryPage>(initialPhase);
+export const FactoryExecutivePanel: React.FC<Props> = ({ open, onClose, projectName }) => {
+  const [reviews, setReviews] = useState(INITIAL_OFFICER_REVIEWS);
   const [selectedRole, setSelectedRole] = useState<CSuiteRole | null>(null);
   const [editScore, setEditScore] = useState<number | null>(null);
 
-  // Sync state on open
-  useEffect(() => { 
-    if (open) { 
-      setActivePhase(initialPhase); 
-      setSelectedRole(null); 
-      setEditScore(null); 
-    } 
-  }, [open, initialPhase]);
-
-  const list = csuiteState[activePhase] || [];
-  const detail = list.find(r => r.role === selectedRole) ?? null;
-
-  // Sync editable score when opening popup
-  useEffect(() => { if (detail) setEditScore(detail.score); }, [selectedRole, activePhase]);
-
   if (!open) return null;
 
-  const cfg = PHASE_CONFIGS[activePhase];
-  const validated = list.filter(r => r.status === 'Validated').length;
-  const stageAvg = Math.round(list.reduce((sum, r) => sum + r.score, 0) / (list.length || 1));
-  
-  const allReviews = Object.values(csuiteState).flat();
-  const overall = Math.round(allReviews.reduce((sum, r) => sum + r.score, 0) / (allReviews.length || 1));
-  const meta = detail ? CSUITE_ROLES_META[detail.role] : null;
-
-  const isFinalStage = activePhase === 'documentation';
-  const allValidatedInStage = validated === list.length;
-  const isFullyApprovedByCEO = isFinalStage && allValidatedInStage;
-
-  const toggle = (role: CSuiteRole) => {
-    const nextList = list.map(r => (r.role === role ? { ...r, status: r.status === 'Validated' ? ('Pending' as const) : ('Validated' as const) } : r));
-    const updated = { ...csuiteState, [activePhase]: nextList };
-    setCsuiteState(updated);
-    toast({ title: `${role} review updated`, description: `Marked ${nextList.find(r => r.role === role)?.status} for ${cfg.shortTitle}.` });
-  };
-
-  const approveGate = () => {
-    const nextList = list.map(r => ({ ...r, status: 'Validated' as const }));
-    const updated = { ...csuiteState, [activePhase]: nextList };
-    setCsuiteState(updated);
-
-    // Apply store patch for the corresponding phase
-    const update: any = {};
-    if (activePhase === 'idea') update.briefConfirmed = true;
-    if (activePhase === 'opportunity') update.oppCompleted = true;
-    if (activePhase === 'problem') update.problemCompleted = true;
-    if (activePhase === 'solution') update.solutionConfirmed = true;
-    if (activePhase === 'business_model') update.businessModelConfirmed = true;
-    if (activePhase === 'product_definition') update.productDefinitionConfirmed = true;
-    if (activePhase === 'requirements') update.requirementsConfirmed = true;
-    if (activePhase === 'documentation') update.documentsConfirmed = true;
-
-    patch(projectId, update);
-
-    toast({ 
-      title: `Phase gate passed: ${cfg.shortTitle}`, 
-      description: isFinalStage 
-        ? 'Requirement Gathering completed! Solution Planning unlocked.' 
-        : `All ${list.length} executives validated this stage (average ${stageAvg}/100).` 
-    });
+  const handleRoleSelect = (role: CSuiteRole, currentScore: number) => {
+    setSelectedRole(role);
+    setEditScore(currentScore);
   };
 
   const handleSaveClose = () => {
-    if (detail && editScore !== null && editScore !== detail.score) {
-      const nextList = list.map(r => (r.role === detail.role ? { ...r, score: editScore } : r));
-      const updated = { ...csuiteState, [activePhase]: nextList };
-      setCsuiteState(updated);
-      toast({ title: `${detail.role} score updated`, description: `Score set to ${editScore}/100 for ${cfg.shortTitle}.` });
+    if (selectedRole && editScore !== null) {
+      setReviews(prev => prev.map(r => r.role === selectedRole ? { ...r, score: editScore } : r));
     }
     setSelectedRole(null);
+    setEditScore(null);
   };
 
-  const crossStageScores = detail
-    ? PHASES_LIST.map((pageId, idx) => {
-        const r = csuiteState[pageId]?.find(rev => rev.role === detail.role);
-        return { id: pageId, num: idx + 1, score: r?.score ?? 0 };
-      })
-    : [];
+  const toggleStatus = (role: CSuiteRole) => {
+    setReviews(prev => prev.map(r => r.role === role ? { ...r, status: r.status === 'Validated' ? 'Pending' : 'Validated' } : r));
+  };
+
+  const detail = reviews.find(r => r.role === selectedRole);
+  const meta = detail ? CSUITE_ROLES_META[detail.role] : null;
+  const overall = Math.round(reviews.reduce((sum, r) => sum + r.score, 0) / reviews.length);
+  const validatedCount = reviews.filter(r => r.status === 'Validated').length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm p-2 sm:p-4 md:p-6 animate-fade-in" onClick={onClose}>
@@ -136,7 +102,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
         {/* Header */}
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div>
-            <p className="text-[12.5px] text-slate-500">{projectName} · Requirement Gathering</p>
+            <p className="text-[12.5px] text-slate-500">{projectName} · Solution Factory</p>
             <h2 className="text-lg font-semibold text-[#0F172A] mt-0.5">Executive review</h2>
           </div>
           <div className="flex items-center gap-5">
@@ -148,56 +114,32 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tab */}
         <div className="px-6 border-b border-slate-200 flex items-center gap-6 overflow-x-auto shrink-0">
-          {PHASES_LIST.map((pageId) => {
-            const pageConfig = PHASE_CONFIGS[pageId];
-            const rs = csuiteState[pageId] || [];
-            const all = rs.length > 0 && rs.every(r => r.status === 'Validated');
-            const isActive = pageId === activePhase;
-            const isUnlocked = isPhaseUnlocked(s, pageId);
-            return (
-              <button 
-                key={pageId} 
-                onClick={() => { if (isUnlocked) { setActivePhase(pageId); setSelectedRole(null); } }} 
-                className={cx('flex items-center gap-1.5 py-3 text-[13.5px] whitespace-nowrap border-b-2 -mb-px transition-colors', 
-                  !isUnlocked ? 'cursor-not-allowed opacity-50 border-transparent text-slate-400' :
-                  isActive ? 'border-[#0F172A] text-[#0F172A] font-semibold cursor-pointer' : 'border-transparent text-slate-500 hover:text-slate-800 cursor-pointer')}
-              >
-                {!isUnlocked && <Lock className="w-3.5 h-3.5 text-slate-400" />}
-                {pageConfig.shortTitle}
-                {isUnlocked && all && <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={3} />}
-              </button>
-            );
-          })}
+          <button className="flex items-center gap-1.5 py-3 text-[13.5px] whitespace-nowrap border-b-2 -mb-px transition-colors border-[#0F172A] text-[#0F172A] font-semibold cursor-pointer">
+            Build Validation
+            <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={3} />
+          </button>
         </div>
 
         {/* Action Bar */}
-        <div className="px-6 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+        <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
           <div>
-            <h3 className="text-[15px] font-semibold text-[#0F172A]">{cfg.title}</h3>
-            <p className="text-[13px] text-slate-500 mt-0.5">{list.length} executives review this stage · {validated} validated · average {stageAvg} / 100</p>
+            <h3 className="text-[15px] font-semibold text-[#0F172A]">Build Validation</h3>
+            <p className="text-[13px] text-slate-500 mt-0.5">{reviews.length} executives review this stage · {validatedCount} validated · average {overall} / 100</p>
           </div>
-          <div className="flex items-center gap-4">
-            {isFullyApprovedByCEO && (
-              <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 animate-fade-in">
-                <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />
-                <span className="text-[13px] font-bold">Requirement Gathering Approved by CEO</span>
-              </div>
-            )}
-            <button onClick={approveGate} disabled={allValidatedInStage} className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-lg text-[13px] font-medium transition-colors cursor-pointer shrink-0">
-              {allValidatedInStage ? 'Gate approved' : 'Approve stage gate'}
-            </button>
-          </div>
+          <button disabled className="px-4 py-2 bg-[#2563EB] text-white rounded-lg text-[13px] font-medium transition-colors cursor-not-allowed opacity-80">
+            Gate approved
+          </button>
         </div>
 
-        {/* Main Grid */}
+        {/* Grid */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/60 min-h-0">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {list.map(r => {
+            {reviews.map(r => {
               const isSel = selectedRole === r.role;
               return (
-                <button key={r.role} type="button" onClick={() => setSelectedRole(r.role)} className={cx('text-left bg-white rounded-lg border p-4 transition-colors cursor-pointer flex flex-col', isSel ? 'border-[#2563EB]' : 'border-slate-200 hover:border-slate-300')}>
+                <button key={r.role} type="button" onClick={() => handleRoleSelect(r.role, r.score)} className={cx('text-left bg-white rounded-lg border p-4 transition-colors cursor-pointer flex flex-col', isSel ? 'border-[#2563EB]' : 'border-slate-200 hover:border-slate-300')}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[12px] font-semibold text-slate-500">{r.role}</span>
                     <span className={cx('text-[12px]', r.status === 'Validated' ? 'text-emerald-700' : 'text-slate-400')}>{r.status}</span>
@@ -216,7 +158,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
 
         {/* Executive Detail Popup */}
         {detail && meta && editScore !== null && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setSelectedRole(null)}>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-fade-in" onClick={handleSaveClose}>
             <div className="bg-white w-full max-w-[580px] rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" onClick={e => e.stopPropagation()}>
 
               {/* Popup Header */}
@@ -230,11 +172,11 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                     <p className="text-[13px] text-slate-500 mt-0.5">
                       <span className="text-blue-600 font-medium">{meta.category}</span>
                       <span className="mx-1.5">·</span>
-                      Phase {cfg.num}: {cfg.shortTitle}
+                      Solution Factory Build
                     </p>
                   </div>
                 </div>
-                <button onClick={() => setSelectedRole(null)} aria-label="Close detail" className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer mt-0.5"><X className="w-5 h-5" /></button>
+                <button onClick={handleSaveClose} aria-label="Close detail" className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer mt-0.5"><X className="w-5 h-5" /></button>
               </div>
 
               {/* Popup Body */}
@@ -304,24 +246,12 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                   </div>
 
                   <div>
-                    <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2.5">{detail.role} Score Across All {PHASES_LIST.length} Phases (First to Last)</p>
+                    <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2.5">{detail.role} Score Across Factory Build</p>
                     <div className="flex gap-2 flex-wrap">
-                      {crossStageScores.map(ps => {
-                        const isCurrent = ps.id === activePhase;
-                        return (
-                          <button
-                            key={ps.id}
-                            onClick={() => { setActivePhase(ps.id); }}
-                            className={cx(
-                              'flex flex-col items-center px-3 py-2 rounded-xl border text-center transition-colors cursor-pointer min-w-[52px]',
-                              isCurrent ? 'bg-[#1E293B] border-[#1E293B] text-white' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
-                            )}
-                          >
-                            <span className={cx('text-[10px] font-bold tracking-wide', isCurrent ? 'text-slate-300' : 'text-slate-400')}>P{ps.num}</span>
-                            <span className={cx('text-[15px] font-bold tabular-nums', isCurrent ? 'text-white' : 'text-[#0F172A]')}>{ps.score}</span>
-                          </button>
-                        );
-                      })}
+                      <button className="flex flex-col items-center px-3 py-2 rounded-xl border text-center transition-colors cursor-pointer min-w-[52px] bg-[#1E293B] border-[#1E293B] text-white">
+                        <span className="text-[10px] font-bold tracking-wide text-slate-300">BLD</span>
+                        <span className="text-[15px] font-bold tabular-nums text-white">{detail.score}</span>
+                      </button>
                     </div>
                   </div>
 
@@ -331,7 +261,7 @@ export const CSuiteExecutivePanel: React.FC<Props> = ({
                       <span className={cx('text-[12px] font-semibold px-3 py-1 rounded-lg border', RISK_BADGE[detail.risk])}>{detail.risk} Risk</span>
                     </div>
                     <button
-                      onClick={() => toggle(detail.role)}
+                      onClick={() => toggleStatus(detail.role)}
                       className={cx(
                         'flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold border transition-colors cursor-pointer',
                         detail.status === 'Validated' ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
