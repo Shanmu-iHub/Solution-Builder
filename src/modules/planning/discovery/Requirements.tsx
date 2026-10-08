@@ -645,7 +645,7 @@ export const Requirements: React.FC<{
                       Priority
                     </th>
                     <th className="px-4 py-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider w-28">
-                      Status
+                      Review Status
                     </th>
 
                     <th className="px-4 py-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider text-right w-20">

@@ -239,9 +239,9 @@ export const RequirementDocuments: React.FC<{
       {/* Top Header */}
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <h1 className="text-lg font-bold text-[#0F172A]">Enterprise Document Set</h1>
+          <h1 className="text-lg font-bold text-[#0F172A]">Doccumentation</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Traceable business, product, and engineering specifications ready for executive sign-off.
+            Business, product, and Technical specifications.
           </p>
         </div>    
         <div className="flex items-center gap-2">
@@ -781,7 +781,7 @@ export const RequirementDocuments: React.FC<{
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-blue-600" />
               <h3 className="text-sm font-bold text-[#0F172A] uppercase tracking-wider">
-                Document Selector
+                Genearated Documents
               </h3>
             </div>
             <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
@@ -789,15 +789,12 @@ export const RequirementDocuments: React.FC<{
             </span>
           </div>
           <p className="text-xs text-slate-500 leading-relaxed mt-1">
-            Select a document specification to view and review in the center workspace.
+            Select a document to view and review.
           </p>
         </div>
 
         {/* Document Selector List */}
         <div className="flex-1 p-4 space-y-3 overflow-y-auto">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
-            Available Specifications
-          </div>
           {DOC_TABS.map(doc => {
             const active = activeDoc === doc.id;
             return (
@@ -853,7 +850,7 @@ export const RequirementDocuments: React.FC<{
                     active ? "text-blue-600 font-bold" : "text-slate-400 group-hover:text-slate-600"
                   )}>
                     <Eye className="w-3 h-3" />
-                    {active ? 'Viewing in Center' : 'Select'}
+                    {active ? 'Previewing' : 'Select'}
                   </span>
                 </div>
               </button>
@@ -861,19 +858,7 @@ export const RequirementDocuments: React.FC<{
           })}
         </div>
 
-        {/* Sidebar Footer: Summary & Governance */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50/70 shrink-0 space-y-2.5">
-          <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-white border border-slate-200">
-            <span className="text-slate-600 font-medium">Document Baseline</span>
-            <span className="text-emerald-700 font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              v1.0 Ready
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-400 leading-relaxed">
-            ✦ All specifications are cross-traceable to confirmed discovery requirements.
-          </div>
-        </div>
+
       </div>
     </div>
 
@@ -882,24 +867,9 @@ export const RequirementDocuments: React.FC<{
       {/* ========================================================================= */}
       <div className="bg-white border-t border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
         <div className="flex items-center gap-3">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back</span>
-            </button>
-          )}
-          <span className="text-slate-300 hidden sm:inline">|</span>
+
           <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Document Set Validated</span>
-            <span className="text-slate-400 font-normal">·</span>
-            <span className="text-slate-600 font-medium">
-              BRD, PRD, SRS &amp; RTM Baseline Ready
-            </span>
+
           </div>
         </div>
 
