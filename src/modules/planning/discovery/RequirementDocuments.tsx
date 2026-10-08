@@ -51,16 +51,6 @@ const DOC_TABS: DocMetadata[] = [
     updatedAt: 'Today, 2:50 PM',
     version: 'v1.0 Baseline',
   },
-  {
-    id: 'lifecycle',
-    code: 'FLOW',
-    title: 'Lifecycle Tracking Matrix',
-    description: 'Feature & Sub-feature mapping for the whole requirement gathering phase, full flow.',
-    sectionsCount: 10,
-    badgeTone: 'amber',
-    updatedAt: 'Today, 2:55 PM',
-    version: 'v1.0 Matrix',
-  },
 ];
 
 interface LifecyclePhase {
@@ -274,9 +264,9 @@ export const RequirementDocuments: React.FC<{
                   {currentMeta.version}
                 </span>
               </div>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">
+              {/* <p className="text-[11.5px] text-slate-500 mt-0.5">
                 Official traceable baseline generated from confirmed phases 01–07.
-              </p>
+              </p> */}
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -671,7 +661,7 @@ export const RequirementDocuments: React.FC<{
             )}
 
             {/* TAB 4: REQUIREMENT GATHERING LIFECYCLE FLOW MATRIX */}
-            {activeDoc === 'lifecycle' && (
+            {/* {activeDoc === 'lifecycle' && (
               <div className="space-y-8">
                 <div className="border-b border-slate-200 pb-6 space-y-3">
                   <div className="flex items-center justify-between">
@@ -725,10 +715,10 @@ export const RequirementDocuments: React.FC<{
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Stage Gate Sign-Off & Governance Box (Full-Width Clean Presentation) */}
-            <div className="pt-6 border-t border-slate-200">
+            {/* <div className="pt-6 border-t border-slate-200">
               <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
@@ -764,7 +754,7 @@ export const RequirementDocuments: React.FC<{
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
           </div>
 
@@ -839,12 +829,12 @@ export const RequirementDocuments: React.FC<{
                 </p>
 
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
-                  <span className={cx(
+                  {/* <span className={cx(
                     "px-1.5 py-0.5 rounded font-semibold",
                     active ? "bg-white text-slate-700 border border-slate-200" : "bg-slate-50 text-slate-500"
                   )}>
                     {doc.sectionsCount} {doc.id === 'lifecycle' ? 'Phases' : 'Sections'}
-                  </span>
+                  </span> */}
                   <span className={cx(
                     "font-semibold flex items-center gap-1",
                     active ? "text-blue-600 font-bold" : "text-slate-400 group-hover:text-slate-600"

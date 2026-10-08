@@ -5,7 +5,6 @@ import { Button, Input, Textarea } from '../../ui';
 
 export interface PersonaProfile {
   id: string;
-  name: string;        // Optional archetype name (e.g. "Arjun")
   role: string;        // Enterprise Role Title (e.g. "Field Sales Rep")
   tag: string;         // e.g. "Primary User", "Secondary User"
   roleDesc: string;    // Role description
@@ -17,27 +16,24 @@ export interface PersonaProfile {
 const INITIAL_PERSONAS: PersonaProfile[] = [
   {
     id: 'p1',
-    name: 'Arjun',
     role: 'Field Sales Rep',
     tag: 'Primary User',
-    roleDesc: 'Visits 6–8 B2B clients daily on the road',
+    roleDesc: 'Conducts frequent in-person B2B client visits on the road',
     goals: 'Get reimbursed quickly and spend maximum time selling',
     painPoints: 'Lost paper receipts, zero visibility into claim approval progress',
     constraints: 'Mobile smartphone only, frequently patchy network connectivity',
   },
   {
     id: 'p2',
-    name: 'Meera',
     role: 'Line Manager',
     tag: 'Secondary User',
-    roleDesc: 'Manages a distributed team of 10 sales reps',
+    roleDesc: 'Manages a distributed team of field sales representatives',
     goals: 'Approve legitimate claims quickly without manual email chasing',
     painPoints: 'Receipt scans and claim requests scattered across email threads',
     constraints: 'Limited time allocation per claim review',
   },
   {
     id: 'p3',
-    name: 'Kabir',
     role: 'Finance Executive',
     tag: 'Secondary User',
     roleDesc: 'Audits compliance and executes expense payouts',
@@ -85,44 +81,44 @@ export const UserDiscovery: React.FC = () => {
     },
     {
       id: 'validation',
-      title: 'Research Basis & Evidence',
+      title: 'Research Basis & Hypotheses',
       icon: <BadgeCheck className="w-4 h-4" />,
-      status: { label: '90% validated', tone: 'green' },
+      status: { label: 'To verify', tone: 'amber' },
       blocks: [
         {
           kind: 'bars',
-          title: 'Empirical Validation Coverage',
+          title: 'Validation Confidence & Targets',
           max: 100,
           rows: [
-            { label: 'Problem confirmation', value: 90, note: 'Matches validated field-sales problem' },
-            { label: 'Need validation', value: 82, note: 'Confirmed across 8 interviews and 120-rep survey' },
-            { label: 'Priority validation', value: 70, note: 'Reps prioritize visibility; managers prioritize speed' },
-            { label: 'Segment size validation', value: 45, note: 'Active rep count in target markets' },
+            { label: 'Problem confirmation', value: 90, note: 'Working hypothesis to be field-tested' },
+            { label: 'Need validation', value: 82, note: 'Target: 8 interviews & 120-rep survey' },
+            { label: 'Priority validation', value: 70, note: 'Hypothesis: reps prioritize speed; managers prioritize compliance' },
+            { label: 'Segment size validation', value: 45, note: 'Estimated active rep count in target markets' },
           ],
         },
         {
           kind: 'list',
-          title: 'Key Field Research Findings',
+          title: 'Field Research Questions & Hypotheses',
           items: [
-            '6 of 8 interviewees lost at least one receipt in the last quarter',
-            'Survey data: 71% of field reps wait more than one week for reimbursement',
-            'Workflow tension: Managers require compliance auditability, while reps need single-tap speed',
+            'Hypothesis: Paper receipt loss is frequent on multi-day field trips (to verify in interviews)',
+            'Assumption: Field reps experience reimbursement latency exceeding 7 days (to verify via survey)',
+            'Workflow tension: Balancing manager auditability with single-tap mobile submission speed',
           ],
-          tone: 'green',
+          tone: 'amber',
         },
       ],
     },
     {
       id: 'personas',
-      title: 'Validated Customer Personas',
+      title: 'Customer Personas',
       icon: <UserCircle2 className="w-4 h-4" />,
       wide: true,
-      status: { label: `${personas.length} profiles`, tone: 'green' },
+      status: { label: `${personas.length} profiles`, tone: 'blue' },
       custom: (
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-[12px] font-semibold text-slate-500">
-              Target User Profiles ({personas.length})
+              Customer Personas ({personas.length})
             </h4>
             <Button
               size="xs"
@@ -131,7 +127,6 @@ export const UserDiscovery: React.FC = () => {
               onClick={() => {
                 setEditingPersona({
                   id: '',
-                  name: '',
                   role: '',
                   tag: 'Primary User',
                   roleDesc: '',
@@ -149,19 +144,13 @@ export const UserDiscovery: React.FC = () => {
 
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3.5">
             {personas.map(p => {
-              const displayName = p.name ? `${p.name}, ${p.role}` : p.role;
               return (
                 <div key={p.id} className="border border-slate-200 rounded-xl p-4 bg-white space-y-2.5 shadow-2xs hover:border-slate-300 transition-all group">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <span className="text-[14.5px] font-semibold text-[#0F172A] block leading-snug">
-                        {displayName}
+                        {p.role}
                       </span>
-                      {p.name && (
-                        <span className="text-[11px] text-slate-400 font-medium">
-                          Archetype: {p.name}
-                        </span>
-                      )}
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Chip tone={p.tag.includes('Primary') ? 'green' : 'blue'}>
@@ -225,7 +214,7 @@ export const UserDiscovery: React.FC = () => {
       blocks: [
         {
           kind: 'chips',
-          title: 'Validated Functional & Business Needs',
+          title: 'Prioritized Functional & Business Needs',
           items: [
             'On-device camera receipt capture',
             'Live claim status tracking',
@@ -261,13 +250,12 @@ export const UserDiscovery: React.FC = () => {
         badge="Customer Research · Draft v0.1"
         kpis={[
           { label: 'Target Personas', value: `${personas.length} Profiles`, hint: personas.map(p => p.role).slice(0, 3).join(', '), icon: <UserCircle2 className="w-4 h-4" />, tone: 'purple' },
-          { label: 'User Interviews', value: '8 Sessions', hint: '4 reps, 2 managers, 2 finance', icon: <Users className="w-4 h-4" />, tone: 'blue' },
-          { label: 'Survey Reach', value: '120 Reps', hint: '12 field questions surveyed', icon: <BadgeCheck className="w-4 h-4" />, tone: 'green' },
-          { label: 'Problem Validation', value: '90%', hint: 'Empirical problem confirmation', icon: <AlertTriangle className="w-4 h-4" />, tone: 'amber' },
+          { label: 'User Interviews', value: '8 Planned', hint: 'Target: 4 reps, 2 managers, 2 finance', icon: <Users className="w-4 h-4" />, tone: 'blue' },
+          { label: 'Survey Reach', value: '120 Target Reps', hint: 'Planned field survey sample', icon: <BadgeCheck className="w-4 h-4" />, tone: 'slate' },
+          { label: 'Problem Validation', value: 'Draft Hypothesis', hint: 'To be verified via field discovery', icon: <AlertTriangle className="w-4 h-4" />, tone: 'amber' },
         ]}
         cards={cards}
         csuiteStage="user"
-        validated
       />
 
       {/* Persona Edit / Add Modal */}
@@ -276,7 +264,7 @@ export const UserDiscovery: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900">
-                {isAdding ? 'Add Target Customer Persona' : 'Edit Persona Profile'}
+                {isAdding ? 'Add Customer Persona' : 'Edit Customer Persona'}
               </h3>
               <button
                 type="button"
@@ -288,25 +276,14 @@ export const UserDiscovery: React.FC = () => {
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Role Title (Required)</label>
-                  <Input
-                    value={editingPersona.role}
-                    onChange={e => setEditingPersona({ ...editingPersona, role: e.target.value })}
-                    placeholder="e.g. Field Sales Rep"
-                    className="text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Archetype Name (Optional)</label>
-                  <Input
-                    value={editingPersona.name}
-                    onChange={e => setEditingPersona({ ...editingPersona, name: e.target.value })}
-                    placeholder="e.g. Arjun (or leave empty)"
-                    className="text-xs"
-                  />
-                </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Role Title (Required)</label>
+                <Input
+                  value={editingPersona.role}
+                  onChange={e => setEditingPersona({ ...editingPersona, role: e.target.value })}
+                  placeholder="e.g. Field Sales Rep"
+                  className="text-xs"
+                />
               </div>
 
               <div>
@@ -329,7 +306,7 @@ export const UserDiscovery: React.FC = () => {
                 <Input
                   value={editingPersona.roleDesc}
                   onChange={e => setEditingPersona({ ...editingPersona, roleDesc: e.target.value })}
-                  placeholder="e.g. Visits 6–8 B2B clients daily on the road"
+                  placeholder="e.g. Conducts frequent in-person B2B client visits on the road"
                   className="text-xs"
                 />
               </div>

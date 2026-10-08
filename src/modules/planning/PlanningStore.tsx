@@ -54,7 +54,7 @@ const planningState = (name: string, ideaText: string | undefined, upTo: 'dashbo
 };
 
 const seedProjects: SolutionProject[] = [
-  { id: 'sp-support', name: 'Customer Support AI', description: 'AI-assisted support workspace for a regional telecom: faster answers, fewer repeat contacts.', stage: 'requirement_context', createdAt: daysAgo(3), updatedAt: daysAgo(1) },
+  { id: 'sp-expense', name: 'Expense Approvals AI', description: 'A mobile solution for field sales reps to quickly scan receipts and automatically route them for manager approval without manual paperwork.', stage: 'requirement_context', createdAt: daysAgo(3), updatedAt: daysAgo(1) },
   { id: 'sp-claims', name: 'Claims Automation Portal', description: 'Self-service claim intake with automated triage and adjuster workbench for a regional insurer.', stage: 'requirement_context', createdAt: daysAgo(9), updatedAt: daysAgo(1) },
   { id: 'sp-hr', name: 'HR Onboarding Assistant', description: 'Conversational onboarding for new hires across 12 countries: paperwork, equipment, training.', stage: 'requirement_context', createdAt: daysAgo(14), updatedAt: daysAgo(2) },
   { id: 'sp-fleet', name: 'Fleet Telematics Dashboard', description: 'Live vehicle tracking, driver safety scoring and maintenance forecasting for a logistics fleet.', stage: 'solution_dashboard', createdAt: daysAgo(16), updatedAt: daysAgo(3) },
@@ -64,6 +64,7 @@ const seedProjects: SolutionProject[] = [
 ];
 
 const IDEAS = {
+  expense: 'A mobile solution for field sales reps to quickly scan receipts and automatically route them for manager approval without manual paperwork.',
   support: 'An AI customer support platform for a regional telecom that helps customers get faster answers and reduces support staff workload by grounding every reply in approved knowledge.',
   claims: 'A claims automation portal where policyholders report a loss in minutes, claims are triaged by severity and fraud risk, and adjusters work from one unified case file.',
   hr: 'A conversational HR assistant that guides new hires through paperwork, equipment, accounts and compliance training so they are productive in their first week.',
@@ -112,7 +113,8 @@ const seedStates = (): Record<string, PlanningState> => {
   const fleet = planningState('Fleet Telematics Dashboard', IDEAS.fleet, 'dashboard');
   const insure = planningState('Policy Renewal Advisor', IDEAS.insure, 'validation');
   return {
-    'sp-support': { ...initialPlanningState(), idea: IDEAS.support },
+    'sp-expense': { ...initialPlanningState(), idea: IDEAS.expense },
+    'sp-support': { ...initialPlanningState(), idea: IDEAS.expense },
     'sp-claims': inProgress('Claims Automation Portal', IDEAS.claims, 'problem'),
     'sp-hr': inProgress('HR Onboarding Assistant', IDEAS.hr, 'opportunity'),
     'sp-fleet': { ...fleet, solutionApproved: false, docs: Object.fromEntries(Object.keys(fleet.docs).map(k => [k, { status: 'none' as const, content: '' }])) },
@@ -138,12 +140,26 @@ function loadFromStorage<T>(key: string, fallback: () => T): T {
 }
 
 export const PlanningProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<SolutionProject[]>(() =>
-    loadFromStorage(STORAGE_KEYS.projects, () => seedProjects)
-  );
-  const [states, setStates] = useState<Record<string, PlanningState>>(() =>
-    loadFromStorage(STORAGE_KEYS.states, () => seedStates())
-  );
+  const [projects, setProjects] = useState<SolutionProject[]>(() => {
+    const loaded = loadFromStorage(STORAGE_KEYS.projects, () => seedProjects);
+    return loaded.map(p => {
+      if (p.id === 'sp-support' || p.name === 'Customer Support AI') {
+        return {
+          ...p,
+          name: 'Expense Approvals AI',
+          description: 'A mobile solution for field sales reps to quickly scan receipts and automatically route them for manager approval without manual paperwork.',
+        };
+      }
+      return p;
+    });
+  });
+  const [states, setStates] = useState<Record<string, PlanningState>>(() => {
+    const loaded = loadFromStorage(STORAGE_KEYS.states, () => seedStates());
+    if (loaded['sp-support'] && !loaded['sp-expense']) {
+      loaded['sp-expense'] = loaded['sp-support'];
+    }
+    return loaded;
+  });
   const blank = React.useRef(initialPlanningState());
 
   // Persist whenever data changes

@@ -144,7 +144,7 @@ export const PlanningContainer: React.FC<{ projectId: string; onBack: () => void
             </button>
             <span className="text-slate-300 hidden 2xl:inline">/</span>
             <span className="text-[#0F172A] font-bold text-[14px] truncate max-w-[170px] 2xl:max-w-[240px]">
-              {project.name}
+              {project.name === 'Customer Support AI' || project.id === 'sp-support' ? 'Expense Approvals AI' : project.name}
             </span>
           </div>
 
