@@ -7,7 +7,7 @@ import {
 import { Button, cx, useToast } from '../../ui';
 import { usePlanning } from '../PlanningStore';
 
-export type DocumentType = 'brd' | 'prd' | 'srs' | 'traceability';
+export type DocumentType = 'brd' | 'prd' | 'srs' | 'lifecycle';
 
 interface DocMetadata {
   id: DocumentType;
@@ -52,14 +52,149 @@ const DOC_TABS: DocMetadata[] = [
     version: 'v1.0 Baseline',
   },
   {
-    id: 'traceability',
-    code: 'RTM',
-    title: 'Traceability Matrix',
-    description: 'End-to-end mapping from Problem statement to 38 Requirements and architecture modules.',
-    sectionsCount: 5,
+    id: 'lifecycle',
+    code: 'FLOW',
+    title: 'Lifecycle Tracking Matrix',
+    description: 'Feature & Sub-feature mapping for the whole requirement gathering phase, full flow.',
+    sectionsCount: 10,
     badgeTone: 'amber',
-    updatedAt: 'Today, 2:52 PM',
-    version: 'v1.0 Complete',
+    updatedAt: 'Today, 2:55 PM',
+    version: 'v1.0 Matrix',
+  },
+];
+
+interface LifecyclePhase {
+  phase: string;
+  rows: { feature: string; sub: string }[];
+}
+
+const LIFECYCLE_PHASES: LifecyclePhase[] = [
+  {
+    phase: 'Phase 1: Problem Understanding & Confirmation',
+    rows: [
+      { feature: 'Input Capture', sub: 'Natural language input, Attachments, Supporting context, Source metadata' },
+      { feature: 'AI Understanding', sub: 'Input classification (idea/problem), Entity extraction, Context extraction, Intent detection, Initial problem statement' },
+      { feature: 'Problem Clarification', sub: 'AI-generated follow-up questions, Conversational refinement, Answer tracking, Disambiguation' },
+      { feature: 'Problem Definition', sub: 'Current situation (as-is state), Symptoms, Root cause hypotheses, Desired outcome (to-be state), Affected users & area, Business context' },
+      { feature: 'Problem Framing', sub: 'Who/What/Where/When/Why structure, Problem statement generation, Problem scope definition, Key assumptions' },
+      { feature: 'Confirmation & Closure', sub: 'Review & edit problem statement, Approve for validation, Restart if needed' },
+      { feature: 'Problem Artifact', sub: 'Finalized problem statement, Context, Assumptions, Known unknowns' },
+    ],
+  },
+  {
+    phase: 'Phase 2: Problem Validation',
+    rows: [
+      { feature: 'Validation Planning', sub: 'Validation objectives, Validation questions, Hypotheses to test, Success criteria, Evidence requirements' },
+      { feature: 'Root Cause Analysis', sub: 'Root cause hypotheses, Cause-effect diagrams, Contributing factors, Process bottlenecks, Current workarounds' },
+      { feature: 'Evidence Collection', sub: 'Internal documents, Business data, Customer feedback, External research, User interviews/surveys, Upload workspace' },
+      { feature: 'Evidence Repository', sub: 'Upload, Categorization, Search & filtering, Version control' },
+      { feature: 'Evidence Analysis', sub: 'Volume, frequency, trend, time, cost analysis; Statistical summaries; Data visualization' },
+      { feature: 'Impact Assessment', sub: 'Time impact, Cost impact, User impact, Business impact, Operational impact; Risk assessment' },
+      { feature: 'Evidence Validation', sub: 'Supporting vs. conflicting evidence, Source credibility, Evidence strength scoring, Confidence levels' },
+      { feature: 'Validation Scoring', sub: 'Reality (is it a real problem?), Frequency (how often?), Severity (how bad?), Impact (business value), Evidence strength, Overall confidence' },
+      { feature: 'Validation Decision', sub: 'Decision gate: Validated → Proceed / Need More Evidence → Refine / Reframe → Problem redefinition / Reject → Archive' },
+      { feature: 'Validation Report', sub: 'Executive summary, Evidence summary, Key metrics, Impact quantification, Confidence score, Recommendation' },
+    ],
+  },
+  {
+    phase: 'Phase 3: Opportunity Discovery',
+    rows: [
+      { feature: 'Opportunity Context', sub: 'Validated problem summary, Problem impact, Affected population, Current alternatives' },
+      { feature: 'Opportunity Exploration', sub: 'Market gaps, Customer gaps, Revenue opportunities, Cost reduction, Automation, Efficiency, Strategic positioning, Business model innovation, Technology innovation' },
+      { feature: 'Opportunity Generation', sub: 'AI-generated hypotheses, User-sourced ideas, Alternative paths, Concept descriptions' },
+      { feature: 'Opportunity Evaluation', sub: 'Business value, Customer value, Potential scale, Feasibility, Strategic alignment, Differentiation, Impact magnitude' },
+      { feature: 'Opportunity Comparison', sub: 'Side-by-side scoring, Ranking matrix, Priority visualization' },
+      { feature: 'Opportunity Selection', sub: 'Select primary, Refine, Reject, Explore alternatives' },
+      { feature: 'Opportunity Artifact', sub: 'Opportunity statement, Target area, Value potential, Key assumptions, Risks, Success criteria' },
+    ],
+  },
+  {
+    phase: 'Phase 4: Market & Industry Discovery',
+    rows: [
+      { feature: 'Market Definition', sub: 'Market identification, Market boundaries, Target segments, Geography, Segment sizing' },
+      { feature: 'Market Research', sub: 'Market size (TAM/SAM/SOM), Growth rate, Demand analysis, Adoption trends, Market drivers, Market barriers, Segmentation detail' },
+      { feature: 'Industry Analysis', sub: 'Industry trends, Industry structure, Business models, Regulatory environment, Industry disruption signals' },
+      { feature: 'Competitive Landscape', sub: 'Direct competitors, Indirect competitors, Existing solutions, Alternatives, Positioning map' },
+      { feature: 'Competitive Analysis', sub: 'Competitor features, Pricing, Target users, Strengths/weaknesses, Differentiation, Market gaps' },
+      { feature: 'Technology Assessment', sub: 'Emerging tech, Technology maturity, AI/ML capabilities, Technology trends, Adoption readiness' },
+      { feature: 'Market Gap Analysis', sub: 'Unmet needs, Underserved segments, Product gaps, Service gaps, Capability gaps' },
+      { feature: 'Market Risk Assessment', sub: 'Economic risks, Regulatory risks, Technology risks, Competitive risks, Adoption barriers' },
+      { feature: 'Market Report', sub: 'Market summary, Competitive landscape, Market gaps, Key trends, Risk assessment, Investment recommendation' },
+    ],
+  },
+  {
+    phase: 'Phase 5: User & Customer Discovery',
+    rows: [
+      { feature: 'User Identification', sub: 'Primary users, Secondary users, Customers, Buyers, Decision makers, Influencers' },
+      { feature: 'Persona Discovery', sub: 'Persona creation (role, goals, responsibilities, pain points, needs, behaviors, constraints), Persona profiles' },
+      { feature: 'User Journey Mapping', sub: 'Journey stages, User actions, Touchpoints, Pain points, Friction, Emotions, Desired outcomes' },
+      { feature: 'Current Workflow Analysis', sub: 'Process steps, Bottlenecks, Manual tasks, Workarounds, Decision points, System interactions' },
+      { feature: 'Needs & Pain Point Analysis', sub: 'Functional needs, Emotional needs, Business needs, Severity, Frequency, Root causes, Existing workarounds' },
+      { feature: 'User Research', sub: 'Interview framework, Survey design, Feedback collection, Support conversation analysis, Observation sessions' },
+      { feature: 'Research Synthesis', sub: 'Common patterns, Contradictions, Key findings, Evidence-backed insights, User quotes' },
+      { feature: 'User Validation', sub: 'Need validation, Problem confirmation, Priority validation, Segment size validation' },
+      { feature: 'User Insight Report', sub: 'Personas, Journeys, Consolidated pain points, Needs hierarchy, Behaviors, Adoption success factors' },
+    ],
+  },
+  {
+    phase: 'Phase 6: Solution Discovery',
+    rows: [
+      { feature: 'Solution Context', sub: 'Validated problem, Problem impact, Opportunity, Market findings, User insights (synthesis of all prior phases)' },
+      { feature: 'Solution Ideation', sub: 'AI brainstorming, User brainstorming, Technology-driven concepts, Alternative solution types' },
+      { feature: 'Solution Types', sub: 'Product, SaaS Platform, AI Agent, Multi-Agent System, Workflow automation, API/service, Hybrid (human + AI)' },
+      { feature: 'Solution Concepts', sub: 'Concept descriptions, Use cases, User journey per concept, Key value drivers' },
+      { feature: 'Solution Architecture Concept', sub: 'Components, Agents/workflows, Integrations, Data model, AI models, Knowledge requirements' },
+      { feature: 'Solution Comparison', sub: 'User value, Business value, Feasibility, Cost, Complexity, Risk, Differentiation, Strategic fit' },
+      { feature: 'Solution Scoring', sub: 'Value score, Feasibility score, Strategic alignment score, Risk score, Recommendation' },
+      { feature: 'MVP Definition', sub: 'MVP scope, Key workflows, Critical features, Success metrics, Go/no-go criteria' },
+      { feature: 'Assumption Analysis', sub: 'Business assumptions, User assumptions, Technology assumptions, Market assumptions, Validation plan' },
+      { feature: 'Solution Risk Analysis', sub: 'Technical risks, Business risks, Adoption risks, Security/compliance risks, Mitigation strategies' },
+      { feature: 'Solution Selection', sub: 'Primary recommendation, Rationale, Alternative pathways, Decision record' },
+      { feature: 'Solution Artifact', sub: 'Solution statement, Target users, Capabilities, Features, Value proposition, MVP scope, Assumptions, Risks, Next steps' },
+    ],
+  },
+  {
+    phase: 'Phase 7: Business Model & Monetization Discovery',
+    rows: [
+      { feature: 'Business Model Architecture', sub: 'Value creation mechanism, Revenue model (SaaS, usage-based, subscription, marketplace), Cost structure, Margin analysis, Unit economics' },
+      { feature: 'Pricing Strategy', sub: 'Value-based pricing, Tiered packaging, Add-ons & expansions, Enterprise discounting, Competitive benchmark' },
+      { feature: 'Go-to-Market Strategy', sub: 'Distribution channels, Sales motion (PLG vs. enterprise sales), Customer acquisition cost (CAC), LTV/CAC ratio, Partner ecosystem' },
+      { feature: 'Financial Viability & Projections', sub: 'Breakeven horizon, Capital expenditure (CapEx), Operating expenditure (OpEx), Revenue projections (Year 1–3), ROI sensitivity modeling' },
+      { feature: 'Business Model Artifact', sub: 'Business Model Canvas, Pricing tier matrix, Unit economics summary, Revenue forecast model' },
+    ],
+  },
+  {
+    phase: 'Phase 8: Product Definition & UX Foundation',
+    rows: [
+      { feature: 'Product Scoping & Vision', sub: 'Product vision statement, Core value proposition, Architectural capabilities, Scope boundaries (In-scope deliverables vs. Out-of-scope boundaries)' },
+      { feature: 'Persona Operationalization', sub: 'Enterprise role definitions, Permission tiers, Primary workflows per persona, Success milestones' },
+      { feature: 'Experience Principles', sub: 'Design system alignment, Usability heuristics, Mobile vs. web paradigms, Accessibility standards (WCAG), Offline interaction model' },
+      { feature: 'Journey Specification', sub: 'Step-by-step user journey, Interaction states, Error recovery flows, Micro-feedback loops' },
+      { feature: 'Success & Quality Metrics', sub: 'Time-to-value, Task completion rate, CSAT/NPS targets, Operational error reduction targets' },
+      { feature: 'Product Definition Artifact', sub: 'Product specification overview, Scope boundary charter, UX flow diagrams, Target metrics baseline' },
+    ],
+  },
+  {
+    phase: 'Phase 9: Requirements Engineering & Baseline',
+    rows: [
+      { feature: 'Requirement Elicitation & Taxonomy', sub: 'Business requirements (BR), User requirements (UR), Functional specifications (FR), AI & algorithmic requirements (AI), Non-functional requirements (NFR)' },
+      { feature: 'Requirement Authoring & Formatting', sub: 'Atomic statements, Standard identifiers (BR-001, UR-001, FR-001, AI-001, NFR-001), Acceptance criteria (Given-When-Then), Priority tagging (HIGH, MED, LOW), Requirement type classification (Objective, Rule, Constraint)' },
+      { feature: 'Traceability & Linkage', sub: 'Upstream linkage to root causes & problem statements, Downstream linkage to architecture modules, Persona association, Coverage validation' },
+      { feature: 'Verification & Conflict Analysis', sub: 'Ambiguity checks, Duplicate detection, Inconsistency resolution, Technical feasibility verification' },
+      { feature: 'Baseline Management', sub: 'Baseline versioning (Draft v0.1 to Baseline v1.0), Requirement status lifecycle (Proposed, In Review, Approved, Rejected), Change audit history' },
+      { feature: 'Requirements Baseline Artifact', sub: 'Approved requirements registry (38 specifications), Traceability index, Priority distribution matrix' },
+    ],
+  },
+  {
+    phase: 'Phase 10: Enterprise Documentation & C-Suite Sign-off',
+    rows: [
+      { feature: 'Document Set Generation', sub: 'Business Requirements Document (BRD), Product Requirements Document (PRD), Software Requirements Specification (SRS)' },
+      { feature: 'Document Section Structuring', sub: 'Executive summary, Scope boundaries, Functional breakdown, Architecture overview, Data schemas, Security & compliance standards' },
+      { feature: 'Traceability & Compliance Mapping', sub: 'Requirements-to-specification matrix, Regulatory compliance mapping (SOC 2, GDPR, PCI-DSS), Audit trail verification' },
+      { feature: 'Export & Integration', sub: 'Export to Microsoft Word (.docx), Export to PDF, Markdown generation, JIRA / Azure DevOps export' },
+      { feature: 'C-Suite Governance & Stage Gate', sub: 'Chief Product Officer (CPO) review, Chief Business Officer (CBO) review, Chief Technology Officer (CTO) review, CEO stage-gate decision (Approved / Refine / Reject)' },
+      { feature: 'Documentation Artifact', sub: 'Signed-off enterprise document bundle (BRD v1.0, PRD v1.0, SRS v1.0), C-Suite approval record, Formal sign-off charter unlocking Solution Planning' },
+    ],
   },
 ];
 
@@ -104,14 +239,8 @@ export const RequirementDocuments: React.FC<{
       {/* Top Header */}
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-            Phase · Specification &amp; Governance
-          </span>
           <h1 className="text-lg font-bold text-[#0F172A]">Enterprise Document Set</h1>
-        </div>
-        <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold border border-slate-200">
-          Document Set · Baseline v1.0
-        </div>
+        </div>    
       </div>
 
       {/* Main Workspace (Full-Width, Clean, Balanced Layout) */}
@@ -129,7 +258,7 @@ export const RequirementDocuments: React.FC<{
               <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                 3 Sets
               </span>
-              <span className="text-[11px] text-slate-500 block">BRD · PRD · SRS + RTM</span>
+              <span className="text-[11px] text-slate-500 block">BRD · PRD · SRS</span>
             </div>
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
@@ -144,12 +273,12 @@ export const RequirementDocuments: React.FC<{
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Traceability Coverage
+                Traceable Baseline
               </span>
               <span className="text-2xl sm:text-3xl font-extrabold text-emerald-600 tracking-tight">
-                100%
+                38 Items
               </span>
-              <span className="text-[11px] text-slate-500 block">38 requirements mapped</span>
+              <span className="text-[11px] text-slate-500 block">Requirements covered</span>
             </div>
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
@@ -164,9 +293,9 @@ export const RequirementDocuments: React.FC<{
           </div>
 
           {/* ========================================================================= */}
-          {/* 2. DOCUMENT SELECTOR TABS (Matching System Aesthetic) */}
+          {/* 2. DOCUMENT SELECTOR TABS (Balanced 3-Column Layout) */}
           {/* ========================================================================= */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {DOC_TABS.map(doc => {
               const active = activeDoc === doc.id;
               return (
@@ -631,90 +760,59 @@ export const RequirementDocuments: React.FC<{
               </div>
             )}
 
-            {/* TAB 4: TRACEABILITY MATRIX */}
-            {activeDoc === 'traceability' && (
+            {/* TAB 4: REQUIREMENT GATHERING LIFECYCLE FLOW MATRIX */}
+            {activeDoc === 'lifecycle' && (
               <div className="space-y-8">
                 <div className="border-b border-slate-200 pb-6 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                      Requirements Traceability Matrix (RTM)
+                      Requirement Gathering Full-Flow Lifecycle Matrix
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">DOC-ID: RTM-EXP-2026-v1.0</span>
+                    <span className="text-xs text-slate-400 font-mono">FLOW-SPEC-2026-v1.0</span>
                   </div>
                   <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-                    End-to-End Requirements Traceability Matrix
+                    Requirement Gathering Lifecycle: Feature &amp; Sub-Feature Breakdown
                   </h2>
                   <p className="text-sm text-slate-600 leading-relaxed max-w-4xl">
-                    Verifies bidirectional linkage from the root business problem to customer personas, technical capabilities, traceable requirements, and system verification test plans.
+                    End-to-end operational framework establishing the exact Feature and Sub-feature breakdown across the entire Requirement Gathering lifecycle (Phases 1 through 10).
                   </p>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-500 uppercase text-[10.5px]">
-                      <tr>
-                        <th className="px-4 py-3 w-24">Business ID</th>
-                        <th className="px-4 py-3">Requirement &amp; Root Cause</th>
-                        <th className="px-4 py-3 w-36">Mapped Capability</th>
-                        <th className="px-4 py-3 w-28">Specification</th>
-                        <th className="px-4 py-3 w-28 text-center">Coverage</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      <tr>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-700">BR-001</td>
-                        <td className="px-4 py-3 text-slate-900">
-                          Field rep mobile capture instantly on the road without paper receipts.
-                        </td>
-                        <td className="px-4 py-3 text-blue-600 font-semibold">Photo Capture Module</td>
-                        <td className="px-4 py-3 text-slate-500 font-mono">PRD §1.1 · FR-001</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            100% Trace
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-700">BR-002</td>
-                        <td className="px-4 py-3 text-slate-900">
-                          Accurate OCR extraction of vendor, total, tax, and date fields.
-                        </td>
-                        <td className="px-4 py-3 text-purple-600 font-semibold">AI Extraction Engine</td>
-                        <td className="px-4 py-3 text-slate-500 font-mono">SRS §2.1 · AI-001</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            100% Trace
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-700">BR-003</td>
-                        <td className="px-4 py-3 text-slate-900">
-                          Offline capture and auto-sync when network connectivity returns.
-                        </td>
-                        <td className="px-4 py-3 text-indigo-600 font-semibold">Offline Sync Bridge</td>
-                        <td className="px-4 py-3 text-slate-500 font-mono">SRS §3.4 · FR-004</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            100% Trace
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-700">BR-005</td>
-                        <td className="px-4 py-3 text-slate-900">
-                          Workflow routing and integration into corporate ERP/Concur.
-                        </td>
-                        <td className="px-4 py-3 text-amber-600 font-semibold">Approval Queue API</td>
-                        <td className="px-4 py-3 text-slate-500 font-mono">PRD §2.3 · FR-005</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            100% Trace
-                          </span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div className="space-y-6">
+                  {LIFECYCLE_PHASES.map((p, pIdx) => (
+                    <div key={pIdx} className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                      <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                        <h4 className="text-xs sm:text-sm font-bold tracking-tight">
+                          {p.phase}
+                        </h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 bg-white/10 px-2 py-0.5 rounded">
+                          {p.rows.length} Features
+                        </span>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10.5px]">
+                            <tr>
+                              <th className="px-4 py-2.5 w-1/4 min-w-[180px]">Feature</th>
+                              <th className="px-4 py-2.5">Sub-features</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 bg-white">
+                            {p.rows.map((r, rIdx) => (
+                              <tr key={rIdx} className="hover:bg-slate-50/70 transition-colors">
+                                <td className="px-4 py-2.5 font-bold text-slate-900 align-top">
+                                  {r.feature}
+                                </td>
+                                <td className="px-4 py-2.5 text-slate-600 leading-relaxed">
+                                  {r.sub}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
